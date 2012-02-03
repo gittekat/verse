@@ -1,2 +1,6 @@
-/gen
-/bin
+/verse/assets
+/verse-android/gen
+/verse-android/bin
+/verse-desktop/bin
+/verse-desktop/assets-android
+/verse-desktop/assets

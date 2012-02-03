@@ -9,6 +9,10 @@ public class AndroidGame extends AndroidApplication {
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		// final AndroidApplicationConfiguration config = new
+		// AndroidApplicationConfiguration();
+		// config.numSamples = 2;
+		// initialize(new Game(), config);
 		initialize(new Game(), false);
 	}
 }

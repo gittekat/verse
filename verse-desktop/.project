@@ -18,7 +18,12 @@
 		<link>
 			<name>assets</name>
 			<type>2</type>
-			<locationURI>PARENT-1-PROJECT_LOC/verse-android/assets</locationURI>
+			<location>E:/git clones/verse/verse-android/assets</location>
+		</link>
+		<link>
+			<name>assets-android</name>
+			<type>2</type>
+			<location>E:/git clones/verse/verse-android/assets</location>
 		</link>
 	</linkedResources>
 </projectDescription>
