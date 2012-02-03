@@ -80,6 +80,7 @@ public class Game implements ApplicationListener {
 
 	@Override
 	public void render() {
+		handleInput();
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		batch.begin();

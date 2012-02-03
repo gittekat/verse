@@ -20,10 +20,5 @@
 			<type>2</type>
 			<location>E:/git clones/verse/verse-android/assets</location>
 		</link>
-		<link>
-			<name>assets-android</name>
-			<type>2</type>
-			<location>E:/git clones/verse/verse-android/assets</location>
-		</link>
 	</linkedResources>
 </projectDescription>
