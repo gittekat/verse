@@ -19,6 +19,8 @@ public class Actor {
 	private float maxSpeed;
 	private float curSpeed;
 
+	private float shieldStrength;
+
 	public Actor(final float posX, final float posY, final float radius) {
 		curPos = new Vector2(posX, posY);
 		targetPos = new Vector2(posX, posY);
@@ -31,6 +33,8 @@ public class Actor {
 
 		setMaxSpeed(50);
 		setCurSpeed(0);
+
+		setShieldStrength(0.4f);
 	}
 
 	public void update(final float deltaTime) {
@@ -106,5 +110,13 @@ public class Actor {
 
 	public void setRotationAngle(final float rotationAngle) {
 		this.rotationAngle = rotationAngle;
+	}
+
+	public float getShieldStrength() {
+		return shieldStrength;
+	}
+
+	public void setShieldStrength(final float shieldStrength) {
+		this.shieldStrength = shieldStrength;
 	}
 }

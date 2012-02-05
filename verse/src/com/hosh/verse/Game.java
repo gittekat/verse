@@ -6,7 +6,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -27,29 +26,31 @@ public class Game implements ApplicationListener {
 
 	BitmapFont font;
 	private SpriteBatch batch;
-	private Texture texture;
-	private TextureRegion region;
+	private Texture ship;
+	private Texture shield;
+	private TextureRegion shipRegion;
+	private TextureRegion shieldRegion;
 
-	private float rotation;
 	Vector3 touchPoint;
 
-	// .............test...................
-	private static final int TANK_SIZE = 32;
-	private static final int BULLET_SIZE = 5;
-	private static final int MOVEMENT_SPEED = 50;
+	// // .............test...................
+	// private static final int TANK_SIZE = 32;
+	// private static final int BULLET_SIZE = 5;
+	// private static final int MOVEMENT_SPEED = 50;
 
-	// Tank position
-	private Vector2 tank_pos;
-	// bullet position
-	private Vector2 bullet_pos;
+	// // Tank position
+	// private Vector2 tank_pos;
+	// // bullet position
+	// private Vector2 bullet_pos;
+	//
+	// // Tank direction
+	// private Vector2 objectDirection;
+	// // Bullet direction
+	// private Vector2 bulletDirection;
 
-	// Tank direction
-	private Vector2 objectDirection;
-	// Bullet direction
-	private Vector2 bulletDirection;
+	// private Pixmap pixmap;
+	// int screenWidth, screenHeight;
 
-	private Pixmap pixmap;
-	int screenWidth, screenHeight;
 	private Actor player;
 
 	@Override
@@ -65,31 +66,33 @@ public class Game implements ApplicationListener {
 		cam = new OrthographicCamera(WIDTH, HEIGHT);
 		cam.position.set(HALF_WIDTH, HALF_HEIGHT, 0);
 
-		texture = new Texture(Gdx.files.internal("avatar_32.png"));
-		texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-		region = new TextureRegion(texture);
+		ship = new Texture(Gdx.files.internal("avatar_32.png"));
+		ship.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+		shipRegion = new TextureRegion(ship);
 
-		rotation = 0.0f;
+		shield = new Texture(Gdx.files.internal("shield_32.png"));
+		shield.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+		shieldRegion = new TextureRegion(shield);
 
 		touchPoint = new Vector3();
 
-		// .............test...................
-		screenWidth = Gdx.graphics.getWidth();
-		screenHeight = Gdx.graphics.getHeight();
-		tank_pos = new Vector2(screenWidth / 2 - 100 / 2, screenHeight / 2 - 100 / 2);
-		bullet_pos = null;
-		objectDirection = new Vector2(1, 0); // Pointing right
-		bulletDirection = new Vector2(1, 0);
-
-		pixmap = new Pixmap(32, 32, Pixmap.Format.Alpha);
-		pixmap.setColor(0.f, 0.f, 0.f, 1.f);
-		pixmap.fill();
+		// // .............test...................
+		// screenWidth = Gdx.graphics.getWidth();
+		// screenHeight = Gdx.graphics.getHeight();
+		// tank_pos = new Vector2(screenWidth / 2 - 100 / 2, screenHeight / 2 -
+		// 100 / 2);
+		// bullet_pos = null;
+		// objectDirection = new Vector2(1, 0); // Pointing right
+		// bulletDirection = new Vector2(1, 0);
+		//
+		// pixmap = new Pixmap(32, 32, Pixmap.Format.Alpha);
+		// pixmap.setColor(0.f, 0.f, 0.f, 1.f);
+		// pixmap.fill();
 	}
 
 	@Override
 	public void render() {
 		handleInput();
-		update();
 		verse.update(Gdx.graphics.getDeltaTime());
 
 		// cam.update();
@@ -101,35 +104,96 @@ public class Game implements ApplicationListener {
 
 		batch.begin();
 		{
-			font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 20, 20);
-			font.draw(batch, "Pos: " + player.getPos().x + " x " + player.getPos().y, 20, 40);
-			Gdx.gl.glEnable(GL10.GL_DITHER);
-			// rotation += .25;
-			rotation = player.getRotationAngle();
-			batch.draw(region, HALF_WIDTH - 16, HALF_HEIGHT - 16, 16, 16, 32, 32, 0.9f, 0.9f, rotation);
+			drawHUD();
 
-			// .............test...................
-			if (false) {
-				if (bullet_pos != null) {
-					// Draw bullet
-					pixmap.drawRectangle(0, 0, BULLET_SIZE, BULLET_SIZE);
-					batch.setColor(0, 0, 0, 1);
-					batch.draw(new Texture(pixmap), bullet_pos.x - 1, bullet_pos.y - 1, BULLET_SIZE + 2, BULLET_SIZE + 2);
-					batch.setColor(1.f, 0.f, 0.f, 1.f);
-					batch.draw(new Texture(pixmap), bullet_pos.x, bullet_pos.y, BULLET_SIZE, BULLET_SIZE);
-				}
+			drawPlayer();
 
-				// Draw object
-				pixmap.drawRectangle(0, 0, TANK_SIZE, TANK_SIZE);
-				batch.setColor(0.15f, 0.0f, 0.8f, 1.f);
-				batch.draw(new Texture(pixmap), tank_pos.x, tank_pos.y, TANK_SIZE, TANK_SIZE);
-			}
-			// .............test...................
+			// // .............test...................
+			// if (false) {
+			// if (bullet_pos != null) {
+			// // Draw bullet
+			// pixmap.drawRectangle(0, 0, BULLET_SIZE, BULLET_SIZE);
+			// batch.setColor(0, 0, 0, 1);
+			// batch.draw(new Texture(pixmap), bullet_pos.x - 1, bullet_pos.y -
+			// 1, BULLET_SIZE + 2, BULLET_SIZE + 2);
+			// batch.setColor(1.f, 0.f, 0.f, 1.f);
+			// batch.draw(new Texture(pixmap), bullet_pos.x, bullet_pos.y,
+			// BULLET_SIZE, BULLET_SIZE);
+			// }
+			//
+			// // Draw object
+			// pixmap.drawRectangle(0, 0, TANK_SIZE, TANK_SIZE);
+			// batch.setColor(0.15f, 0.0f, 0.8f, 1.f);
+			// batch.draw(new Texture(pixmap), tank_pos.x, tank_pos.y,
+			// TANK_SIZE, TANK_SIZE);
+			// }
+			// // .............test...................
 		}
 		batch.end();
 	}
 
-	private void update() {
+	private void drawPlayer() {
+		Gdx.gl.glEnable(GL10.GL_DITHER);
+		batch.setColor(0.f, 0.f, 0.f, player.getShieldStrength());
+		batch.draw(shieldRegion, HALF_WIDTH - 16, HALF_HEIGHT - 16, 16, 16, 32, 32, 0.9f, 0.9f, 0.f);
+		batch.setColor(0.f, 0.f, 0.f, 1.f);
+		batch.draw(shipRegion, HALF_WIDTH - 16, HALF_HEIGHT - 16, 16, 16, 32, 32, 0.9f, 0.9f, player.getRotationAngle());
+	}
+
+	private void drawHUD() {
+		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 20, 20);
+		font.draw(batch, "Pos: " + player.getPos().x + " x " + player.getPos().y, 20, 40);
+	}
+
+	// private void update() {
+	// final Vector2 direction = new Vector2(0, 0);
+	// final float delta = Gdx.graphics.getDeltaTime() * MOVEMENT_SPEED;
+	// if (Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
+	// direction.x = 1 * delta;
+	// }
+	// if (Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
+	// direction.x = -1 * delta;
+	// }
+	// if (Gdx.input.isKeyPressed(Input.Keys.DPAD_UP)) {
+	// direction.y = 1 * delta;
+	// }
+	// if (Gdx.input.isKeyPressed(Input.Keys.DPAD_DOWN)) {
+	// direction.y = -1 * delta;
+	// }
+	// if (direction.x != 0 || direction.y != 0) {
+	// tank_pos.add(direction);
+	// if (tank_pos.x < 0) {
+	// tank_pos.x = 0;
+	// }
+	// if (tank_pos.x > this.screenWidth - TANK_SIZE) {
+	// tank_pos.x = this.screenWidth - TANK_SIZE;
+	// }
+	// if (tank_pos.y < 0) {
+	// tank_pos.y = 0;
+	// }
+	// if (tank_pos.y > this.screenHeight - TANK_SIZE) {
+	// tank_pos.y = this.screenHeight - TANK_SIZE;
+	// }
+	// objectDirection.set(direction);
+	// }
+	//
+	// if (Gdx.input.isKeyPressed(Input.Keys.F)) {
+	// bullet_pos = new Vector2(tank_pos.cpy().add(TANK_SIZE / 2 - BULLET_SIZE /
+	// 2, TANK_SIZE / 2 - BULLET_SIZE / 2));
+	// bulletDirection.set(objectDirection);
+	// }
+	//
+	// if (bullet_pos != null) {
+	// bullet_pos.add(bulletDirection);
+	// if (bullet_pos.x < 0 || bullet_pos.x > this.screenWidth || bullet_pos.y <
+	// 0 || bullet_pos.y > this.screenHeight) {
+	// bullet_pos = null;
+	//
+	// }
+	// }
+	// }
+
+	private void handleInput() {
 		if (Gdx.input.justTouched()) {
 			cam.unproject(touchPoint.set(Gdx.input.getX(), Gdx.input.getY(), 0));
 
@@ -149,53 +213,6 @@ public class Game implements ApplicationListener {
 
 			player.setCurSpeed(100);
 		}
-
-		final Vector2 direction = new Vector2(0, 0);
-		final float delta = Gdx.graphics.getDeltaTime() * MOVEMENT_SPEED;
-		if (Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
-			direction.x = 1 * delta;
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
-			direction.x = -1 * delta;
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.DPAD_UP)) {
-			direction.y = 1 * delta;
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.DPAD_DOWN)) {
-			direction.y = -1 * delta;
-		}
-		if (direction.x != 0 || direction.y != 0) {
-			tank_pos.add(direction);
-			if (tank_pos.x < 0) {
-				tank_pos.x = 0;
-			}
-			if (tank_pos.x > this.screenWidth - TANK_SIZE) {
-				tank_pos.x = this.screenWidth - TANK_SIZE;
-			}
-			if (tank_pos.y < 0) {
-				tank_pos.y = 0;
-			}
-			if (tank_pos.y > this.screenHeight - TANK_SIZE) {
-				tank_pos.y = this.screenHeight - TANK_SIZE;
-			}
-			objectDirection.set(direction);
-		}
-
-		if (Gdx.input.isKeyPressed(Input.Keys.F)) {
-			bullet_pos = new Vector2(tank_pos.cpy().add(TANK_SIZE / 2 - BULLET_SIZE / 2, TANK_SIZE / 2 - BULLET_SIZE / 2));
-			bulletDirection.set(objectDirection);
-		}
-
-		if (bullet_pos != null) {
-			bullet_pos.add(bulletDirection);
-			if (bullet_pos.x < 0 || bullet_pos.x > this.screenWidth || bullet_pos.y < 0 || bullet_pos.y > this.screenHeight) {
-				bullet_pos = null;
-
-			}
-		}
-	}
-
-	private void handleInput() {
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
 			cam.zoom += 0.02;
 		}
