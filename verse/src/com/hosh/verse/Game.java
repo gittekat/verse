@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -48,7 +49,7 @@ public class Game implements ApplicationListener {
 	// // Bullet direction
 	// private Vector2 bulletDirection;
 
-	// private Pixmap pixmap;
+	private Pixmap pixmap;
 	// int screenWidth, screenHeight;
 
 	private Actor player;
@@ -85,9 +86,9 @@ public class Game implements ApplicationListener {
 		// objectDirection = new Vector2(1, 0); // Pointing right
 		// bulletDirection = new Vector2(1, 0);
 		//
-		// pixmap = new Pixmap(32, 32, Pixmap.Format.Alpha);
-		// pixmap.setColor(0.f, 0.f, 0.f, 1.f);
-		// pixmap.fill();
+		pixmap = new Pixmap(32, 32, Pixmap.Format.Alpha);
+		pixmap.setColor(0.f, 0.f, 0.f, 1.f);
+		pixmap.fill();
 	}
 
 	@Override
@@ -108,28 +109,30 @@ public class Game implements ApplicationListener {
 
 			drawPlayer();
 
-			// // .............test...................
-			// if (false) {
-			// if (bullet_pos != null) {
-			// // Draw bullet
-			// pixmap.drawRectangle(0, 0, BULLET_SIZE, BULLET_SIZE);
-			// batch.setColor(0, 0, 0, 1);
-			// batch.draw(new Texture(pixmap), bullet_pos.x - 1, bullet_pos.y -
-			// 1, BULLET_SIZE + 2, BULLET_SIZE + 2);
-			// batch.setColor(1.f, 0.f, 0.f, 1.f);
-			// batch.draw(new Texture(pixmap), bullet_pos.x, bullet_pos.y,
-			// BULLET_SIZE, BULLET_SIZE);
-			// }
-			//
-			// // Draw object
-			// pixmap.drawRectangle(0, 0, TANK_SIZE, TANK_SIZE);
-			// batch.setColor(0.15f, 0.0f, 0.8f, 1.f);
-			// batch.draw(new Texture(pixmap), tank_pos.x, tank_pos.y,
-			// TANK_SIZE, TANK_SIZE);
-			// }
-			// // .............test...................
+			for (final Actor a : verse.getActorList()) {
+				final Vector2 pos = getScreenCoordinates(a.getPos());
+
+				// System.out.println(pos);
+				final int size = (int) a.getBounds().radius;
+				pixmap.drawRectangle(0, 0, size, size);
+				batch.setColor(0, 0, 0, 1);
+				batch.draw(new Texture(pixmap), pos.x - 1, pos.y - 1, size + 2, size + 2);
+				batch.setColor(1.f, 0.f, 0.f, 1.f);
+				batch.draw(new Texture(pixmap), pos.x, pos.y, size, size);
+			}
+
 		}
 		batch.end();
+	}
+
+	private Vector2 getScreenCoordinates(final Vector2 objPos) {
+		// player coordinates
+		final Vector2 pos = objPos.cpy().sub(player.getPos());
+
+		// screen coordinates
+		pos.set(HALF_WIDTH + pos.x, HALF_HEIGHT + pos.y);
+
+		return pos;
 	}
 
 	private void drawPlayer() {
@@ -145,57 +148,10 @@ public class Game implements ApplicationListener {
 		font.draw(batch, "Pos: " + player.getPos().x + " x " + player.getPos().y, 20, 40);
 	}
 
-	// private void update() {
-	// final Vector2 direction = new Vector2(0, 0);
-	// final float delta = Gdx.graphics.getDeltaTime() * MOVEMENT_SPEED;
-	// if (Gdx.input.isKeyPressed(Input.Keys.DPAD_RIGHT)) {
-	// direction.x = 1 * delta;
-	// }
-	// if (Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT)) {
-	// direction.x = -1 * delta;
-	// }
-	// if (Gdx.input.isKeyPressed(Input.Keys.DPAD_UP)) {
-	// direction.y = 1 * delta;
-	// }
-	// if (Gdx.input.isKeyPressed(Input.Keys.DPAD_DOWN)) {
-	// direction.y = -1 * delta;
-	// }
-	// if (direction.x != 0 || direction.y != 0) {
-	// tank_pos.add(direction);
-	// if (tank_pos.x < 0) {
-	// tank_pos.x = 0;
-	// }
-	// if (tank_pos.x > this.screenWidth - TANK_SIZE) {
-	// tank_pos.x = this.screenWidth - TANK_SIZE;
-	// }
-	// if (tank_pos.y < 0) {
-	// tank_pos.y = 0;
-	// }
-	// if (tank_pos.y > this.screenHeight - TANK_SIZE) {
-	// tank_pos.y = this.screenHeight - TANK_SIZE;
-	// }
-	// objectDirection.set(direction);
-	// }
-	//
-	// if (Gdx.input.isKeyPressed(Input.Keys.F)) {
-	// bullet_pos = new Vector2(tank_pos.cpy().add(TANK_SIZE / 2 - BULLET_SIZE /
-	// 2, TANK_SIZE / 2 - BULLET_SIZE / 2));
-	// bulletDirection.set(objectDirection);
-	// }
-	//
-	// if (bullet_pos != null) {
-	// bullet_pos.add(bulletDirection);
-	// if (bullet_pos.x < 0 || bullet_pos.x > this.screenWidth || bullet_pos.y <
-	// 0 || bullet_pos.y > this.screenHeight) {
-	// bullet_pos = null;
-	//
-	// }
-	// }
-	// }
-
 	private void handleInput() {
 		if (Gdx.input.justTouched()) {
 			cam.unproject(touchPoint.set(Gdx.input.getX(), Gdx.input.getY(), 0));
+			System.out.println(touchPoint);
 
 			final float posX = player.getPos().x;
 			final float posY = player.getPos().y;

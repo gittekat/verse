@@ -13,11 +13,12 @@ public class CollisionChecker {
 	}
 
 	public static float squaredDistance(final Actor a1, final Actor a2) {
-		float dx = a1.getPos().x - a2.getPos().x;
-		dx *= dx;
-		float dy = a1.getPos().y - a2.getPos().y;
-		dy *= dy;
-		return dx + dy;
+		// float dx = a1.getPos().x - a2.getPos().x;
+		// dx *= dx;
+		// float dy = a1.getPos().y - a2.getPos().y;
+		// dy *= dy;
+		// return dx + dy;
+		return a1.getPos().dst2(a2.getPos());
 	}
 
 }
