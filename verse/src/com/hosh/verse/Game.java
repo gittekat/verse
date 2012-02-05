@@ -31,26 +31,9 @@ public class Game implements ApplicationListener {
 	private Texture shield;
 	private TextureRegion shipRegion;
 	private TextureRegion shieldRegion;
-
-	Vector3 touchPoint;
-
-	// // .............test...................
-	// private static final int TANK_SIZE = 32;
-	// private static final int BULLET_SIZE = 5;
-	// private static final int MOVEMENT_SPEED = 50;
-
-	// // Tank position
-	// private Vector2 tank_pos;
-	// // bullet position
-	// private Vector2 bullet_pos;
-	//
-	// // Tank direction
-	// private Vector2 objectDirection;
-	// // Bullet direction
-	// private Vector2 bulletDirection;
-
 	private Pixmap pixmap;
-	// int screenWidth, screenHeight;
+	private Texture pixmapTexture;
+	Vector3 touchPoint;
 
 	private Actor player;
 
@@ -77,18 +60,10 @@ public class Game implements ApplicationListener {
 
 		touchPoint = new Vector3();
 
-		// // .............test...................
-		// screenWidth = Gdx.graphics.getWidth();
-		// screenHeight = Gdx.graphics.getHeight();
-		// tank_pos = new Vector2(screenWidth / 2 - 100 / 2, screenHeight / 2 -
-		// 100 / 2);
-		// bullet_pos = null;
-		// objectDirection = new Vector2(1, 0); // Pointing right
-		// bulletDirection = new Vector2(1, 0);
-		//
 		pixmap = new Pixmap(32, 32, Pixmap.Format.Alpha);
 		pixmap.setColor(0.f, 0.f, 0.f, 1.f);
 		pixmap.fill();
+		pixmapTexture = new Texture(pixmap);
 	}
 
 	@Override
@@ -116,9 +91,9 @@ public class Game implements ApplicationListener {
 				final int size = (int) a.getBounds().radius;
 				pixmap.drawRectangle(0, 0, size, size);
 				batch.setColor(0, 0, 0, 1);
-				batch.draw(new Texture(pixmap), pos.x - 1, pos.y - 1, size + 2, size + 2);
+				batch.draw(pixmapTexture, pos.x - 1, pos.y - 1, size + 2, size + 2);
 				batch.setColor(1.f, 0.f, 0.f, 1.f);
-				batch.draw(new Texture(pixmap), pos.x, pos.y, size, size);
+				batch.draw(pixmapTexture, pos.x, pos.y, size, size);
 			}
 
 		}

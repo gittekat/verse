@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.badlogic.gdx.math.MathUtils;
+import com.google.common.base.Stopwatch;
 import com.hosh.verse.Actor;
 import com.hosh.verse.CollisionChecker;
 
@@ -27,7 +28,7 @@ public class ActorCollisionTest {
 
 		a4 = new Actor(50.f, 50.f, 5.f);
 		actorList = new ArrayList<Actor>();
-		for (int i = 0; i < 1000; ++i) {
+		for (int i = 0; i < 1000000; ++i) {
 			final Actor actor = new Actor(MathUtils.random(100.f), MathUtils.random(100.f), 5.f);
 			// System.out.println(actor.getPos());
 			actorList.add(actor);
@@ -42,7 +43,7 @@ public class ActorCollisionTest {
 
 	@Test
 	public void testActorList() {
-		final long startTime = System.nanoTime();
+		final Stopwatch stopwatch = new Stopwatch().start();
 
 		int cnt = 0;
 		for (final Actor a : actorList) {
@@ -50,14 +51,11 @@ public class ActorCollisionTest {
 				cnt++;
 			}
 		}
-
-		final long endTime = System.nanoTime();
-		final long timeDifference = endTime - startTime;
-
+		final long duration = stopwatch.elapsedMillis();
 		System.out.println("collisions: " + cnt);
-		// System.out.println("duration: " + timeDifference);
-		System.out.println("milliseconds: " + timeDifference / 1000000.0);
-		Assert.assertTrue(timeDifference < 1000000);
+		System.out.println("that took: " + duration);
+
+		Assert.assertTrue(duration < 60);
 	}
 
 }
