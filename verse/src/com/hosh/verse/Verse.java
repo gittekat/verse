@@ -21,7 +21,7 @@ public class Verse {
 		actorList.add(new Actor(1100.f, 1100.f, 5.f)); // debug probe
 
 		actorsToCheckList = new ArrayList<Actor>();
-		for (int i = 0; i < 20000; ++i) {
+		for (int i = 0; i < 10000; ++i) {
 			final Actor actor = new Actor(MathUtils.random(dimensionX), MathUtils.random(dimensionX), 5.f);
 			actorsToCheckList.add(actor);
 		}
