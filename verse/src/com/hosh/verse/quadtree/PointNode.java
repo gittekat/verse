@@ -8,7 +8,7 @@ import java.util.Vector;
 
 public class PointNode<T> extends AbstractNode {
 
-	protected Map<Quadrant, PointNode<T>> nodes = new HashMap<Quadrant, PointNode<T>>();
+	protected Map<Quadrant, PointNode<T>> children = new HashMap<Quadrant, PointNode<T>>();
 
 	/**
 	 * Holds all elements for this node
@@ -25,7 +25,7 @@ public class PointNode<T> extends AbstractNode {
 
 	@Override
 	public Map<Quadrant, PointNode<T>> getSubNodes() {
-		return this.nodes;
+		return this.children;
 	}
 
 	protected Quadrant findIndex(final Point coordinates) {
@@ -59,11 +59,21 @@ public class PointNode<T> extends AbstractNode {
 	}
 
 	public Vector<PointNodeElement<T>> getElements(final Point coordinates) {
+		@SuppressWarnings("unused")
+		final boolean left = coordinates.x > startCoordinates.x + bounds.width / 2 ? false : true;
+		@SuppressWarnings("unused")
+		final boolean top = coordinates.y > startCoordinates.y + bounds.height / 2 ? false : true;
+
+		final int leftWithRadius = Math.abs(startCoordinates.x - bounds.width / 2);
+
+		final int radius = 2;
+		final boolean left_ = coordinates.x + radius <= startCoordinates.x + bounds.width ? false : true;
+		final boolean right = coordinates.x - radius >= startCoordinates.x;
 
 		// is tree already subdivided
-		if (nodes.size() > 0) {
+		if (children.size() > 0) {
 			final Quadrant index = findIndex(coordinates);
-			final PointNode<T> node = this.nodes.get(index);
+			final PointNode<T> node = this.children.get(index);
 			return node.getElements(coordinates);
 		} else {
 			return this.elements;
@@ -74,10 +84,11 @@ public class PointNode<T> extends AbstractNode {
 		if (depth > maxDepth) {
 			System.out.println("[DEBUG] Inserting element into Node at depth " + depth);
 		}
+
 		// subdivided tree: add to quadrant
-		if (this.nodes.size() != 0) {
+		if (this.children.size() != 0) {
 			final Quadrant index = findIndex(element);
-			this.nodes.get(index).insert(element);
+			this.children.get(index).insert(element);
 			return;
 		}
 
@@ -114,28 +125,37 @@ public class PointNode<T> extends AbstractNode {
 
 		// top left
 		quadrantNode = new PointNode<T>(new Point(bx, by), newBounds, depth, this.maxDepth, this.maxElements);
-		this.nodes.put(Quadrant.TOP_LEFT, quadrantNode);
+		this.children.put(Quadrant.TOP_LEFT, quadrantNode);
 
 		// top right
 		quadrantNode = new PointNode<T>(new Point(newXStartCoordinate, by), newBounds, depth, this.maxDepth, this.maxElements);
-		this.nodes.put(Quadrant.TOP_RIGHT, quadrantNode);
+		this.children.put(Quadrant.TOP_RIGHT, quadrantNode);
 
 		// bottom left
 		quadrantNode = new PointNode<T>(new Point(bx, newYStartCoordinate), newBounds, depth, this.maxDepth, this.maxElements);
-		this.nodes.put(Quadrant.BOTTOM_LEFT, quadrantNode);
+		this.children.put(Quadrant.BOTTOM_LEFT, quadrantNode);
 
 		// bottom right
 		quadrantNode = new PointNode<T>(new Point(newXStartCoordinate, newYStartCoordinate), newBounds, depth, this.maxDepth,
 				this.maxElements);
-		this.nodes.put(Quadrant.BOTTOM_RIGHT, quadrantNode);
+		this.children.put(Quadrant.BOTTOM_RIGHT, quadrantNode);
 	}
 
 	@Override
 	public void clear() {
-		for (final PointNode<T> node : nodes.values()) {
+		for (final PointNode<T> node : children.values()) {
 			node.clear();
 		}
 		elements.clear();
-		nodes.clear();
+		children.clear();
+	}
+
+	public int size() {
+		int size = 0;
+		for (final Map.Entry<Quadrant, PointNode<T>> entry : children.entrySet()) {
+			size += entry.getValue().size();
+		}
+		size += elements.size();
+		return size;
 	}
 }

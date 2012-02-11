@@ -8,6 +8,7 @@ public class Actor {
 	private Vector2 targetPos;
 
 	private Circle bounds;
+	private float radius;
 	private float squaredRadius;
 
 	// TODO slow rotation to designated rotation angle
@@ -20,10 +21,13 @@ public class Actor {
 	private float curSpeed;
 
 	private float shieldStrength;
+	private int id;
 
-	public Actor(final float posX, final float posY, final float radius) {
+	public Actor(final int id, final float posX, final float posY, final float radius) {
+		this.setId(id);
 		curPos = new Vector2(posX, posY);
 		targetPos = new Vector2(posX, posY);
+		this.radius = radius;
 		bounds = new Circle(curPos, radius);
 		squaredRadius = radius * radius;
 
@@ -68,6 +72,10 @@ public class Actor {
 
 	public float getSquaredRadius() {
 		return squaredRadius;
+	}
+
+	public float getRadius() {
+		return radius;
 	}
 
 	public float getMaxSpeed() {
@@ -119,4 +127,39 @@ public class Actor {
 	public void setShieldStrength(final float shieldStrength) {
 		this.shieldStrength = shieldStrength;
 	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(final int id) {
+		this.id = id;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + getId();
+		return result;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final Actor other = (Actor) obj;
+		if (getId() != other.getId()) {
+			return false;
+		}
+		return true;
+	}
+
 }

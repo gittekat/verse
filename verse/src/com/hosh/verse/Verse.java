@@ -15,14 +15,15 @@ public class Verse {
 	public Verse(final long dimensionX, final long dimensionY) {
 		this.dimensionX = dimensionX;
 		this.dimensionY = dimensionY;
-		setPlayer(new Actor(1000.f, 1000.f, 16.f));
+		setPlayer(ActorFactory.createActor(1000.f, 1000.f, 16.f));
 
 		actorList = new ArrayList<Actor>();
-		actorList.add(new Actor(1100.f, 1100.f, 5.f)); // debug probe
+		actorList.add(ActorFactory.createActor(1100.f, 1100.f, 5.f)); // debug
+																		// probe
 
 		actorsToCheckList = new ArrayList<Actor>();
 		for (int i = 0; i < 10000; ++i) {
-			final Actor actor = new Actor(MathUtils.random(dimensionX), MathUtils.random(dimensionX), 5.f);
+			final Actor actor = ActorFactory.createActor(MathUtils.random(dimensionX), MathUtils.random(dimensionX), 5.f);
 			actorsToCheckList.add(actor);
 		}
 	}

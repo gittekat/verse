@@ -76,4 +76,8 @@ public class PointQuadTree<T> extends AbstractQuadTree<T> {
 	public void clear() {
 		this.rootNode.clear();
 	}
+
+	public int size() {
+		return rootNode.size();
+	}
 }
