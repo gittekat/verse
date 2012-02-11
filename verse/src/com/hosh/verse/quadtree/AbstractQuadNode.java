@@ -8,11 +8,11 @@ public abstract class AbstractQuadNode<T> {
 
 	protected final static int MAX_ELEMENTS = 4;
 	protected final static int MAX_DEPTH = 4;
-	protected final Dimension size;
-	protected final Point startCoords;
-	protected final int maxDepth;
-	protected final int maxElements;
-	protected final int depth;
+	private final Dimension size;
+	private final Point startCoords;
+	private final int maxDepth;
+	private final int maxElements;
+	private final int depth;
 
 	public static enum Quadrant {
 		TOP_LEFT, BOTTOM_RIGHT, BOTTOM_LEFT, TOP_RIGHT

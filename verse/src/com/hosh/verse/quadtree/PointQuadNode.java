@@ -8,8 +8,8 @@ import java.util.Vector;
 
 public class PointQuadNode<T> extends AbstractQuadNode<T> {
 
-	protected final Map<Quadrant, PointQuadNode<T>> children = new HashMap<Quadrant, PointQuadNode<T>>();
-	protected final Vector<PointQuadNodeElement<T>> elements = new Vector<PointQuadNodeElement<T>>();
+	private final Map<Quadrant, PointQuadNode<T>> children = new HashMap<Quadrant, PointQuadNode<T>>();
+	private final Vector<PointQuadNodeElement<T>> elements = new Vector<PointQuadNodeElement<T>>();
 
 	public PointQuadNode(final Point startCoords, final Dimension bounds, final int depth) {
 		super(startCoords, bounds, depth);
@@ -26,22 +26,25 @@ public class PointQuadNode<T> extends AbstractQuadNode<T> {
 
 	@Override
 	public void subdivide() {
-		final int depth = this.depth + 1;
-		final Dimension newBounds = new Dimension(size.width / 2, size.height / 2);
+		final int depth = getDepth() + 1;
+		final Dimension newBounds = new Dimension(getSize().width / 2, getSize().height / 2);
 
-		final int xStart = startCoords.x;
-		final int yStart = startCoords.y;
+		final int xStart = getStartCoordinates().x;
+		final int yStart = getStartCoordinates().y;
 
 		final int newXStart = xStart + newBounds.width;
 		final int newYStart = yStart + newBounds.height;
 
-		children.put(Quadrant.TOP_LEFT, new PointQuadNode<T>(new Point(xStart, yStart), newBounds, depth, maxDepth, maxElements));
+		children.put(Quadrant.TOP_LEFT, new PointQuadNode<T>(new Point(xStart, yStart), newBounds, depth, getMaxDepth(), getMaxElements()));
 
-		children.put(Quadrant.TOP_RIGHT, new PointQuadNode<T>(new Point(newXStart, yStart), newBounds, depth, maxDepth, maxElements));
+		children.put(Quadrant.TOP_RIGHT, new PointQuadNode<T>(new Point(newXStart, yStart), newBounds, depth, getMaxDepth(),
+				getMaxElements()));
 
-		children.put(Quadrant.BOTTOM_LEFT, new PointQuadNode<T>(new Point(xStart, newYStart), newBounds, depth, maxDepth, maxElements));
+		children.put(Quadrant.BOTTOM_LEFT, new PointQuadNode<T>(new Point(xStart, newYStart), newBounds, depth, getMaxDepth(),
+				getMaxElements()));
 
-		children.put(Quadrant.BOTTOM_RIGHT, new PointQuadNode<T>(new Point(newXStart, newYStart), newBounds, depth, maxDepth, maxElements));
+		children.put(Quadrant.BOTTOM_RIGHT, new PointQuadNode<T>(new Point(newXStart, newYStart), newBounds, depth, getMaxDepth(),
+				getMaxElements()));
 	}
 
 	@Override
@@ -54,8 +57,8 @@ public class PointQuadNode<T> extends AbstractQuadNode<T> {
 	}
 
 	protected Quadrant findQuadrant(final Point coords) {
-		final boolean left = coords.x > startCoords.x + size.width / 2 ? false : true;
-		final boolean top = coords.y > startCoords.y + size.height / 2 ? false : true;
+		final boolean left = coords.x > getStartCoordinates().x + getSize().width / 2 ? false : true;
+		final boolean top = coords.y > getStartCoordinates().y + getSize().height / 2 ? false : true;
 
 		if (left) {
 			if (top) {
@@ -86,8 +89,8 @@ public class PointQuadNode<T> extends AbstractQuadNode<T> {
 	}
 
 	public void insert(final PointQuadNodeElement<T> element) {
-		if (depth > maxDepth) {
-			System.out.println("[DEBUG] Inserting element into Node at depth " + depth);
+		if (getDepth() > getMaxDepth()) {
+			System.out.println("[DEBUG] Inserting element into Node at depth " + getDepth());
 		}
 
 		// tree is further subdivided -> add element to quadrant
@@ -98,7 +101,7 @@ public class PointQuadNode<T> extends AbstractQuadNode<T> {
 
 		elements.add(element);
 
-		if (depth < maxDepth && elements.size() > maxElements) {
+		if (getDepth() < getMaxDepth() && elements.size() > getMaxElements()) {
 			subdivide();
 
 			// move all nodes to appropriate quadrant

@@ -5,8 +5,8 @@ import java.awt.Point;
 
 public abstract class AbstractQuadTree<T> {
 
-	protected Dimension size;
-	protected Point startCoords;
+	private Dimension size;
+	private Point startCoords;
 
 	public AbstractQuadTree(final Point startCoordinates, final Dimension size) {
 		this.size = size;

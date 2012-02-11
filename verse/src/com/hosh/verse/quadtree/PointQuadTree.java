@@ -8,7 +8,7 @@ import com.google.common.base.Preconditions;
 
 public class PointQuadTree<T> extends AbstractQuadTree<T> {
 
-	protected PointQuadNode<T> rootNode;
+	private PointQuadNode<T> rootNode;
 
 	public PointQuadTree(final Point startCoordinates, final Dimension size) {
 		super(startCoordinates, size);
@@ -25,11 +25,10 @@ public class PointQuadTree<T> extends AbstractQuadTree<T> {
 	}
 
 	public void insert(final Point coords, final T element) {
-		Preconditions.checkArgument(coords.x <= startCoords.x + size.width && coords.x >= startCoords.x,
-				"The x coordinate must be within bounds of [" + startCoords.x + "] to [" + size.width + "]");
-		Preconditions.checkArgument(coords.y <= startCoords.y + size.height && coords.y >= startCoords.y,
-				"The y coordinate must be within bounds of [" + startCoords.y + "] to [" + size.height + "]");
-
+		Preconditions.checkArgument(coords.x <= getStartCoordinates().x + getSize().width && coords.x >= getStartCoordinates().x,
+				"The x coordinate must be within bounds of the x starting coordinate and the rightmost border of the element");
+		Preconditions.checkArgument(coords.y <= getStartCoordinates().y + getSize().height && coords.y >= getStartCoordinates().y,
+				"The y coordinate must be within bounds of the y starting coordinate and the topmost border of the element");
 		rootNode.insert(new PointQuadNodeElement<T>(coords, element));
 	}
 
