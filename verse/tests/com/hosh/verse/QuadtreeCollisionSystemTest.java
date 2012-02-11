@@ -1,4 +1,4 @@
-package com.hosh.verse.tests;
+package com.hosh.verse;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -17,10 +17,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.badlogic.gdx.math.MathUtils;
-import com.hosh.verse.Actor;
-import com.hosh.verse.ActorFactory;
-import com.hosh.verse.CollisionChecker;
-import com.hosh.verse.quadtree.AbstractNodeElement;
+import com.hosh.verse.quadtree.AbstractQuadNodeElement;
 import com.hosh.verse.quadtree.PointQuadTree;
 
 public class QuadtreeCollisionSystemTest {
@@ -57,7 +54,6 @@ public class QuadtreeCollisionSystemTest {
 		// System.out.println("___________________");
 	}
 
-	@SuppressWarnings("unchecked")
 	public boolean testCollisionSystem() {
 		actorPosX = rand.nextInt(width);
 		actorPosY = rand.nextInt(height);
@@ -84,23 +80,23 @@ public class QuadtreeCollisionSystemTest {
 		}
 
 		final int playerRadius = (int) actorRadius + 1;
-		final Vector<AbstractNodeElement<Actor>> e1 = (Vector<AbstractNodeElement<Actor>>) tree.getElements(new Point((int) actorPosX
-				- playerRadius, (int) actorPosY - playerRadius));
-		final Vector<AbstractNodeElement<Actor>> e2 = (Vector<AbstractNodeElement<Actor>>) tree.getElements(new Point((int) actorPosX
-				- playerRadius, (int) actorPosY + playerRadius));
-		final Vector<AbstractNodeElement<Actor>> e3 = (Vector<AbstractNodeElement<Actor>>) tree.getElements(new Point((int) actorPosX
-				+ playerRadius, (int) actorPosY - playerRadius));
-		final Vector<AbstractNodeElement<Actor>> e4 = (Vector<AbstractNodeElement<Actor>>) tree.getElements(new Point((int) actorPosX
-				+ playerRadius, (int) actorPosY + playerRadius));
+		final Vector<AbstractQuadNodeElement<Actor>> e1 = (Vector<AbstractQuadNodeElement<Actor>>) tree.getElements(new Point(
+				(int) actorPosX - playerRadius, (int) actorPosY - playerRadius));
+		final Vector<AbstractQuadNodeElement<Actor>> e2 = (Vector<AbstractQuadNodeElement<Actor>>) tree.getElements(new Point(
+				(int) actorPosX - playerRadius, (int) actorPosY + playerRadius));
+		final Vector<AbstractQuadNodeElement<Actor>> e3 = (Vector<AbstractQuadNodeElement<Actor>>) tree.getElements(new Point(
+				(int) actorPosX + playerRadius, (int) actorPosY - playerRadius));
+		final Vector<AbstractQuadNodeElement<Actor>> e4 = (Vector<AbstractQuadNodeElement<Actor>>) tree.getElements(new Point(
+				(int) actorPosX + playerRadius, (int) actorPosY + playerRadius));
 
-		final List<AbstractNodeElement<Actor>> aList = new ArrayList<AbstractNodeElement<Actor>>();
+		final List<AbstractQuadNodeElement<Actor>> aList = new ArrayList<AbstractQuadNodeElement<Actor>>();
 		aList.addAll(e1);
 		aList.addAll(e2);
 		aList.addAll(e3);
 		aList.addAll(e4);
 
 		final Map<Integer, Actor> actorMap = new HashMap<Integer, Actor>();
-		for (final AbstractNodeElement<Actor> ane : aList) {
+		for (final AbstractQuadNodeElement<Actor> ane : aList) {
 			actorMap.put(ane.getElement().getId(), ane.getElement());
 		}
 
@@ -112,14 +108,14 @@ public class QuadtreeCollisionSystemTest {
 		// }
 		// }
 
-		final Set<AbstractNodeElement<Actor>> elements2 = new HashSet<AbstractNodeElement<Actor>>();
+		final Set<AbstractQuadNodeElement<Actor>> elements2 = new HashSet<AbstractQuadNodeElement<Actor>>();
 		elements2.addAll(e1);
 		elements2.addAll(e2);
 		elements2.addAll(e3);
 		elements2.addAll(e4);
 
 		final ArrayList<Actor> qtCollisionsList = new ArrayList<Actor>();
-		for (final AbstractNodeElement<Actor> e : elements2) {
+		for (final AbstractQuadNodeElement<Actor> e : elements2) {
 			if (CollisionChecker.collistionActors(player, e.getElement())) {
 				qtCollisionsList.add(e.getElement());
 				// printActor(e.getElement());

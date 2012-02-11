@@ -6,23 +6,23 @@ import java.awt.Point;
 public abstract class AbstractQuadTree<T> {
 
 	protected Dimension size;
-	protected Point startCoordinates;
+	protected Point startCoords;
 
 	public AbstractQuadTree(final Point startCoordinates, final Dimension size) {
 		this.size = size;
-		this.startCoordinates = startCoordinates;
+		this.startCoords = startCoordinates;
 	}
 
 	public Dimension getSize() {
-		return this.size;
+		return size;
 	}
 
 	public Point getStartCoordinates() {
-		return this.startCoordinates;
+		return startCoords;
 	}
 
 	public abstract void clear();
 
-	public abstract AbstractNode<T> getRootNode();
+	public abstract AbstractQuadNode<T> getRootNode();
 
 }

@@ -1,4 +1,4 @@
-package com.hosh.verse.tests;
+package com.hosh.verse;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -15,7 +15,7 @@ import com.google.common.base.Stopwatch;
 import com.hosh.verse.Actor;
 import com.hosh.verse.ActorFactory;
 import com.hosh.verse.CollisionChecker;
-import com.hosh.verse.quadtree.AbstractNodeElement;
+import com.hosh.verse.quadtree.AbstractQuadNodeElement;
 import com.hosh.verse.quadtree.PointQuadTree;
 
 public class ActorCollisionTest {
@@ -87,11 +87,11 @@ public class ActorCollisionTest {
 
 		final Stopwatch stopwatch = new Stopwatch().start();
 
-		final Vector<AbstractNodeElement<Actor>> elements = (Vector<AbstractNodeElement<Actor>>) tree.getElements(new Point(
+		final Vector<AbstractQuadNodeElement<Actor>> elements = (Vector<AbstractQuadNodeElement<Actor>>) tree.getElements(new Point(
 				(int) actorPosX, (int) actorPosY));
 
 		int cnt = 0;
-		for (final AbstractNodeElement<Actor> e : elements) {
+		for (final AbstractQuadNodeElement<Actor> e : elements) {
 			if (CollisionChecker.collistionActors(a4, e.getElement())) {
 				cnt++;
 			}
