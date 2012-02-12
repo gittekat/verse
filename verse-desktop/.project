@@ -18,7 +18,13 @@
 		<link>
 			<name>assets</name>
 			<type>2</type>
-			<location>E:/git clones/verse/verse-android/assets</location>
+			<locationURI>GIT_CLONES_LOC/verse/verse-android/assets</locationURI>
 		</link>
 	</linkedResources>
+	<variableList>
+		<variable>
+			<name>GIT_CLONES_LOC</name>
+			<value>$%7BPARENT-2-PROJECT_LOC%7D</value>
+		</variable>
+	</variableList>
 </projectDescription>
