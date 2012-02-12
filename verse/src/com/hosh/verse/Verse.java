@@ -19,18 +19,19 @@ public class Verse {
 	public Verse(final int dimensionX, final int dimensionY) {
 		this.dimensionX = dimensionX;
 		this.dimensionY = dimensionY;
-		setPlayer(ActorFactory.createActor(1000.f, 1000.f, 16.f));
+		setPlayer(ActorFactory.createActor(500.f, 500.f, 5.f));
 
 		actorList = new ArrayList<VerseActor>();
-		actorList.add(ActorFactory.createActor(1100.f, 1100.f, 5.f)); // debug
-																		// probe
+		// actorList.add(ActorFactory.createActor(1100.f, 1100.f, 5.f)); //
+		// debug
+		// probe
 		for (int i = 0; i < 10000; ++i) {
 			final VerseActor actor = ActorFactory.createActor(MathUtils.random(dimensionX), MathUtils.random(dimensionX), 5.f);
 			actorList.add(actor);
 		}
 
-		final int depth = 12;
-		qtTree = new PointQuadTree<VerseActor>(new Point(0, 0), new Dimension(dimensionX, dimensionY), depth, 40);
+		final int depth = 5;
+		qtTree = new PointQuadTree<VerseActor>(new Point(0, 0), new Dimension(dimensionX, dimensionY), depth, 10);
 		for (final VerseActor a : actorList) {
 			qtTree.insert((int) a.getPos().x, (int) a.getPos().y, a);
 		}
@@ -73,11 +74,11 @@ public class Verse {
 	}
 
 	public Set<VerseActor> getVisibleActors() {
-		final int visibleRadius = 5;
+		final int visibleRadius = 10;
 		final int actorPosX = (int) player.getPos().x;
 		final int actorPosY = (int) player.getPos().y;
 
-		final Set<VerseActor> visibleActors = qtTree.getElements(actorPosX, actorPosX, visibleRadius);
+		final Set<VerseActor> visibleActors = qtTree.getElements(actorPosX, actorPosY, visibleRadius);
 		return visibleActors;
 	}
 }

@@ -43,7 +43,7 @@ public class Game implements ApplicationListener {
 
 	@Override
 	public void create() {
-		verse = new Verse(1000000, 1000000);
+		verse = new Verse(1000, 1000);
 		player = verse.getPlayer();
 
 		font = new BitmapFont();
@@ -98,7 +98,7 @@ public class Game implements ApplicationListener {
 		{
 			final Set<VerseActor> visibleActors = verse.getVisibleActors();
 			font.draw(batch, "visible: " + visibleActors.size(), 20, 60);
-			System.out.println(visibleActors.size());
+			// System.out.println(visibleActors.size());
 			drawHUD();
 
 			drawPlayer();
@@ -107,7 +107,7 @@ public class Game implements ApplicationListener {
 
 				final Vector2 pos = getScreenCoordinates(a.getPos());
 
-				System.out.println(pos);
+				// System.out.println(pos);
 				final int size = (int) a.getBounds().radius;
 				pixmap.drawRectangle(0, 0, size, size);
 				batch.setColor(0, 0, 0, 1);

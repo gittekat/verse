@@ -44,14 +44,10 @@ public class PointQuadTree<T> extends AbstractQuadTree<T> {
 	}
 
 	public Set<T> getElements(final int posX, final int posY, final int radius) {
-		final Vector<AbstractQuadNodeElement<T>> e1 = (Vector<AbstractQuadNodeElement<T>>) getElements(new Point(posX - radius, posY
-				- radius));
-		final Vector<AbstractQuadNodeElement<T>> e2 = (Vector<AbstractQuadNodeElement<T>>) getElements(new Point(posX - radius, posY
-				+ radius));
-		final Vector<AbstractQuadNodeElement<T>> e3 = (Vector<AbstractQuadNodeElement<T>>) getElements(new Point(posX + radius, posY
-				- radius));
-		final Vector<AbstractQuadNodeElement<T>> e4 = (Vector<AbstractQuadNodeElement<T>>) getElements(new Point(posX + radius, posY
-				+ radius));
+		final Vector<? extends AbstractQuadNodeElement<T>> e1 = getElements(new Point(posX - radius, posY - radius));
+		final Vector<? extends AbstractQuadNodeElement<T>> e2 = getElements(new Point(posX - radius, posY + radius));
+		final Vector<? extends AbstractQuadNodeElement<T>> e3 = getElements(new Point(posX + radius, posY - radius));
+		final Vector<? extends AbstractQuadNodeElement<T>> e4 = getElements(new Point(posX + radius, posY + radius));
 
 		final Set<T> visibleActors = new HashSet<T>();
 		for (final AbstractQuadNodeElement<T> e : e1) {

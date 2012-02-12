@@ -26,7 +26,7 @@ public class QuadtreeCollisionSystemTest {
 
 	private static int width = 1000;
 	private static int height = 1000;
-	private static int objects = 100000;
+	private static int objects = 10000;
 	private static float actorPosX; // = MathUtils.random(width);
 	private static float actorPosY; // = MathUtils.random(height);
 	private static float actorRadius = 5.f;
@@ -99,10 +99,10 @@ public class QuadtreeCollisionSystemTest {
 
 		final int playerRadius = (int) actorRadius * 2;
 
-		final boolean debug = false;
+		final boolean debug = true;
 		final Set<VerseActor> collisionCandidates;
 		if (debug) {
-			collisionCandidates = tree.getElements((int) actorPosX, (int) actorPosX, playerRadius);
+			collisionCandidates = tree.getElements((int) actorPosX, (int) actorPosY, playerRadius);
 		} else {
 			final Vector<AbstractQuadNodeElement<VerseActor>> e1 = (Vector<AbstractQuadNodeElement<VerseActor>>) tree
 					.getElements(new Point((int) actorPosX - playerRadius, (int) actorPosY - playerRadius));
