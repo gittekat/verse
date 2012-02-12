@@ -32,6 +32,8 @@ public class DesktopGame {
 			config.vSyncEnabled = false;
 		}
 		new LwjglApplication(new Game(), config);
+
+		// new LwjglApplication(new Gdx2DTest(), "Gdx2DTest", 800, 800, false);
 	}
 
 }

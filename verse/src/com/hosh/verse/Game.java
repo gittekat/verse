@@ -28,9 +28,11 @@ public class Game implements ApplicationListener {
 	BitmapFont font;
 	private SpriteBatch batch;
 	private Texture ship;
-	private Texture shield;
 	private TextureRegion shipRegion;
+	private Texture shield;
 	private TextureRegion shieldRegion;
+	private Texture planet;
+	private TextureRegion planetRegion;
 	private Pixmap pixmap;
 	private Texture pixmapTexture;
 	Vector3 touchPoint;
@@ -50,6 +52,7 @@ public class Game implements ApplicationListener {
 		cam = new OrthographicCamera(WIDTH, HEIGHT);
 		cam.position.set(HALF_WIDTH, HALF_HEIGHT, 0);
 
+		// ship = new Texture(Gdx.files.internal("triangle_32.png"));
 		ship = new Texture(Gdx.files.internal("avatar_32.png"));
 		ship.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 		shipRegion = new TextureRegion(ship);
@@ -58,12 +61,23 @@ public class Game implements ApplicationListener {
 		shield.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 		shieldRegion = new TextureRegion(shield);
 
+		planet = new Texture(Gdx.files.internal("planet_128.png"));
+		planet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+		planetRegion = new TextureRegion(planet);
+
 		touchPoint = new Vector3();
 
 		pixmap = new Pixmap(32, 32, Pixmap.Format.Alpha);
 		pixmap.setColor(0.f, 0.f, 0.f, 1.f);
 		pixmap.fill();
 		pixmapTexture = new Texture(pixmap);
+
+		// tests
+		// final Gdx2DPixmap alpha = createPixmap(32, 32,
+		// Gdx2DPixmap.GDX2D_FORMAT_ALPHA);
+		// final Gdx2DPixmap luminanceAlpha = createPixmap(32, 32,
+		// Gdx2DPixmap.GDX2D_FORMAT_LUMINANCE_ALPHA);
+
 	}
 
 	@Override
@@ -94,6 +108,9 @@ public class Game implements ApplicationListener {
 				batch.draw(pixmapTexture, pos.x - 1, pos.y - 1, size + 2, size + 2);
 				batch.setColor(1.f, 0.f, 0.f, 1.f);
 				batch.draw(pixmapTexture, pos.x, pos.y, size, size);
+
+				batch.setColor(1.f, 1.f, 1.f, 1.f);
+				batch.draw(planetRegion, pos.x, pos.y, 16, 16, 128, 128, 0.9f, 0.9f, 0.f);
 			}
 
 		}
@@ -111,16 +128,32 @@ public class Game implements ApplicationListener {
 	}
 
 	private void drawPlayer() {
-		Gdx.gl.glEnable(GL10.GL_DITHER);
+		// Gdx.gl.glEnable(GL10.GL_DITHER);
 		batch.setColor(0.f, 0.f, 0.f, player.getShieldStrength());
-		batch.draw(shieldRegion, HALF_WIDTH - 16, HALF_HEIGHT - 16, 16, 16, 32, 32, 0.9f, 0.9f, 0.f);
-		batch.setColor(0.f, 0.f, 0.f, 1.f);
-		batch.draw(shipRegion, HALF_WIDTH - 16, HALF_HEIGHT - 16, 16, 16, 32, 32, 0.9f, 0.9f, player.getRotationAngle());
+		batch.draw(shieldRegion, HALF_WIDTH - 16, HALF_HEIGHT - 16, 16, 16, 32, 32, 0.95f, 0.95f, 0.f);
+		batch.setColor(1.f, 1.f, 1.f, 1.f);
+		batch.draw(shipRegion, HALF_WIDTH - 16, HALF_HEIGHT - 16, 16, 16, 32, 32, 0.95f, 0.95f, player.getRotationAngle());
 	}
 
 	private void drawHUD() {
+		drawDebugInfo();
+		drawRadar();
+	}
+
+	private void drawDebugInfo() {
 		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 20, 20);
 		font.draw(batch, "Pos: " + player.getPos().x + " x " + player.getPos().y, 20, 40);
+	}
+
+	private void drawRadar() {
+		final int size = 50;
+		pixmap.drawRectangle(0, 0, size, size);
+		batch.setColor(0, 0, 0, 1);
+		final int x = HALF_WIDTH - size / 2;
+		final int y = 20;
+		batch.draw(pixmapTexture, x - 1, y - 1, size + 2, size + 2);
+		batch.setColor(0.95f, 0.65f, 0.1f, 1.f);
+		batch.draw(pixmapTexture, x, y, size, size);
 	}
 
 	private void handleInput() {
@@ -190,4 +223,5 @@ public class Game implements ApplicationListener {
 	@Override
 	public void pause() {
 	}
+
 }
