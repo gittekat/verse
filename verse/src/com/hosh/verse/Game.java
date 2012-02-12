@@ -1,5 +1,7 @@
 package com.hosh.verse;
 
+import java.util.Set;
+
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -37,7 +39,7 @@ public class Game implements ApplicationListener {
 	private Texture pixmapTexture;
 	Vector3 touchPoint;
 
-	private Actor player;
+	private VerseActor player;
 
 	@Override
 	public void create() {
@@ -94,14 +96,18 @@ public class Game implements ApplicationListener {
 
 		batch.begin();
 		{
+			final Set<VerseActor> visibleActors = verse.getVisibleActors();
+			font.draw(batch, "visible: " + visibleActors.size(), 20, 60);
+			System.out.println(visibleActors.size());
 			drawHUD();
 
 			drawPlayer();
 
-			for (final Actor a : verse.getActorList()) {
+			for (final VerseActor a : visibleActors) {
+
 				final Vector2 pos = getScreenCoordinates(a.getPos());
 
-				// System.out.println(pos);
+				System.out.println(pos);
 				final int size = (int) a.getBounds().radius;
 				pixmap.drawRectangle(0, 0, size, size);
 				batch.setColor(0, 0, 0, 1);
@@ -109,8 +115,9 @@ public class Game implements ApplicationListener {
 				batch.setColor(1.f, 0.f, 0.f, 1.f);
 				batch.draw(pixmapTexture, pos.x, pos.y, size, size);
 
-				batch.setColor(1.f, 1.f, 1.f, 1.f);
-				batch.draw(planetRegion, pos.x, pos.y, 16, 16, 128, 128, 0.9f, 0.9f, 0.f);
+				// batch.setColor(1.f, 1.f, 1.f, 1.f);
+				// batch.draw(planetRegion, pos.x, pos.y, 16, 16, 128, 128,
+				// 0.9f, 0.9f, 0.f);
 			}
 
 		}

@@ -3,7 +3,7 @@ package com.hosh.verse;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 
-public class Actor {
+public class VerseActor {
 	private Vector2 curPos;
 	private Vector2 targetPos;
 
@@ -23,7 +23,7 @@ public class Actor {
 	private float shieldStrength;
 	private int id;
 
-	public Actor(final int id, final float posX, final float posY, final float radius) {
+	public VerseActor(final int id, final float posX, final float posY, final float radius) {
 		this.setId(id);
 		curPos = new Vector2(posX, posY);
 		targetPos = new Vector2(posX, posY);
@@ -155,7 +155,7 @@ public class Actor {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final Actor other = (Actor) obj;
+		final VerseActor other = (VerseActor) obj;
 		if (getId() != other.getId()) {
 			return false;
 		}

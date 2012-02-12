@@ -2,6 +2,8 @@ package com.hosh.verse.quadtree;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 
 import com.google.common.base.Preconditions;
@@ -39,6 +41,33 @@ public class PointQuadTree<T> extends AbstractQuadTree<T> {
 
 	public Vector<? extends AbstractQuadNodeElement<T>> getElements(final Point coordinates) {
 		return rootNode.getElements(coordinates);
+	}
+
+	public Set<T> getElements(final int posX, final int posY, final int radius) {
+		final Vector<AbstractQuadNodeElement<T>> e1 = (Vector<AbstractQuadNodeElement<T>>) getElements(new Point(posX - radius, posY
+				- radius));
+		final Vector<AbstractQuadNodeElement<T>> e2 = (Vector<AbstractQuadNodeElement<T>>) getElements(new Point(posX - radius, posY
+				+ radius));
+		final Vector<AbstractQuadNodeElement<T>> e3 = (Vector<AbstractQuadNodeElement<T>>) getElements(new Point(posX + radius, posY
+				- radius));
+		final Vector<AbstractQuadNodeElement<T>> e4 = (Vector<AbstractQuadNodeElement<T>>) getElements(new Point(posX + radius, posY
+				+ radius));
+
+		final Set<T> visibleActors = new HashSet<T>();
+		for (final AbstractQuadNodeElement<T> e : e1) {
+			visibleActors.add(e.getElement());
+		}
+		for (final AbstractQuadNodeElement<T> e : e2) {
+			visibleActors.add(e.getElement());
+		}
+		for (final AbstractQuadNodeElement<T> e : e3) {
+			visibleActors.add(e.getElement());
+		}
+		for (final AbstractQuadNodeElement<T> e : e4) {
+			visibleActors.add(e.getElement());
+		}
+
+		return visibleActors;
 	}
 
 	@Override
