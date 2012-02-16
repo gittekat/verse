@@ -1,12 +1,11 @@
 package com.hosh.verse;
 
-import java.awt.Dimension;
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.hosh.verse.quadtree.PointQuadTree;
 
 public class Verse {
@@ -31,7 +30,7 @@ public class Verse {
 		}
 
 		final int depth = 5;
-		qtTree = new PointQuadTree<VerseActor>(new Point(0, 0), new Dimension(dimensionX, dimensionY), depth, 10);
+		qtTree = new PointQuadTree<VerseActor>(new Vector2(0, 0), new Vector2(dimensionX, dimensionY), depth, 10);
 		for (final VerseActor a : actorList) {
 			qtTree.insert((int) a.getPos().x, (int) a.getPos().y, a);
 		}

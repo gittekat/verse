@@ -1,5 +1,8 @@
 package com.hosh.verse;
 
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+
 public class CollisionChecker {
 	public static boolean collistionActors(final VerseActor a1, final VerseActor a2) {
 		// final float squaredDistanceThreshold = a1.getSquaredRadius() +
@@ -21,4 +24,44 @@ public class CollisionChecker {
 		return a1.getPos().dst2(a2.getPos());
 	}
 
+	public static boolean pointAARect(final Vector2 point, final Rectangle rect) {
+		if (point.x < rect.x) {
+			return false;
+		}
+		if (point.y < rect.y) {
+			return false;
+		}
+		if (point.x >= rect.x + rect.width) {
+			return false;
+		}
+		if (point.y >= rect.y + rect.height) {
+			return false;
+		}
+		return true;
+	}
+
+	public static int mortonNumber(int x, int y) {
+		final int B[] = { 0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF };
+		final int S[] = { 1, 2, 4, 8 };
+
+		// Interleave lower 16 bits of x and y, so the bits of x
+		// are in the even positions and bits from y in the odd;
+		// z gets the resulting 32-bit Morton Number.
+		// x and y must initially be less than 65536.
+
+		int z;
+		x = (x | x << S[3]) & B[3];
+		x = (x | x << S[2]) & B[2];
+		x = (x | x << S[1]) & B[1];
+		x = (x | x << S[0]) & B[0];
+
+		y = (y | y << S[3]) & B[3];
+		y = (y | y << S[2]) & B[2];
+		y = (y | y << S[1]) & B[1];
+		y = (y | y << S[0]) & B[0];
+
+		z = x | y << 1;
+
+		return z;
+	}
 }

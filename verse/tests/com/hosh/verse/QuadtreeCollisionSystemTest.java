@@ -1,7 +1,5 @@
 package com.hosh.verse;
 
-import java.awt.Dimension;
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -14,6 +12,7 @@ import junit.framework.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.badlogic.gdx.math.Vector2;
 import com.hosh.verse.quadtree.AbstractQuadNodeElement;
 import com.hosh.verse.quadtree.PointQuadTree;
 
@@ -91,7 +90,7 @@ public class QuadtreeCollisionSystemTest {
 			}
 		}
 
-		tree = new PointQuadTree<VerseActor>(new Point(0, 0), new Dimension(width, height), depth, 10);
+		tree = new PointQuadTree<VerseActor>(new Vector2(0, 0), new Vector2(width, height), depth, 10);
 
 		for (final VerseActor a : actorList) {
 			tree.insert((int) a.getPos().x, (int) a.getPos().y, a);
@@ -105,13 +104,13 @@ public class QuadtreeCollisionSystemTest {
 			collisionCandidates = tree.getElements((int) actorPosX, (int) actorPosY, playerRadius);
 		} else {
 			final Vector<AbstractQuadNodeElement<VerseActor>> e1 = (Vector<AbstractQuadNodeElement<VerseActor>>) tree
-					.getElements(new Point((int) actorPosX - playerRadius, (int) actorPosY - playerRadius));
+					.getElements(new Vector2((int) actorPosX - playerRadius, (int) actorPosY - playerRadius));
 			final Vector<AbstractQuadNodeElement<VerseActor>> e2 = (Vector<AbstractQuadNodeElement<VerseActor>>) tree
-					.getElements(new Point((int) actorPosX - playerRadius, (int) actorPosY + playerRadius));
+					.getElements(new Vector2((int) actorPosX - playerRadius, (int) actorPosY + playerRadius));
 			final Vector<AbstractQuadNodeElement<VerseActor>> e3 = (Vector<AbstractQuadNodeElement<VerseActor>>) tree
-					.getElements(new Point((int) actorPosX + playerRadius, (int) actorPosY - playerRadius));
+					.getElements(new Vector2((int) actorPosX + playerRadius, (int) actorPosY - playerRadius));
 			final Vector<AbstractQuadNodeElement<VerseActor>> e4 = (Vector<AbstractQuadNodeElement<VerseActor>>) tree
-					.getElements(new Point((int) actorPosX + playerRadius, (int) actorPosY + playerRadius));
+					.getElements(new Vector2((int) actorPosX + playerRadius, (int) actorPosY + playerRadius));
 
 			collisionCandidates = new HashSet<VerseActor>();
 			for (final AbstractQuadNodeElement<VerseActor> e : e1) {

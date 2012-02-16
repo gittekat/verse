@@ -1,15 +1,15 @@
 package com.hosh.verse.quadtree;
 
-import java.awt.Dimension;
-import java.awt.Point;
 import java.util.Map;
+
+import com.badlogic.gdx.math.Vector2;
 
 public abstract class AbstractQuadNode<T> {
 
 	protected final static int MAX_ELEMENTS = 4;
 	protected final static int MAX_DEPTH = 4;
-	private final Dimension size;
-	private final Point startCoords;
+	private final Vector2 size;
+	private final Vector2 startCoords;
 	private final int maxDepth;
 	private final int maxElements;
 	private final int depth;
@@ -18,11 +18,11 @@ public abstract class AbstractQuadNode<T> {
 		TOP_LEFT, BOTTOM_RIGHT, BOTTOM_LEFT, TOP_RIGHT
 	}
 
-	public AbstractQuadNode(final Point startCoordinates, final Dimension bounds, final int depth) {
+	public AbstractQuadNode(final Vector2 startCoordinates, final Vector2 bounds, final int depth) {
 		this(startCoordinates, bounds, depth, MAX_ELEMENTS, MAX_DEPTH);
 	}
 
-	public AbstractQuadNode(final Point startCoordinates, final Dimension size, final int depth, final int maxDepth, final int maxElements) {
+	public AbstractQuadNode(final Vector2 startCoordinates, final Vector2 size, final int depth, final int maxDepth, final int maxElements) {
 		this.startCoords = startCoordinates;
 		this.size = size;
 		this.maxDepth = maxDepth;
@@ -30,7 +30,7 @@ public abstract class AbstractQuadNode<T> {
 		this.depth = depth;
 	}
 
-	public Dimension getSize() {
+	public Vector2 getSize() {
 		return size;
 	}
 
@@ -42,7 +42,7 @@ public abstract class AbstractQuadNode<T> {
 		return this.depth;
 	}
 
-	public Point getStartCoordinates() {
+	public Vector2 getStartCoordinates() {
 		return startCoords;
 	}
 

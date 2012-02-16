@@ -1,21 +1,21 @@
 package com.hosh.verse.quadtree;
 
-import java.awt.Dimension;
-import java.awt.Point;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+
+import com.badlogic.gdx.math.Vector2;
 
 public class PointQuadNode<T> extends AbstractQuadNode<T> {
 
 	private final Map<Quadrant, PointQuadNode<T>> children = new HashMap<Quadrant, PointQuadNode<T>>();
 	private final Vector<PointQuadNodeElement<T>> elements = new Vector<PointQuadNodeElement<T>>();
 
-	public PointQuadNode(final Point startCoords, final Dimension bounds, final int depth) {
+	public PointQuadNode(final Vector2 startCoords, final Vector2 bounds, final int depth) {
 		super(startCoords, bounds, depth);
 	}
 
-	public PointQuadNode(final Point startCoords, final Dimension size, final int depth, final int maxDepth, final int maxChildren) {
+	public PointQuadNode(final Vector2 startCoords, final Vector2 size, final int depth, final int maxDepth, final int maxChildren) {
 		super(startCoords, size, depth, maxDepth, maxChildren);
 	}
 
@@ -27,23 +27,24 @@ public class PointQuadNode<T> extends AbstractQuadNode<T> {
 	@Override
 	public void subdivide() {
 		final int depth = getDepth() + 1;
-		final Dimension newBounds = new Dimension(getSize().width / 2, getSize().height / 2);
+		final Vector2 newBounds = new Vector2(getSize().x / 2, getSize().y / 2);
 
-		final int xStart = getStartCoordinates().x;
-		final int yStart = getStartCoordinates().y;
+		final int xStart = (int) getStartCoordinates().x;
+		final int yStart = (int) getStartCoordinates().y;
 
-		final int newXStart = xStart + newBounds.width;
-		final int newYStart = yStart + newBounds.height;
+		final int newXStart = xStart + (int) newBounds.x;
+		final int newYStart = yStart + (int) newBounds.y;
 
-		children.put(Quadrant.TOP_LEFT, new PointQuadNode<T>(new Point(xStart, yStart), newBounds, depth, getMaxDepth(), getMaxElements()));
+		children.put(Quadrant.TOP_LEFT,
+				new PointQuadNode<T>(new Vector2(xStart, yStart), newBounds, depth, getMaxDepth(), getMaxElements()));
 
-		children.put(Quadrant.TOP_RIGHT, new PointQuadNode<T>(new Point(newXStart, yStart), newBounds, depth, getMaxDepth(),
+		children.put(Quadrant.TOP_RIGHT, new PointQuadNode<T>(new Vector2(newXStart, yStart), newBounds, depth, getMaxDepth(),
 				getMaxElements()));
 
-		children.put(Quadrant.BOTTOM_LEFT, new PointQuadNode<T>(new Point(xStart, newYStart), newBounds, depth, getMaxDepth(),
+		children.put(Quadrant.BOTTOM_LEFT, new PointQuadNode<T>(new Vector2(xStart, newYStart), newBounds, depth, getMaxDepth(),
 				getMaxElements()));
 
-		children.put(Quadrant.BOTTOM_RIGHT, new PointQuadNode<T>(new Point(newXStart, newYStart), newBounds, depth, getMaxDepth(),
+		children.put(Quadrant.BOTTOM_RIGHT, new PointQuadNode<T>(new Vector2(newXStart, newYStart), newBounds, depth, getMaxDepth(),
 				getMaxElements()));
 	}
 
@@ -56,9 +57,9 @@ public class PointQuadNode<T> extends AbstractQuadNode<T> {
 		children.clear();
 	}
 
-	protected Quadrant findQuadrant(final Point coords) {
-		final boolean left = coords.x > getStartCoordinates().x + getSize().width / 2 ? false : true;
-		final boolean top = coords.y > getStartCoordinates().y + getSize().height / 2 ? false : true;
+	protected Quadrant findQuadrant(final Vector2 coords) {
+		final boolean left = coords.x > getStartCoordinates().x + getSize().x / 2 ? false : true;
+		final boolean top = coords.y > getStartCoordinates().y + getSize().y / 2 ? false : true;
 
 		if (left) {
 			if (top) {
@@ -79,7 +80,7 @@ public class PointQuadNode<T> extends AbstractQuadNode<T> {
 		return elements;
 	}
 
-	public Vector<PointQuadNodeElement<T>> getElements(final Point coordinates) {
+	public Vector<PointQuadNodeElement<T>> getElements(final Vector2 coordinates) {
 		if (children.size() > 0) {
 			final PointQuadNode<T> node = children.get(findQuadrant(coordinates));
 			return node.getElements(coordinates);

@@ -1,10 +1,10 @@
 package com.hosh.verse.quadtree;
 
-import java.awt.Point;
+import com.badlogic.gdx.math.Vector2;
 
 public class PointQuadNodeElement<T> extends AbstractQuadNodeElement<T> {
 
-	public PointQuadNodeElement(final Point coordinates, final T element) {
+	public PointQuadNodeElement(final Vector2 coordinates, final T element) {
 		super(coordinates, element);
 	}
 

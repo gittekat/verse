@@ -1,23 +1,22 @@
 package com.hosh.verse.quadtree;
 
-import java.awt.Dimension;
-import java.awt.Point;
+import com.badlogic.gdx.math.Vector2;
 
 public abstract class AbstractQuadTree<T> {
 
-	private Dimension size;
-	private Point startCoords;
+	private Vector2 size;
+	private Vector2 startCoords;
 
-	public AbstractQuadTree(final Point startCoordinates, final Dimension size) {
+	public AbstractQuadTree(final Vector2 startCoordinates, final Vector2 size) {
 		this.size = size;
 		this.startCoords = startCoordinates;
 	}
 
-	public Dimension getSize() {
+	public Vector2 getSize() {
 		return size;
 	}
 
-	public Point getStartCoordinates() {
+	public Vector2 getStartCoordinates() {
 		return startCoords;
 	}
 
