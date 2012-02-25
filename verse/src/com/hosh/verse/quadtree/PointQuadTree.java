@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import com.badlogic.gdx.math.Vector2;
+import com.google.common.base.Preconditions;
 
 public class PointQuadTree<T> extends AbstractQuadTree<T> {
 
@@ -25,12 +26,10 @@ public class PointQuadTree<T> extends AbstractQuadTree<T> {
 	}
 
 	public void insert(final Vector2 coords, final T element) {
-		// Preconditions.checkArgument(coords.x <= getStartCoordinates().x +
-		// getSize().x && coords.x >= getStartCoordinates().x,
-		// "The x coordinate must be within bounds of the x starting coordinate and the rightmost border of the element");
-		// Preconditions.checkArgument(coords.y <= getStartCoordinates().y +
-		// getSize().y && coords.y >= getStartCoordinates().y,
-		// "The y coordinate must be within bounds of the y starting coordinate and the topmost border of the element");
+		Preconditions.checkArgument(coords.x <= getStartCoordinates().x + getSize().x && coords.x >= getStartCoordinates().x,
+				"The x coordinate must be within bounds of the x starting coordinate and the rightmost border of the element");
+		Preconditions.checkArgument(coords.y <= getStartCoordinates().y + getSize().y && coords.y >= getStartCoordinates().y,
+				"The y coordinate must be within bounds of the y starting coordinate and the topmost border of the element");
 		rootNode.insert(new PointQuadNodeElement<T>(coords, element));
 	}
 

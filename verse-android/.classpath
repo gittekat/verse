@@ -7,5 +7,7 @@
 	<classpathentry kind="lib" path="libs/gdx-backend-android.jar" sourcepath="libs/gdx-backend-android-sources.jar"/>
 	<classpathentry kind="lib" path="/verse/libs/gdx.jar" sourcepath="/verse/libs/gdx-sources.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/verse"/>
+	<classpathentry kind="lib" path="/verse/libs/guava-11.0.1.jar" sourcepath="/verse/libs/guava-11.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="/verse/libs/photon-android.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

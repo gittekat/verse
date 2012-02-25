@@ -1,5 +1,6 @@
 package com.hosh.verse;
 
+import java.util.HashMap;
 import java.util.Set;
 
 import com.badlogic.gdx.ApplicationListener;
@@ -17,11 +18,23 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
+import de.exitgames.client.photon.DebugLevel;
+import de.exitgames.client.photon.EventData;
+import de.exitgames.client.photon.IPhotonPeerListener;
+import de.exitgames.client.photon.LiteEventCode;
+import de.exitgames.client.photon.LiteEventKey;
+import de.exitgames.client.photon.LiteOpCode;
+import de.exitgames.client.photon.LiteOpKey;
+import de.exitgames.client.photon.OperationResponse;
+import de.exitgames.client.photon.PhotonPeer;
+import de.exitgames.client.photon.StatusCode;
+import de.exitgames.client.photon.TypedHashMap;
+
 public class Game implements ApplicationListener {
-	public static final int WIDTH = 500;
-	public static final int HEIGHT = 500;
-	private static final int HALF_WIDTH = WIDTH / 2;
-	private static final int HALF_HEIGHT = HEIGHT / 2;
+	private int WIDTH;
+	private int HEIGHT;
+	private int HALF_WIDTH;
+	private int HALF_HEIGHT;
 
 	private Verse verse;
 
@@ -41,8 +54,17 @@ public class Game implements ApplicationListener {
 
 	private VerseActor player;
 
+	private PhotonPeer peer;
+	private String photonStatus;
+	private String photonMessage;
+
 	@Override
 	public void create() {
+		WIDTH = Gdx.graphics.getWidth();
+		HEIGHT = Gdx.graphics.getHeight();
+		HALF_WIDTH = WIDTH / 2;
+		HALF_HEIGHT = HEIGHT / 2;
+
 		verse = new Verse(1000, 1000);
 		player = verse.getPlayer();
 
@@ -75,15 +97,16 @@ public class Game implements ApplicationListener {
 		pixmapTexture = new Texture(pixmap);
 
 		// tests
-		// final Gdx2DPixmap alpha = createPixmap(32, 32,
-		// Gdx2DPixmap.GDX2D_FORMAT_ALPHA);
-		// final Gdx2DPixmap luminanceAlpha = createPixmap(32, 32,
-		// Gdx2DPixmap.GDX2D_FORMAT_LUMINANCE_ALPHA);
-
+		final MyPhotonListener listener = new MyPhotonListener();
+		peer = new PhotonPeer(listener);
+		peer.connect("192.168.178.35:5055", "Lite");
 	}
 
 	@Override
 	public void render() {
+
+		peer.service();
+
 		handleInput();
 		verse.update(Gdx.graphics.getDeltaTime());
 
@@ -150,10 +173,11 @@ public class Game implements ApplicationListener {
 	private void drawDebugInfo() {
 		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 20, 20);
 		font.draw(batch, "Pos: " + player.getPos().x + " x " + player.getPos().y, 20, 40);
+		font.draw(batch, "Status: " + photonStatus + " - " + photonMessage, 20, 80);
 	}
 
 	private void drawRadar() {
-		final int size = 50;
+		final int size = 80;
 		pixmap.drawRectangle(0, 0, size, size);
 		batch.setColor(0, 0, 0, 1);
 		final int x = HALF_WIDTH - size / 2;
@@ -229,6 +253,102 @@ public class Game implements ApplicationListener {
 
 	@Override
 	public void pause() {
+	}
+
+	private class MyPhotonListener implements IPhotonPeerListener {
+
+		private Integer playerId;
+
+		@Override
+		public void debugReturn(final DebugLevel arg0, final String arg1) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onEvent(final EventData evt) {
+			System.out.println("OnEvent: " + evt.ToString());
+
+			switch (evt.Code) {
+			case 101:
+				final Integer sourceActorNum = (Integer) evt.Parameters.get(LiteEventKey.ActorNr.value());
+				// final TypedHashMap<Byte, Object> evData = (TypedHashMap<Byte,
+				// Object>) evt.Parameters.get(LiteEventKey.Data.value());
+				// if (evData != null) {
+				// System.out.println(" -> Player: " + sourceActorNum +
+				// " says: " + evData.get((byte) 1));
+				// } else {
+				// System.out.println("UhOh");
+				// }
+
+				final HashMap<Byte, Object> testMap = (HashMap<Byte, Object>) evt.Parameters.get(LiteEventKey.Data.value());
+				if (testMap != null) {
+					photonMessage = testMap.get((byte) 1).toString();
+					System.out.println(" -> Player: " + sourceActorNum + " says: " + testMap.get((byte) 1));
+				} else {
+					System.out.println("UhOh2");
+				}
+
+				break;
+			case LiteEventCode.Join:
+				final Integer[] actorsInGame = (Integer[]) evt.Parameters.get(LiteEventKey.ActorList.value());
+				for (final int i : actorsInGame) {
+					System.out.println("found actor: " + i);
+				}
+				break;
+			}
+		}
+
+		@Override
+		public void onOperationResponse(final OperationResponse res) {
+			if (res.ReturnCode == 0) {
+				System.out.println("OpRes: OK - " + res.ToStringFull());
+			} else {
+				System.out.println("OpRes: NOK - " + res.ToStringFull() + " DebugMessage: " + res.DebugMessage);
+				return;
+			}
+
+			switch (res.OperationCode) {
+			case LiteOpCode.Join:
+				if (res.Parameters.containsKey(LiteOpKey.ActorNr.value())) {
+					playerId = (Integer) res.Parameters.get(LiteOpKey.ActorNr.value());
+					System.out.println("playerId: " + playerId);
+				}
+
+				final Integer myActorNum = (Integer) res.Parameters.get(LiteOpKey.ActorNr.value());
+				System.out.println(" -> My Player Num is: " + myActorNum);
+				System.out.println("Calling OpRaiseEvent ...");
+
+				final TypedHashMap<Byte, Object> opParams = new TypedHashMap<Byte, Object>(Byte.class, Object.class);
+				opParams.put(LiteOpKey.Code.value(), (byte) 101);
+
+				final HashMap<Byte, Object> evData = new HashMap<Byte, Object>();
+				evData.put((byte) 1, "Hello World!");
+
+				opParams.put(LiteOpKey.Data.value(), evData);
+
+				System.err.println(peer.opCustom(LiteOpCode.RaiseEvent, opParams, true));
+
+				break;
+			}
+		}
+
+		@Override
+		public void peerStatusCallback(final StatusCode statusCode) {
+			photonStatus = statusCode.toString();
+			System.out.println("status changed to: " + statusCode.toString());
+
+			switch (statusCode) {
+			case Connect:
+				final TypedHashMap<Byte, Object> ht = new TypedHashMap<Byte, Object>(Byte.class, String.class); // TODO
+																												// achtung!!!
+				ht.put(LiteOpKey.RoomName.value(), "MyRoomName");
+				peer.opCustom(LiteOpCode.Join, ht, true);
+				break;
+			default:
+				break;
+			}
+		}
 	}
 
 }
