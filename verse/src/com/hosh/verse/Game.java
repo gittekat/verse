@@ -8,6 +8,7 @@ import sfs2x.client.core.BaseEvent;
 import sfs2x.client.core.IEventListener;
 import sfs2x.client.core.SFSEvent;
 import sfs2x.client.entities.User;
+import sfs2x.client.requests.ExtensionRequest;
 import sfs2x.client.requests.JoinRoomRequest;
 import sfs2x.client.requests.LoginRequest;
 import sfs2x.client.requests.PublicMessageRequest;
@@ -26,6 +27,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.smartfoxserver.v2.entities.data.ISFSObject;
+import com.smartfoxserver.v2.entities.data.SFSObject;
 import com.smartfoxserver.v2.exceptions.SFSException;
 
 import de.exitgames.client.photon.DebugLevel;
@@ -236,6 +239,19 @@ public class Game implements ApplicationListener, IEventListener {
 			player.setCurSpeed(100);
 
 			sfsClient.send(new PublicMessageRequest("hosh: " + touchPoint.x + " X " + touchPoint.y));
+
+			// final SFSObject obj = new SFSObject();
+			// obj.putInt("n1", 90);
+			// obj.putInt("n2", 19);
+			//
+			// final ExtensionRequest req = new ExtensionRequest("math", new
+			// SFSObject(), sfsClient.getLastJoinedRoom());
+			// sfsClient.send(req); // TODO
+
+			final ISFSObject sfso = new SFSObject();
+			sfso.putInt("x", 90);
+			sfso.putInt("y", 19);
+			sfsClient.send(new ExtensionRequest("move", sfso));
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
 			cam.zoom += 0.02;
@@ -405,6 +421,7 @@ public class Game implements ApplicationListener, IEventListener {
 		sfsClient.addEventListener(SFSEvent.USER_ENTER_ROOM, this);
 		sfsClient.addEventListener(SFSEvent.USER_EXIT_ROOM, this);
 		sfsClient.addEventListener(SFSEvent.PUBLIC_MESSAGE, this);
+		sfsClient.addEventListener(SFSEvent.EXTENSION_RESPONSE, this);
 
 		// Displays the connect dialog box so the user can enter the server IP
 		// and port.
@@ -427,6 +444,7 @@ public class Game implements ApplicationListener, IEventListener {
 			sfsClient.removeEventListener(SFSEvent.USER_ENTER_ROOM, this);
 			sfsClient.removeEventListener(SFSEvent.USER_EXIT_ROOM, this);
 			sfsClient.removeEventListener(SFSEvent.PUBLIC_MESSAGE, this);
+			sfsClient.removeEventListener(SFSEvent.EXTENSION_RESPONSE, this);
 
 			sfsClient.disconnect();
 		}
@@ -498,7 +516,8 @@ public class Game implements ApplicationListener, IEventListener {
 			// handler.sendEmptyMessage(0);
 			if (event.getArguments().get("success").equals(true)) {
 				// Login as guest in current zone
-				sfsClient.send(new LoginRequest("", "", "BasicExamples"));
+				// sfsClient.send(new LoginRequest("", "", "BasicExamples"));
+				sfsClient.send(new LoginRequest("", "", "VerseZone"));
 				// removeDialog(DIALOG_CONNECTING_ID);
 				System.out.println("sfs: connecting...");
 			}
@@ -525,6 +544,7 @@ public class Game implements ApplicationListener, IEventListener {
 
 			// Join The Lobby room
 			sfsClient.send(new JoinRoomRequest("The Lobby"));
+			// sfsClient.send(new JoinRoomRequest("Verse Lobby"));
 		} else if (event.getType().equalsIgnoreCase(SFSEvent.LOGIN_ERROR)) {
 			// mLoginError = event.getArguments().get("error").toString();
 			// showDialog(DIALOG_LOGIN_ERROR_ID);
@@ -534,6 +554,8 @@ public class Game implements ApplicationListener, IEventListener {
 			// sfsClient.getLastJoinedRoom().getName() + "'.\n";
 			// handler.sendEmptyMessage(0);
 			System.out.println("sfs: " + sfsClient.getLastJoinedRoom().getName());
+		} else if (event.getType().equalsIgnoreCase(SFSEvent.ROOM_JOIN_ERROR)) {
+			System.out.println("room join error");
 		} else if (event.getType().equals(SFSEvent.USER_ENTER_ROOM)) {
 			final User user = (User) event.getArguments().get("user");
 			System.out.println(user.getId() + " entered the room");
@@ -546,6 +568,20 @@ public class Game implements ApplicationListener, IEventListener {
 			// appendChatMessage("[" + sender.getName() + "]: " + msg + "\n");
 			System.out.println("[" + sender.getName() + "]: " + msg + "\n");
 			photonMessage = msg;
+		}
+		// else if (event.getType().equals(SFSEvent.EXTENSION_RESPONSE)) {
+		// System.out.println("got response... but dunno what :(");
+		// }
+
+		if (event.getType().equalsIgnoreCase(SFSEvent.EXTENSION_RESPONSE)) {
+
+			final String cmd = event.getArguments().get("cmd").toString();
+			ISFSObject resObj = new SFSObject();
+			resObj = (ISFSObject) event.getArguments().get("params");
+
+			final int dunno = resObj.getInt("sum");
+
+			System.out.println("!!!!got response... " + dunno);
 		}
 	}
 
