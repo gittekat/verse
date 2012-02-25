@@ -3,6 +3,15 @@ package com.hosh.verse;
 import java.util.HashMap;
 import java.util.Set;
 
+import sfs2x.client.SmartFox;
+import sfs2x.client.core.BaseEvent;
+import sfs2x.client.core.IEventListener;
+import sfs2x.client.core.SFSEvent;
+import sfs2x.client.entities.User;
+import sfs2x.client.requests.JoinRoomRequest;
+import sfs2x.client.requests.LoginRequest;
+import sfs2x.client.requests.PublicMessageRequest;
+
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -17,6 +26,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.smartfoxserver.v2.exceptions.SFSException;
 
 import de.exitgames.client.photon.DebugLevel;
 import de.exitgames.client.photon.EventData;
@@ -30,7 +40,7 @@ import de.exitgames.client.photon.PhotonPeer;
 import de.exitgames.client.photon.StatusCode;
 import de.exitgames.client.photon.TypedHashMap;
 
-public class Game implements ApplicationListener {
+public class Game implements ApplicationListener, IEventListener {
 	private int WIDTH;
 	private int HEIGHT;
 	private int HALF_WIDTH;
@@ -54,9 +64,14 @@ public class Game implements ApplicationListener {
 
 	private VerseActor player;
 
+	// photon
 	private PhotonPeer peer;
 	private String photonStatus;
 	private String photonMessage;
+
+	// smartfox
+	SmartFox sfsClient;
+	IEventListener evtListener;
 
 	@Override
 	public void create() {
@@ -96,16 +111,28 @@ public class Game implements ApplicationListener {
 		pixmap.fill();
 		pixmapTexture = new Texture(pixmap);
 
-		// tests
-		final MyPhotonListener listener = new MyPhotonListener();
-		peer = new PhotonPeer(listener);
-		peer.connect("192.168.178.35:5055", "Lite");
+		// tests photon
+		final boolean photon = false;
+		if (photon) {
+			final MyPhotonListener listener = new MyPhotonListener();
+			peer = new PhotonPeer(listener);
+			peer.connect("192.168.178.35:5055", "Lite");
+		}
+
+		// tests smartfox
+		final boolean smartfox = true;
+		if (smartfox) {
+			initSmartFox();
+			connectToServer("192.168.178.35", 9933);
+		}
 	}
 
 	@Override
 	public void render() {
 
-		peer.service();
+		// photon
+		// peer.service();
+		// photon
 
 		handleInput();
 		verse.update(Gdx.graphics.getDeltaTime());
@@ -207,6 +234,8 @@ public class Game implements ApplicationListener {
 			player.setRotationAngle((float) theta);
 
 			player.setCurSpeed(100);
+
+			sfsClient.send(new PublicMessageRequest("hosh: " + touchPoint.x + " X " + touchPoint.y));
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
 			cam.zoom += 0.02;
@@ -235,6 +264,9 @@ public class Game implements ApplicationListener {
 			}
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+			// smartfox
+			shutdownSmartFox();
+			// smartfox
 			Gdx.app.exit();
 		}
 	}
@@ -348,6 +380,172 @@ public class Game implements ApplicationListener {
 			default:
 				break;
 			}
+		}
+	}
+
+	// ///////
+	// / smartfox
+	// ///////
+
+	private void initSmartFox() {
+		// Instantiate SmartFox client
+		sfsClient = new SmartFox(true);
+
+		// Add event listeners
+		// sfsClient.addEventListener(SFSEvent.CONNECTION, this);
+		// sfsClient.addEventListener(SFSEvent.CONNECTION_LOST, this);
+		// sfsClient.addEventListener(SFSEvent.LOGIN, this);
+		// sfsClient.addEventListener(SFSEvent.ROOM_JOIN, this);
+		// sfsClient.addEventListener(SFSEvent.HANDSHAKE, this);
+
+		sfsClient.addEventListener(SFSEvent.CONNECTION, this);
+		sfsClient.addEventListener(SFSEvent.CONNECTION_LOST, this);
+		sfsClient.addEventListener(SFSEvent.LOGIN, this);
+		sfsClient.addEventListener(SFSEvent.ROOM_JOIN, this);
+		sfsClient.addEventListener(SFSEvent.USER_ENTER_ROOM, this);
+		sfsClient.addEventListener(SFSEvent.USER_EXIT_ROOM, this);
+		sfsClient.addEventListener(SFSEvent.PUBLIC_MESSAGE, this);
+
+		// Displays the connect dialog box so the user can enter the server IP
+		// and port.
+		// showDialog(DIALOG_CONNECT_ID);
+	}
+
+	private void shutdownSmartFox() {
+		if (sfsClient != null) {
+			// sfsClient.removeEventListener(SFSEvent.CONNECTION, evtListener);
+			// sfsClient.removeEventListener(SFSEvent.CONNECTION_LOST,
+			// evtListener);
+			// sfsClient.removeEventListener(SFSEvent.LOGIN, evtListener);
+			// sfsClient.removeEventListener(SFSEvent.ROOM_JOIN, evtListener);
+			// sfsClient.removeEventListener(SFSEvent.HANDSHAKE, evtListener);
+
+			sfsClient.removeEventListener(SFSEvent.CONNECTION, this);
+			sfsClient.removeEventListener(SFSEvent.CONNECTION_LOST, this);
+			sfsClient.removeEventListener(SFSEvent.LOGIN, this);
+			sfsClient.removeEventListener(SFSEvent.ROOM_JOIN, this);
+			sfsClient.removeEventListener(SFSEvent.USER_ENTER_ROOM, this);
+			sfsClient.removeEventListener(SFSEvent.USER_EXIT_ROOM, this);
+			sfsClient.removeEventListener(SFSEvent.PUBLIC_MESSAGE, this);
+
+			sfsClient.disconnect();
+		}
+	}
+
+	private void connectToServer(final String ip, final int port) {
+		// showDialog(DIALOG_CONNECTING_ID);
+
+		// connect() method is called in separate thread
+		// so it does not blocks the UI
+		final SmartFox sfs = sfsClient;
+		new Thread() {
+			@Override
+			public void run() {
+				sfs.connect(ip, port);
+			}
+		}.start();
+	}
+
+	@Override
+	public void dispatch(final BaseEvent event) throws SFSException {
+		// new Runnable() {
+		// @Override
+		// public void run() {
+		// if (event.getType().equalsIgnoreCase(SFSEvent.CONNECTION)) {
+		// // status = getString(R.string.connected);
+		// // handler.sendEmptyMessage(0);
+		// if (event.getArguments().get("success").equals(true)) {
+		// // Login as guest in current zone
+		// sfsClient.send(new LoginRequest("", "", "zone"));
+		// // removeDialog(DIALOG_CONNECTING_ID);
+		// System.out.println("sfs: connecting...");
+		// }
+		// // otherwise error message is shown
+		// else {
+		// // removeDialog(DIALOG_CONNECTING_ID);
+		// // showDialog(DIALOG_CONNECTION_ERROR_ID);
+		// System.out.println("sfs: connection error");
+		// }
+		// } else if
+		// (event.getType().equalsIgnoreCase(SFSEvent.CONNECTION_LOST)) {
+		// // status = getString(R.string.connectionLost);
+		// // handler.sendEmptyMessage(0);
+		//
+		// // // Destroy SFS instance
+		// // onDestroy();
+		// shutdownSmartFox();
+		//
+		// System.out.println("sfs: connection lost");
+		//
+		// } else if (event.getType().equalsIgnoreCase(SFSEvent.LOGIN)) {
+		// // status = getString(R.string.login) +
+		// // sfsClient.getCurrentZone() + "' zone.\n";
+		// // handler.sendEmptyMessage(0);
+		//
+		// // Join The Lobby room
+		// sfsClient.send(new JoinRoomRequest("lobby"));
+		// } else if (event.getType().equalsIgnoreCase(SFSEvent.ROOM_JOIN)) {
+		// // status = getString(R.string.roomJoin) +
+		// // sfsClient.getLastJoinedRoom().getName() + "'.\n";
+		// // handler.sendEmptyMessage(0);
+		// System.out.println("sfs: " +
+		// sfsClient.getLastJoinedRoom().getName());
+		// }
+		// }
+		// };
+		if (event.getType().equalsIgnoreCase(SFSEvent.CONNECTION)) {
+			// status = getString(R.string.connected);
+			// handler.sendEmptyMessage(0);
+			if (event.getArguments().get("success").equals(true)) {
+				// Login as guest in current zone
+				sfsClient.send(new LoginRequest("", "", "BasicExamples"));
+				// removeDialog(DIALOG_CONNECTING_ID);
+				System.out.println("sfs: connecting...");
+			}
+			// otherwise error message is shown
+			else {
+				// removeDialog(DIALOG_CONNECTING_ID);
+				// showDialog(DIALOG_CONNECTION_ERROR_ID);
+				System.out.println("sfs: connection error");
+			}
+		} else if (event.getType().equalsIgnoreCase(SFSEvent.CONNECTION_LOST)) {
+			// status = getString(R.string.connectionLost);
+			// handler.sendEmptyMessage(0);
+
+			// // Destroy SFS instance
+			// onDestroy();
+			shutdownSmartFox();
+
+			System.out.println("sfs: connection lost");
+
+		} else if (event.getType().equalsIgnoreCase(SFSEvent.LOGIN)) {
+			// status = getString(R.string.login) +
+			// sfsClient.getCurrentZone() + "' zone.\n";
+			// handler.sendEmptyMessage(0);
+
+			// Join The Lobby room
+			sfsClient.send(new JoinRoomRequest("The Lobby"));
+		} else if (event.getType().equalsIgnoreCase(SFSEvent.LOGIN_ERROR)) {
+			// mLoginError = event.getArguments().get("error").toString();
+			// showDialog(DIALOG_LOGIN_ERROR_ID);
+			System.out.println(event.getArguments().get("error").toString());
+		} else if (event.getType().equalsIgnoreCase(SFSEvent.ROOM_JOIN)) {
+			// status = getString(R.string.roomJoin) +
+			// sfsClient.getLastJoinedRoom().getName() + "'.\n";
+			// handler.sendEmptyMessage(0);
+			System.out.println("sfs: " + sfsClient.getLastJoinedRoom().getName());
+		} else if (event.getType().equals(SFSEvent.USER_ENTER_ROOM)) {
+			final User user = (User) event.getArguments().get("user");
+			System.out.println(user.getId() + " entered the room");
+		} else if (event.getType().equals(SFSEvent.USER_EXIT_ROOM)) {
+			final User user = (User) event.getArguments().get("user");
+			System.out.println(user.getId() + " left the room");
+		} else if (event.getType().equals(SFSEvent.PUBLIC_MESSAGE)) {
+			final User sender = (User) event.getArguments().get("sender");
+			final String msg = event.getArguments().get("message").toString();
+			// appendChatMessage("[" + sender.getName() + "]: " + msg + "\n");
+			System.out.println("[" + sender.getName() + "]: " + msg + "\n");
+			photonMessage = msg;
 		}
 	}
 

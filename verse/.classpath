@@ -7,5 +7,12 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry exported="true" kind="lib" path="libs/guava-11.0.1.jar" sourcepath="libs/guava-11.0.1-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/photon-android.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/commons-lang-2.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/jdom.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/netty-3.2.2.Final.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/SFS2X_API_Java.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/sfs2x-client-core.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/slf4j-api-1.6.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/slf4j-simple-1.6.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
