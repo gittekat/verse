@@ -357,7 +357,8 @@ public class Game implements ApplicationListener, IEventListener {
 
 			final Integer dunno = resObj.getInt("sum");
 
-			System.out.println("got response (" + cmd + "): " + dunno);
+			serverStatus = "got response (" + cmd + "): " + dunno;
+			System.out.println(serverStatus);
 		}
 	}
 }
