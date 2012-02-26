@@ -1,4 +1,4 @@
-package com.hosh.verse;
+package com.hosh.verse.server;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,8 @@ import java.util.Set;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.hosh.verse.common.ActorFactory;
+import com.hosh.verse.common.VerseActor;
 import com.hosh.verse.quadtree.PointQuadTree;
 
 public class Verse {

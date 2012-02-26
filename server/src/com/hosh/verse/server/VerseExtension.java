@@ -26,11 +26,14 @@ import com.smartfoxserver.v2.extensions.SFSExtension;
 public class VerseExtension extends SFSExtension
 {
 	private final String version = "0.0.1";
+	private Verse verse;
 	
 	@Override
 	public void init()
 	{
 		trace("verse server extension, rel. " + version);
+		
+		verse = new Verse(1000, 1000);
 		
 		addEventHandler(SFSEventType.USER_JOIN_ROOM, OnRoomJoinHandler.class);
 		
@@ -43,8 +46,10 @@ public class VerseExtension extends SFSExtension
 		super.destroy();
 		trace("verse destroyed!");
 	}
-		
-	
+
+	public Verse getVerse() {
+		return verse;
+	}
 	
 }
 

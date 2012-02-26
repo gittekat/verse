@@ -108,9 +108,9 @@
     </profiles>
   </privilegeManager>
   <extension>
-    <name>ServerExtension</name>
+    <name>VerseExtension</name>
     <type>JAVA</type>
-    <file>com.hosh.verse.server.TrisExtension</file>
+    <file>com.hosh.verse.server.VerseExtension</file>
     <propertiesFile></propertiesFile>
     <reloadMode>AUTO</reloadMode>
   </extension>

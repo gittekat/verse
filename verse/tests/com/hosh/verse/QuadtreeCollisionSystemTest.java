@@ -13,6 +13,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.badlogic.gdx.math.Vector2;
+import com.hosh.verse.common.ActorFactory;
+import com.hosh.verse.common.CollisionChecker;
+import com.hosh.verse.common.VerseActor;
 import com.hosh.verse.quadtree.AbstractQuadNodeElement;
 import com.hosh.verse.quadtree.PointQuadTree;
 

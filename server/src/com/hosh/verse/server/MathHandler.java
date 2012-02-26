@@ -1,23 +1,5 @@
 package com.hosh.verse.server;
 
-
-//public class MathHandler extends BaseClientRequestHandler {
-//
-//	@Override
-//	public void handleClientRequest(User user, ISFSObject obj) {
-//		int n1 = obj.getInt("n1");
-//		int n2 = obj.getInt("n2");
-//		
-//		SFSObject res = new SFSObject();
-//		
-//		res.putInt("sum", n1 + n2);
-//		
-//		ServerExtension parentExt = (ServerExtension) getParentExtension();
-//		parentExt.send("math", res, user);
-//	}
-//
-//}
-
 import com.smartfoxserver.v2.annotations.Instantiation;
 import com.smartfoxserver.v2.annotations.Instantiation.InstantiationMode;
 import com.smartfoxserver.v2.entities.User;
@@ -36,8 +18,9 @@ public class MathHandler extends BaseClientRequestHandler
 		// Check params
 		if (!params.containsKey("x") || !params.containsKey("y"))
 			throw new SFSRuntimeException("Invalid request, one mandatory param is missing. Required 'x' and 'y'");
-//		
-		VerseExtension gameExt = (VerseExtension) getParentExtension();
+		
+		VerseExtension verseExt = (VerseExtension) getParentExtension();
+		Verse verse = verseExt.getVerse();
 		
 		Float moveX = params.getFloat("x");
 		Float moveY = params.getFloat("y");
@@ -46,7 +29,7 @@ public class MathHandler extends BaseClientRequestHandler
 //		
 		res.putFloat("sum", moveX + moveY);
 		
-		gameExt.send("math", res, user);
+		verseExt.send("math", res, user);
 		
 //		gameExt.trace(String.format("Handling move from player %s. (%s, %s) = %s ", user.getPlayerId(), moveX, moveY));
 		

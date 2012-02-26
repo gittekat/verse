@@ -10,6 +10,9 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.google.common.base.Stopwatch;
+import com.hosh.verse.common.ActorFactory;
+import com.hosh.verse.common.CollisionChecker;
+import com.hosh.verse.common.VerseActor;
 
 public class StarmapTest {
 

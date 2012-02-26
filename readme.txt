@@ -7,3 +7,7 @@ eclipse trouble shooting:
 	eclipse.ini
 	-Xms512m
 	-Xmx1024m
+	
+smartfox server:
+- user: hosh pw: ishus109
+- deploy.jardesc -> create jar

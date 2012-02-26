@@ -1,4 +1,4 @@
-package com.hosh.verse;
+package com.hosh.verse.common;
 
 import java.util.HashMap;
 import java.util.Map;
