@@ -13,7 +13,6 @@
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
         <file path="/common/.project"/>
         <javaElement handleIdentifier="=common/src"/>
-        <folder path="/common/libs"/>
         <file path="/common/.classpath"/>
     </selectedElements>
 </jardesc>
