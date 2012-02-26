@@ -1,6 +1,5 @@
 package com.hosh.verse;
 
-import java.util.HashMap;
 import java.util.Set;
 
 import sfs2x.client.SmartFox;
@@ -31,18 +30,6 @@ import com.smartfoxserver.v2.entities.data.ISFSObject;
 import com.smartfoxserver.v2.entities.data.SFSObject;
 import com.smartfoxserver.v2.exceptions.SFSException;
 
-import de.exitgames.client.photon.DebugLevel;
-import de.exitgames.client.photon.EventData;
-import de.exitgames.client.photon.IPhotonPeerListener;
-import de.exitgames.client.photon.LiteEventCode;
-import de.exitgames.client.photon.LiteEventKey;
-import de.exitgames.client.photon.LiteOpCode;
-import de.exitgames.client.photon.LiteOpKey;
-import de.exitgames.client.photon.OperationResponse;
-import de.exitgames.client.photon.PhotonPeer;
-import de.exitgames.client.photon.StatusCode;
-import de.exitgames.client.photon.TypedHashMap;
-
 public class Game implements ApplicationListener, IEventListener {
 	private int WIDTH;
 	private int HEIGHT;
@@ -59,8 +46,8 @@ public class Game implements ApplicationListener, IEventListener {
 	private TextureRegion shipRegion;
 	private Texture shield;
 	private TextureRegion shieldRegion;
-	private Texture planet;
-	private TextureRegion planetRegion;
+	// private Texture planet;
+	// private TextureRegion planetRegion;
 	private Pixmap pixmap;
 	private Texture pixmapTexture;
 	Vector3 touchPoint;
@@ -68,13 +55,14 @@ public class Game implements ApplicationListener, IEventListener {
 	private VerseActor player;
 
 	// photon
-	private PhotonPeer peer;
-	private String photonStatus;
-	private String photonMessage;
+	// private PhotonPeer peer;
 
 	// smartfox
 	SmartFox sfsClient;
 	IEventListener evtListener;
+
+	private String serverStatus;
+	private String serverMessage;
 
 	@Override
 	public void create() {
@@ -103,9 +91,10 @@ public class Game implements ApplicationListener, IEventListener {
 		shield.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 		shieldRegion = new TextureRegion(shield);
 
-		planet = new Texture(Gdx.files.internal("planet_128.png"));
-		planet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-		planetRegion = new TextureRegion(planet);
+		// planet = new Texture(Gdx.files.internal("planet_128.png"));
+		// planet.setFilter(Texture.TextureFilter.Linear,
+		// Texture.TextureFilter.Linear);
+		// planetRegion = new TextureRegion(planet);
 
 		touchPoint = new Vector3();
 
@@ -114,15 +103,6 @@ public class Game implements ApplicationListener, IEventListener {
 		pixmap.fill();
 		pixmapTexture = new Texture(pixmap);
 
-		// tests photon
-		final boolean photon = false;
-		if (photon) {
-			final MyPhotonListener listener = new MyPhotonListener();
-			peer = new PhotonPeer(listener);
-			peer.connect("192.168.178.35:5055", "Lite");
-		}
-
-		// tests smartfox
 		final boolean smartfox = true;
 		if (smartfox) {
 			initSmartFox();
@@ -132,10 +112,6 @@ public class Game implements ApplicationListener, IEventListener {
 
 	@Override
 	public void render() {
-
-		// photon
-		// peer.service();
-		// photon
 
 		handleInput();
 		verse.update(Gdx.graphics.getDeltaTime());
@@ -197,15 +173,16 @@ public class Game implements ApplicationListener, IEventListener {
 
 	private void drawHUD() {
 		drawDebugInfo();
-		drawRadar();
+		// drawRadar();
 	}
 
 	private void drawDebugInfo() {
 		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 20, 20);
 		font.draw(batch, "Pos: " + player.getPos().x + " x " + player.getPos().y, 20, 40);
-		font.draw(batch, "Status: " + photonStatus + " - " + photonMessage, 20, 80);
+		font.draw(batch, "Status: " + serverStatus + " - " + serverMessage, 20, 80);
 	}
 
+	@SuppressWarnings("unused")
 	private void drawRadar() {
 		final int size = 80;
 		pixmap.drawRectangle(0, 0, size, size);
@@ -240,14 +217,6 @@ public class Game implements ApplicationListener, IEventListener {
 
 			sfsClient.send(new PublicMessageRequest("hosh: " + touchPoint.x + " X " + touchPoint.y));
 
-			// final SFSObject obj = new SFSObject();
-			// obj.putInt("n1", 90);
-			// obj.putInt("n2", 19);
-			//
-			// final ExtensionRequest req = new ExtensionRequest("math", new
-			// SFSObject(), sfsClient.getLastJoinedRoom());
-			// sfsClient.send(req); // TODO
-
 			final ISFSObject sfso = new SFSObject();
 			sfso.putInt("x", 90);
 			sfso.putInt("y", 19);
@@ -280,9 +249,6 @@ public class Game implements ApplicationListener, IEventListener {
 			}
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-			// smartfox
-			shutdownSmartFox();
-			// smartfox
 			Gdx.app.exit();
 		}
 	}
@@ -297,122 +263,16 @@ public class Game implements ApplicationListener, IEventListener {
 
 	@Override
 	public void dispose() {
+		shutdownSmartFox();
 	}
 
 	@Override
 	public void pause() {
 	}
 
-	private class MyPhotonListener implements IPhotonPeerListener {
-
-		private Integer playerId;
-
-		@Override
-		public void debugReturn(final DebugLevel arg0, final String arg1) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void onEvent(final EventData evt) {
-			System.out.println("OnEvent: " + evt.ToString());
-
-			switch (evt.Code) {
-			case 101:
-				final Integer sourceActorNum = (Integer) evt.Parameters.get(LiteEventKey.ActorNr.value());
-				// final TypedHashMap<Byte, Object> evData = (TypedHashMap<Byte,
-				// Object>) evt.Parameters.get(LiteEventKey.Data.value());
-				// if (evData != null) {
-				// System.out.println(" -> Player: " + sourceActorNum +
-				// " says: " + evData.get((byte) 1));
-				// } else {
-				// System.out.println("UhOh");
-				// }
-
-				final HashMap<Byte, Object> testMap = (HashMap<Byte, Object>) evt.Parameters.get(LiteEventKey.Data.value());
-				if (testMap != null) {
-					photonMessage = testMap.get((byte) 1).toString();
-					System.out.println(" -> Player: " + sourceActorNum + " says: " + testMap.get((byte) 1));
-				} else {
-					System.out.println("UhOh2");
-				}
-
-				break;
-			case LiteEventCode.Join:
-				final Integer[] actorsInGame = (Integer[]) evt.Parameters.get(LiteEventKey.ActorList.value());
-				for (final int i : actorsInGame) {
-					System.out.println("found actor: " + i);
-				}
-				break;
-			}
-		}
-
-		@Override
-		public void onOperationResponse(final OperationResponse res) {
-			if (res.ReturnCode == 0) {
-				System.out.println("OpRes: OK - " + res.ToStringFull());
-			} else {
-				System.out.println("OpRes: NOK - " + res.ToStringFull() + " DebugMessage: " + res.DebugMessage);
-				return;
-			}
-
-			switch (res.OperationCode) {
-			case LiteOpCode.Join:
-				if (res.Parameters.containsKey(LiteOpKey.ActorNr.value())) {
-					playerId = (Integer) res.Parameters.get(LiteOpKey.ActorNr.value());
-					System.out.println("playerId: " + playerId);
-				}
-
-				final Integer myActorNum = (Integer) res.Parameters.get(LiteOpKey.ActorNr.value());
-				System.out.println(" -> My Player Num is: " + myActorNum);
-				System.out.println("Calling OpRaiseEvent ...");
-
-				final TypedHashMap<Byte, Object> opParams = new TypedHashMap<Byte, Object>(Byte.class, Object.class);
-				opParams.put(LiteOpKey.Code.value(), (byte) 101);
-
-				final HashMap<Byte, Object> evData = new HashMap<Byte, Object>();
-				evData.put((byte) 1, "Hello World!");
-
-				opParams.put(LiteOpKey.Data.value(), evData);
-
-				System.err.println(peer.opCustom(LiteOpCode.RaiseEvent, opParams, true));
-
-				break;
-			}
-		}
-
-		@Override
-		public void peerStatusCallback(final StatusCode statusCode) {
-			photonStatus = statusCode.toString();
-			System.out.println("status changed to: " + statusCode.toString());
-
-			switch (statusCode) {
-			case Connect:
-				final TypedHashMap<Byte, Object> ht = new TypedHashMap<Byte, Object>(Byte.class, String.class); // TODO
-																												// achtung!!!
-				ht.put(LiteOpKey.RoomName.value(), "MyRoomName");
-				peer.opCustom(LiteOpCode.Join, ht, true);
-				break;
-			default:
-				break;
-			}
-		}
-	}
-
-	// ///////
-	// / smartfox
-	// ///////
-
 	private void initSmartFox() {
 		// Instantiate SmartFox client
-		sfsClient = new SmartFox(true);
-
-		// Add event listeners
-		// sfsClient.addEventListener(SFSEvent.CONNECTION, this);
-		// sfsClient.addEventListener(SFSEvent.CONNECTION_LOST, this);
-		// sfsClient.addEventListener(SFSEvent.LOGIN, this);
-		// sfsClient.addEventListener(SFSEvent.ROOM_JOIN, this);
-		// sfsClient.addEventListener(SFSEvent.HANDSHAKE, this);
+		sfsClient = new SmartFox(false);
 
 		sfsClient.addEventListener(SFSEvent.CONNECTION, this);
 		sfsClient.addEventListener(SFSEvent.CONNECTION_LOST, this);
@@ -422,21 +282,10 @@ public class Game implements ApplicationListener, IEventListener {
 		sfsClient.addEventListener(SFSEvent.USER_EXIT_ROOM, this);
 		sfsClient.addEventListener(SFSEvent.PUBLIC_MESSAGE, this);
 		sfsClient.addEventListener(SFSEvent.EXTENSION_RESPONSE, this);
-
-		// Displays the connect dialog box so the user can enter the server IP
-		// and port.
-		// showDialog(DIALOG_CONNECT_ID);
 	}
 
 	private void shutdownSmartFox() {
 		if (sfsClient != null) {
-			// sfsClient.removeEventListener(SFSEvent.CONNECTION, evtListener);
-			// sfsClient.removeEventListener(SFSEvent.CONNECTION_LOST,
-			// evtListener);
-			// sfsClient.removeEventListener(SFSEvent.LOGIN, evtListener);
-			// sfsClient.removeEventListener(SFSEvent.ROOM_JOIN, evtListener);
-			// sfsClient.removeEventListener(SFSEvent.HANDSHAKE, evtListener);
-
 			sfsClient.removeEventListener(SFSEvent.CONNECTION, this);
 			sfsClient.removeEventListener(SFSEvent.CONNECTION_LOST, this);
 			sfsClient.removeEventListener(SFSEvent.LOGIN, this);
@@ -451,10 +300,8 @@ public class Game implements ApplicationListener, IEventListener {
 	}
 
 	private void connectToServer(final String ip, final int port) {
-		// showDialog(DIALOG_CONNECTING_ID);
-
 		// connect() method is called in separate thread
-		// so it does not blocks the UI
+		// so it does not block the UI
 		final SmartFox sfs = sfsClient;
 		new Thread() {
 			@Override
@@ -466,93 +313,26 @@ public class Game implements ApplicationListener, IEventListener {
 
 	@Override
 	public void dispatch(final BaseEvent event) throws SFSException {
-		// new Runnable() {
-		// @Override
-		// public void run() {
-		// if (event.getType().equalsIgnoreCase(SFSEvent.CONNECTION)) {
-		// // status = getString(R.string.connected);
-		// // handler.sendEmptyMessage(0);
-		// if (event.getArguments().get("success").equals(true)) {
-		// // Login as guest in current zone
-		// sfsClient.send(new LoginRequest("", "", "zone"));
-		// // removeDialog(DIALOG_CONNECTING_ID);
-		// System.out.println("sfs: connecting...");
-		// }
-		// // otherwise error message is shown
-		// else {
-		// // removeDialog(DIALOG_CONNECTING_ID);
-		// // showDialog(DIALOG_CONNECTION_ERROR_ID);
-		// System.out.println("sfs: connection error");
-		// }
-		// } else if
-		// (event.getType().equalsIgnoreCase(SFSEvent.CONNECTION_LOST)) {
-		// // status = getString(R.string.connectionLost);
-		// // handler.sendEmptyMessage(0);
-		//
-		// // // Destroy SFS instance
-		// // onDestroy();
-		// shutdownSmartFox();
-		//
-		// System.out.println("sfs: connection lost");
-		//
-		// } else if (event.getType().equalsIgnoreCase(SFSEvent.LOGIN)) {
-		// // status = getString(R.string.login) +
-		// // sfsClient.getCurrentZone() + "' zone.\n";
-		// // handler.sendEmptyMessage(0);
-		//
-		// // Join The Lobby room
-		// sfsClient.send(new JoinRoomRequest("lobby"));
-		// } else if (event.getType().equalsIgnoreCase(SFSEvent.ROOM_JOIN)) {
-		// // status = getString(R.string.roomJoin) +
-		// // sfsClient.getLastJoinedRoom().getName() + "'.\n";
-		// // handler.sendEmptyMessage(0);
-		// System.out.println("sfs: " +
-		// sfsClient.getLastJoinedRoom().getName());
-		// }
-		// }
-		// };
 		if (event.getType().equalsIgnoreCase(SFSEvent.CONNECTION)) {
-			// status = getString(R.string.connected);
-			// handler.sendEmptyMessage(0);
 			if (event.getArguments().get("success").equals(true)) {
-				// Login as guest in current zone
-				// sfsClient.send(new LoginRequest("", "", "BasicExamples"));
 				sfsClient.send(new LoginRequest("", "", "VerseZone"));
-				// removeDialog(DIALOG_CONNECTING_ID);
 				System.out.println("sfs: connecting...");
 			}
 			// otherwise error message is shown
 			else {
-				// removeDialog(DIALOG_CONNECTING_ID);
-				// showDialog(DIALOG_CONNECTION_ERROR_ID);
 				System.out.println("sfs: connection error");
 			}
 		} else if (event.getType().equalsIgnoreCase(SFSEvent.CONNECTION_LOST)) {
-			// status = getString(R.string.connectionLost);
-			// handler.sendEmptyMessage(0);
-
-			// // Destroy SFS instance
-			// onDestroy();
 			shutdownSmartFox();
 
 			System.out.println("sfs: connection lost");
 
 		} else if (event.getType().equalsIgnoreCase(SFSEvent.LOGIN)) {
-			// status = getString(R.string.login) +
-			// sfsClient.getCurrentZone() + "' zone.\n";
-			// handler.sendEmptyMessage(0);
-
 			// Join The Lobby room
 			sfsClient.send(new JoinRoomRequest("The Lobby"));
-			// sfsClient.send(new JoinRoomRequest("Verse Lobby"));
 		} else if (event.getType().equalsIgnoreCase(SFSEvent.LOGIN_ERROR)) {
-			// mLoginError = event.getArguments().get("error").toString();
-			// showDialog(DIALOG_LOGIN_ERROR_ID);
 			System.out.println(event.getArguments().get("error").toString());
 		} else if (event.getType().equalsIgnoreCase(SFSEvent.ROOM_JOIN)) {
-			// status = getString(R.string.roomJoin) +
-			// sfsClient.getLastJoinedRoom().getName() + "'.\n";
-			// handler.sendEmptyMessage(0);
 			System.out.println("sfs: " + sfsClient.getLastJoinedRoom().getName());
 		} else if (event.getType().equalsIgnoreCase(SFSEvent.ROOM_JOIN_ERROR)) {
 			System.out.println("room join error");
@@ -565,13 +345,9 @@ public class Game implements ApplicationListener, IEventListener {
 		} else if (event.getType().equals(SFSEvent.PUBLIC_MESSAGE)) {
 			final User sender = (User) event.getArguments().get("sender");
 			final String msg = event.getArguments().get("message").toString();
-			// appendChatMessage("[" + sender.getName() + "]: " + msg + "\n");
 			System.out.println("[" + sender.getName() + "]: " + msg + "\n");
-			photonMessage = msg;
+			serverMessage = msg;
 		}
-		// else if (event.getType().equals(SFSEvent.EXTENSION_RESPONSE)) {
-		// System.out.println("got response... but dunno what :(");
-		// }
 
 		if (event.getType().equalsIgnoreCase(SFSEvent.EXTENSION_RESPONSE)) {
 
@@ -579,10 +355,9 @@ public class Game implements ApplicationListener, IEventListener {
 			ISFSObject resObj = new SFSObject();
 			resObj = (ISFSObject) event.getArguments().get("params");
 
-			final int dunno = resObj.getInt("sum");
+			final Integer dunno = resObj.getInt("sum");
 
-			System.out.println("!!!!got response... " + dunno);
+			System.out.println("got response (" + cmd + "): " + dunno);
 		}
 	}
-
 }

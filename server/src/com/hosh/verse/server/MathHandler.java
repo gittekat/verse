@@ -37,7 +37,7 @@ public class MathHandler extends BaseClientRequestHandler
 		if (!params.containsKey("x") || !params.containsKey("y"))
 			throw new SFSRuntimeException("Invalid request, one mandatory param is missing. Required 'x' and 'y'");
 //		
-		TrisExtension gameExt = (TrisExtension) getParentExtension();
+		VerseExtension gameExt = (VerseExtension) getParentExtension();
 		
 		int moveX = params.getInt("x");
 		int	moveY = params.getInt("y");

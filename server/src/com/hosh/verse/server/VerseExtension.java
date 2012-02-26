@@ -20,16 +20,19 @@ package com.hosh.verse.server;
 //
 //}
 
+import com.smartfoxserver.v2.core.SFSEventType;
 import com.smartfoxserver.v2.extensions.SFSExtension;
 
-public class TrisExtension extends SFSExtension
+public class VerseExtension extends SFSExtension
 {
-	private final String version = "1.0.5";
+	private final String version = "0.0.1";
 	
 	@Override
 	public void init()
 	{
-		trace("Tris game Extension for SFS2X started, rel. " + version);
+		trace("verse server extension, rel. " + version);
+		
+		addEventHandler(SFSEventType.USER_JOIN_ROOM, OnRoomJoinHandler.class);
 		
 	    addRequestHandler("move", MathHandler.class);
 	}
@@ -38,7 +41,7 @@ public class TrisExtension extends SFSExtension
 	public void destroy() 
 	{
 		super.destroy();
-		trace("Tris game destroyed!");
+		trace("verse destroyed!");
 	}
 		
 	

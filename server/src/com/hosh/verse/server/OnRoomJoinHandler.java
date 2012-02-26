@@ -12,6 +12,9 @@ public class OnRoomJoinHandler extends BaseServerEventHandler {
 
 	@Override
 	public void handleServerEvent(ISFSEvent event) throws SFSException {
+		
+		trace("OnRoomJoinHandler invoked.");
+		
 //		User player =(User) event.getParameter(SFSEventParam.USER);
 //		curRoom = player.getLastJoinedRoom();
 //		zoneExt = (ServerExtension) getParentExtension();
