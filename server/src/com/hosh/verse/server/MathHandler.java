@@ -39,12 +39,12 @@ public class MathHandler extends BaseClientRequestHandler
 //		
 		VerseExtension gameExt = (VerseExtension) getParentExtension();
 		
-		int moveX = params.getInt("x");
-		int	moveY = params.getInt("y");
+		Float moveX = params.getFloat("x");
+		Float moveY = params.getFloat("y");
 		
 		ISFSObject res = new SFSObject();
 //		
-		res.putInt("sum", moveX + moveY);
+		res.putFloat("sum", moveX + moveY);
 		
 		gameExt.send("math", res, user);
 		

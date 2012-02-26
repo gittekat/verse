@@ -1,5 +1,6 @@
 package com.hosh.verse;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import sfs2x.client.SmartFox;
@@ -36,7 +37,7 @@ public class Game implements ApplicationListener, IEventListener {
 	private int HALF_WIDTH;
 	private int HALF_HEIGHT;
 
-	private Verse verse;
+	// private Verse verse;
 
 	private OrthographicCamera cam;
 
@@ -52,7 +53,8 @@ public class Game implements ApplicationListener, IEventListener {
 	private Texture pixmapTexture;
 	Vector3 touchPoint;
 
-	private VerseActor player;
+	private VerseActor player = new VerseActor(0, 100, 100, 5);
+	private Vector2 playerPos = new Vector2(100, 100);
 
 	// photon
 	// private PhotonPeer peer;
@@ -71,8 +73,8 @@ public class Game implements ApplicationListener, IEventListener {
 		HALF_WIDTH = WIDTH / 2;
 		HALF_HEIGHT = HEIGHT / 2;
 
-		verse = new Verse(1000, 1000);
-		player = verse.getPlayer();
+		// verse = new Verse(1000, 1000);
+		// player = verse.getPlayer();
 
 		font = new BitmapFont();
 		font.setColor(Color.RED);
@@ -114,7 +116,7 @@ public class Game implements ApplicationListener, IEventListener {
 	public void render() {
 
 		handleInput();
-		verse.update(Gdx.graphics.getDeltaTime());
+		// verse.update(Gdx.graphics.getDeltaTime());
 
 		// cam.update();
 		// cam.apply(gl);
@@ -125,7 +127,8 @@ public class Game implements ApplicationListener, IEventListener {
 
 		batch.begin();
 		{
-			final Set<VerseActor> visibleActors = verse.getVisibleActors();
+			// final Set<VerseActor> visibleActors = verse.getVisibleActors();
+			final Set<VerseActor> visibleActors = new HashSet<VerseActor>();
 			font.draw(batch, "visible: " + visibleActors.size(), 20, 60);
 			// System.out.println(visibleActors.size());
 			drawHUD();
@@ -218,8 +221,8 @@ public class Game implements ApplicationListener, IEventListener {
 			sfsClient.send(new PublicMessageRequest("hosh: " + touchPoint.x + " X " + touchPoint.y));
 
 			final ISFSObject sfso = new SFSObject();
-			sfso.putInt("x", 90);
-			sfso.putInt("y", 19);
+			sfso.putFloat("x", 90.f);
+			sfso.putFloat("y", 19.109f);
 			sfsClient.send(new ExtensionRequest("move", sfso));
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
@@ -348,14 +351,13 @@ public class Game implements ApplicationListener, IEventListener {
 			System.out.println("[" + sender.getName() + "]: " + msg + "\n");
 			serverMessage = msg;
 		}
-
 		if (event.getType().equalsIgnoreCase(SFSEvent.EXTENSION_RESPONSE)) {
 
 			final String cmd = event.getArguments().get("cmd").toString();
 			ISFSObject resObj = new SFSObject();
 			resObj = (ISFSObject) event.getArguments().get("params");
 
-			final Integer dunno = resObj.getInt("sum");
+			final Float dunno = resObj.getFloat("sum");
 
 			serverStatus = "got response (" + cmd + "): " + dunno;
 			System.out.println(serverStatus);

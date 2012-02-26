@@ -5,9 +5,7 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="lib" path="libs/gdx-backend-android.jar" sourcepath="libs/gdx-backend-android-sources.jar"/>
-	<classpathentry kind="lib" path="/verse/libs/gdx.jar" sourcepath="/verse/libs/gdx-sources.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/verse"/>
-	<classpathentry kind="lib" path="/verse/libs/guava-11.0.1.jar" sourcepath="/verse/libs/guava-11.0.1-sources.jar"/>
 	<classpathentry kind="lib" path="/verse/libs/photon-android.jar"/>
 	<classpathentry kind="lib" path="/verse/libs/commons-lang-2.4.jar"/>
 	<classpathentry kind="lib" path="/verse/libs/jdom.jar"/>
@@ -16,5 +14,7 @@
 	<classpathentry kind="lib" path="/verse/libs/sfs2x-client-core.jar"/>
 	<classpathentry kind="lib" path="/verse/libs/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="lib" path="/verse/libs/slf4j-simple-1.6.1.jar"/>
+	<classpathentry kind="lib" path="/common/libs/gdx.jar" sourcepath="/common/libs/gdx-sources.jar"/>
+	<classpathentry kind="lib" path="/common/libs/guava-11.0.1.jar" sourcepath="/common/libs/guava-11.0.1-sources.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
