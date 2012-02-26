@@ -57,9 +57,6 @@ public class Game implements ApplicationListener, IEventListener {
 	private VerseActor player = new VerseActor(0, 100, 100, 5);
 	private Vector2 playerPos = new Vector2(100, 100);
 
-	// photon
-	// private PhotonPeer peer;
-
 	// smartfox
 	SmartFox sfsClient;
 	IEventListener evtListener;
