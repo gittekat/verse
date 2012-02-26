@@ -1,8 +1,9 @@
-/verse/assets
-/verse-android/gen
-/verse-android/bin
+/verse/bin
 /verse-desktop/bin
-/verse-desktop/assets-android
-/verse-desktop/assets
+/verse-android/bin
 /server/bin
 /common/bin
+/verse/assets
+/verse-android/gen
+/verse-desktop/assets-android
+/verse-desktop/assets
