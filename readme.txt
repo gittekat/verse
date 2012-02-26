@@ -9,5 +9,7 @@ eclipse trouble shooting:
 	-Xmx1024m
 	
 smartfox server:
-- user: hosh pw: ishus109
+- create VerseExtension folder and deploy server jar there
 - deploy.jardesc -> create jar
+- gdx.jar und guava.jar in lib folder of smartfox or in VerseExtension folder
+- mysql connector in lib folder of smartfox

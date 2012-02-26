@@ -11,8 +11,9 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <javaElement handleIdentifier="=Server/src"/>
+        <javaElement handleIdentifier="=common/src"/>
         <file path="/Server/.classpath"/>
+        <javaElement handleIdentifier="=Server/src"/>
         <file path="/Server/.project"/>
     </selectedElements>
 </jardesc>

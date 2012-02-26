@@ -103,11 +103,8 @@ public class Game implements ApplicationListener, IEventListener {
 		pixmap.fill();
 		pixmapTexture = new Texture(pixmap);
 
-		final boolean smartfox = true;
-		if (smartfox) {
-			initSmartFox();
-			connectToServer("192.168.178.35", 9933);
-		}
+		initSmartFox();
+		connectToServer("localhost", 9933);
 	}
 
 	@Override
