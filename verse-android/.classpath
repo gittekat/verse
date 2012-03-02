@@ -14,7 +14,7 @@
 	<classpathentry kind="lib" path="/verse/libs/sfs2x-client-core.jar"/>
 	<classpathentry kind="lib" path="/verse/libs/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="lib" path="/verse/libs/slf4j-simple-1.6.1.jar"/>
-	<classpathentry kind="lib" path="/common/libs/gdx.jar" sourcepath="/common/libs/gdx-sources.jar"/>
-	<classpathentry kind="lib" path="/common/libs/guava-11.0.1.jar" sourcepath="/common/libs/guava-11.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="/verse-common/libs/gdx.jar" sourcepath="/verse-common/libs/gdx-sources.jar"/>
+	<classpathentry kind="lib" path="/verse-common/libs/guava-11.0.1.jar" sourcepath="/verse-common/libs/guava-11.0.1-sources.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

@@ -275,6 +275,16 @@ public class Game implements ApplicationListener, IEventListener {
 		sfsClient.addEventListener(SFSEvent.CONNECTION, this);
 		sfsClient.addEventListener(SFSEvent.CONNECTION_LOST, this);
 		sfsClient.addEventListener(SFSEvent.LOGIN, this);
+
+		sfsClient.addEventListener(SFSEvent.LOGIN_ERROR, new IEventListener() {
+
+			@Override
+			public void dispatch(final BaseEvent arg0) throws SFSException {
+				System.out.println("woss homms gsagt??");
+				Gdx.app.exit();
+			}
+		});
+
 		sfsClient.addEventListener(SFSEvent.ROOM_JOIN, this);
 		sfsClient.addEventListener(SFSEvent.USER_ENTER_ROOM, this);
 		sfsClient.addEventListener(SFSEvent.USER_EXIT_ROOM, this);
@@ -287,6 +297,7 @@ public class Game implements ApplicationListener, IEventListener {
 			sfsClient.removeEventListener(SFSEvent.CONNECTION, this);
 			sfsClient.removeEventListener(SFSEvent.CONNECTION_LOST, this);
 			sfsClient.removeEventListener(SFSEvent.LOGIN, this);
+			sfsClient.removeEventListener(SFSEvent.LOGIN_ERROR, this);
 			sfsClient.removeEventListener(SFSEvent.ROOM_JOIN, this);
 			sfsClient.removeEventListener(SFSEvent.USER_ENTER_ROOM, this);
 			sfsClient.removeEventListener(SFSEvent.USER_EXIT_ROOM, this);
@@ -313,7 +324,7 @@ public class Game implements ApplicationListener, IEventListener {
 	public void dispatch(final BaseEvent event) throws SFSException {
 		if (event.getType().equalsIgnoreCase(SFSEvent.CONNECTION)) {
 			if (event.getArguments().get("success").equals(true)) {
-				sfsClient.send(new LoginRequest("", "", "VerseZone"));
+				sfsClient.send(new LoginRequest("hosh", "109", "VerseZone"));
 				System.out.println("sfs: connecting...");
 			}
 			// otherwise error message is shown
@@ -328,8 +339,9 @@ public class Game implements ApplicationListener, IEventListener {
 		} else if (event.getType().equalsIgnoreCase(SFSEvent.LOGIN)) {
 			// Join The Lobby room
 			sfsClient.send(new JoinRoomRequest("The Lobby"));
-		} else if (event.getType().equalsIgnoreCase(SFSEvent.LOGIN_ERROR)) {
-			System.out.println(event.getArguments().get("error").toString());
+			// } else if
+			// (event.getType().equalsIgnoreCase(SFSEvent.LOGIN_ERROR)) {
+			// System.out.println(event.getArguments().get("error").toString());
 		} else if (event.getType().equalsIgnoreCase(SFSEvent.ROOM_JOIN)) {
 			System.out.println("sfs: " + sfsClient.getLastJoinedRoom().getName());
 		} else if (event.getType().equalsIgnoreCase(SFSEvent.ROOM_JOIN_ERROR)) {
@@ -358,4 +370,5 @@ public class Game implements ApplicationListener, IEventListener {
 			System.out.println(serverStatus);
 		}
 	}
+
 }

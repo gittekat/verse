@@ -29,7 +29,10 @@ import com.smartfoxserver.v2.db.IDBManager;
 import com.smartfoxserver.v2.extensions.SFSExtension;
 
 public class VerseExtension extends SFSExtension {
-	private final String version = "0.0.1";
+	private final static String version = "0.0.1";
+
+	public static final String DATABASE_ID = "dbID";
+
 	private Verse verse;
 
 	@Override
@@ -37,6 +40,8 @@ public class VerseExtension extends SFSExtension {
 		trace("verse server extension, rel. " + version);
 
 		verse = new Verse(1000, 1000);
+
+		addEventHandler(SFSEventType.USER_LOGIN, LoginEventHandler.class);
 
 		addEventHandler(SFSEventType.USER_JOIN_ROOM, OnRoomJoinHandler.class);
 
@@ -68,7 +73,6 @@ public class VerseExtension extends SFSExtension {
 
 			// Execute query
 			final ResultSet res = stmt.executeQuery();
-			trace("kermit");
 
 			// Verify that one record was found
 			if (!res.first()) {
