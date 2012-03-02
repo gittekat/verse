@@ -61,7 +61,7 @@ public class Game implements ApplicationListener, IEventListener {
 	SmartFox sfsClient;
 	IEventListener evtListener;
 
-	private String serverStatus;
+	private String serverStatus = "not yet set!";
 	private String serverMessage;
 
 	@Override
@@ -104,7 +104,7 @@ public class Game implements ApplicationListener, IEventListener {
 		pixmapTexture = new Texture(pixmap);
 
 		initSmartFox();
-		connectToServer("localhost", 9933);
+		connectToServer("192.168.178.35", 9933);
 	}
 
 	@Override
@@ -324,21 +324,24 @@ public class Game implements ApplicationListener, IEventListener {
 	public void dispatch(final BaseEvent event) throws SFSException {
 		if (event.getType().equalsIgnoreCase(SFSEvent.CONNECTION)) {
 			if (event.getArguments().get("success").equals(true)) {
-				sfsClient.send(new LoginRequest("hosh", "109", "VerseZone"));
+				sfsClient.send(new LoginRequest("Kermit", "thefrog", "VerseZone"));
 				System.out.println("sfs: connecting...");
 			}
 			// otherwise error message is shown
 			else {
 				System.out.println("sfs: connection error");
+				serverMessage = "sfs: connection error";
 			}
 		} else if (event.getType().equalsIgnoreCase(SFSEvent.CONNECTION_LOST)) {
 			shutdownSmartFox();
 
 			System.out.println("sfs: connection lost");
+			serverMessage = "sfs: connection lost";
 
 		} else if (event.getType().equalsIgnoreCase(SFSEvent.LOGIN)) {
 			// Join The Lobby room
 			sfsClient.send(new JoinRoomRequest("The Lobby"));
+			serverStatus = "entered The Lobby";
 			// } else if
 			// (event.getType().equalsIgnoreCase(SFSEvent.LOGIN_ERROR)) {
 			// System.out.println(event.getArguments().get("error").toString());
