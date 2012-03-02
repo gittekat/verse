@@ -16,5 +16,6 @@
 	<classpathentry kind="lib" path="/verse/libs/slf4j-simple-1.6.1.jar"/>
 	<classpathentry kind="lib" path="/verse-common/libs/gdx.jar" sourcepath="/verse-common/libs/gdx-sources.jar"/>
 	<classpathentry kind="lib" path="/verse-common/libs/guava-11.0.1.jar" sourcepath="/verse-common/libs/guava-11.0.1-sources.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/verse-common"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
