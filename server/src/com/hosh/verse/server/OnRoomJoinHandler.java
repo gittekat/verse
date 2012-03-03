@@ -48,7 +48,7 @@ public class OnRoomJoinHandler extends BaseServerEventHandler {
 		final VerseExtension verseExt = (VerseExtension) getParentExtension();
 		final Verse verse = verseExt.getVerse();
 
-		dbConnectionTest();
+		// dbConnectionTest();
 
 	}
 

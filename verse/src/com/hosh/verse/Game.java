@@ -1,7 +1,10 @@
 package com.hosh.verse;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.ini4j.Wini;
 
 import sfs2x.client.SmartFox;
 import sfs2x.client.core.BaseEvent;
@@ -64,8 +67,12 @@ public class Game implements ApplicationListener, IEventListener {
 	private String serverStatus = "not yet set!";
 	private String serverMessage;
 
+	private String userName;
+	private String password;
+
 	@Override
 	public void create() {
+		readConfig();
 		WIDTH = Gdx.graphics.getWidth();
 		HEIGHT = Gdx.graphics.getHeight();
 		HALF_WIDTH = WIDTH / 2;
@@ -105,6 +112,31 @@ public class Game implements ApplicationListener, IEventListener {
 
 		initSmartFox();
 		connectToServer("192.168.178.35", 9933);
+	}
+
+	private void readConfig() {
+		Wini ini;
+		try {
+			ini = new Wini(new File("verse.ini"));
+			final int users = ini.get("debug_user", "users", int.class);
+			int id = ini.get("debug_user", "lastId", int.class);
+			id += 1;
+			if (id > users) {
+				id = 1;
+			}
+			ini.put("debug_user", "lastId", id);
+			ini.store();
+
+			userName = ini.get("debug_user", "user" + id);
+			password = ini.get("debug_user", "pw" + id);
+			serverMessage = "id: " + id + " user: " + userName;
+			// System.out.println(serverMessage);
+		} catch (final Exception e) {
+			// android
+			userName = "android";
+			password = "109";
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -213,7 +245,7 @@ public class Game implements ApplicationListener, IEventListener {
 
 			player.setCurSpeed(100);
 
-			sfsClient.send(new PublicMessageRequest("hosh: " + touchPoint.x + " X " + touchPoint.y));
+			sfsClient.send(new PublicMessageRequest("player: " + touchPoint.x + " X " + touchPoint.y));
 
 			final ISFSObject sfso = new SFSObject();
 			sfso.putFloat("x", 90.f);
@@ -294,16 +326,7 @@ public class Game implements ApplicationListener, IEventListener {
 
 	private void shutdownSmartFox() {
 		if (sfsClient != null) {
-			sfsClient.removeEventListener(SFSEvent.CONNECTION, this);
-			sfsClient.removeEventListener(SFSEvent.CONNECTION_LOST, this);
-			sfsClient.removeEventListener(SFSEvent.LOGIN, this);
-			sfsClient.removeEventListener(SFSEvent.LOGIN_ERROR, this);
-			sfsClient.removeEventListener(SFSEvent.ROOM_JOIN, this);
-			sfsClient.removeEventListener(SFSEvent.USER_ENTER_ROOM, this);
-			sfsClient.removeEventListener(SFSEvent.USER_EXIT_ROOM, this);
-			sfsClient.removeEventListener(SFSEvent.PUBLIC_MESSAGE, this);
-			sfsClient.removeEventListener(SFSEvent.EXTENSION_RESPONSE, this);
-
+			sfsClient.removeAllEventListeners();
 			sfsClient.disconnect();
 		}
 	}
@@ -324,7 +347,7 @@ public class Game implements ApplicationListener, IEventListener {
 	public void dispatch(final BaseEvent event) throws SFSException {
 		if (event.getType().equalsIgnoreCase(SFSEvent.CONNECTION)) {
 			if (event.getArguments().get("success").equals(true)) {
-				sfsClient.send(new LoginRequest("Kermit", "thefrog", "VerseZone"));
+				sfsClient.send(new LoginRequest(userName, password, "VerseZone"));
 				System.out.println("sfs: connecting...");
 			}
 			// otherwise error message is shown
@@ -373,5 +396,4 @@ public class Game implements ApplicationListener, IEventListener {
 			System.out.println(serverStatus);
 		}
 	}
-
 }

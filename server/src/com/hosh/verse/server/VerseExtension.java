@@ -69,7 +69,7 @@ public class VerseExtension extends SFSExtension {
 			connection = dbManager.getConnection();
 
 			// Build a prepared statement
-			final PreparedStatement stmt = connection.prepareStatement("SELECT * FROM muppets");
+			final PreparedStatement stmt = connection.prepareStatement("SELECT * FROM accounts");
 
 			// Execute query
 			final ResultSet res = stmt.executeQuery();
@@ -78,8 +78,9 @@ public class VerseExtension extends SFSExtension {
 			if (!res.first()) {
 				trace("noone in db found!");
 			} else {
-				final String name = res.getString("name");
-				trace("the kermit: hi my name is the " + name);
+				// final String name = res.getString("name");
+				// trace("the kermit: hi my name is the " + name);
+				trace("rows found in accounts: " + res.getRow());
 			}
 		} catch (final Exception e) {
 			trace(e.getMessage());

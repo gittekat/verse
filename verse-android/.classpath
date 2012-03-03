@@ -17,5 +17,10 @@
 	<classpathentry kind="lib" path="/verse-common/libs/gdx.jar" sourcepath="/verse-common/libs/gdx-sources.jar"/>
 	<classpathentry kind="lib" path="/verse-common/libs/guava-11.0.1.jar" sourcepath="/verse-common/libs/guava-11.0.1-sources.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/verse-common"/>
+	<classpathentry kind="lib" path="/verse-common/libs/ini4j-0.5.2.jar" sourcepath="/verse-common/libs/ini4j-0.5.2-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/verse-common/libs/ini4j-0.5.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
