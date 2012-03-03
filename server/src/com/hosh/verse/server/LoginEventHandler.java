@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Vector;
 
 import com.smartfoxserver.bitswarm.sessions.ISession;
 import com.smartfoxserver.v2.annotations.Instantiation;
@@ -22,13 +21,8 @@ import com.smartfoxserver.v2.extensions.BaseServerEventHandler;
 public class LoginEventHandler extends BaseServerEventHandler {
 
 	int cnt = 0;
-	Vector<String> debugUserNames = new Vector<String>();
-
-	public LoginEventHandler() {
-		debugUserNames.add("hosh");
-		debugUserNames.add("emmel");
-		debugUserNames.add("tarkin");
-	}
+	private VerseExtension verseExt;
+	private Verse verse;
 
 	@Override
 	public void handleServerEvent(final ISFSEvent event) throws SFSException {
@@ -38,19 +32,15 @@ public class LoginEventHandler extends BaseServerEventHandler {
 
 		trace("LoginEventHandler: " + cryptedPass);
 
-		login(userName, cryptedPass, session, true);
-
-		// debug
-		// login(debugUserNames.get(cnt), cryptedPass, session, false);
+		login(userName, cryptedPass, session);
 
 		cnt++;
-		if (cnt > debugUserNames.size()) {
-			cnt = 0;
-		}
+
+		verseExt = (VerseExtension) getParentExtension();
+		verse = verseExt.getVerse();
 	}
 
-	private void login(final String userName, final String cryptedPass, final ISession session, final boolean checkPassword)
-			throws SFSException {
+	private void login(final String userName, final String cryptedPass, final ISession session) throws SFSException {
 
 		trace("LoginEventHandler invoked: loggin in " + userName + "...");
 
@@ -82,7 +72,7 @@ public class LoginEventHandler extends BaseServerEventHandler {
 			final String dbPword = res.getString("password");
 
 			// Verify the secure password
-			if (checkPassword && !getApi().checkSecurePassword(session, dbPword, cryptedPass)) {
+			if (!getApi().checkSecurePassword(session, dbPword, cryptedPass)) {
 				final SFSErrorData data = new SFSErrorData(SFSErrorCode.LOGIN_BAD_PASSWORD);
 				data.addParameter(userName);
 

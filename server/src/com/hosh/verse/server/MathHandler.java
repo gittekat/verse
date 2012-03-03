@@ -9,31 +9,30 @@ import com.smartfoxserver.v2.exceptions.SFSRuntimeException;
 import com.smartfoxserver.v2.extensions.BaseClientRequestHandler;
 
 @Instantiation(InstantiationMode.SINGLE_INSTANCE)
-public class MathHandler extends BaseClientRequestHandler
-{
-	
-	@Override
-	public void handleClientRequest(User user, ISFSObject params)
-	{
-		// Check params
-		if (!params.containsKey("x") || !params.containsKey("y"))
-			throw new SFSRuntimeException("Invalid request, one mandatory param is missing. Required 'x' and 'y'");
-		
-		VerseExtension verseExt = (VerseExtension) getParentExtension();
-		Verse verse = verseExt.getVerse();
-		
-		Float moveX = params.getFloat("x");
-		Float moveY = params.getFloat("y");
-		
-		ISFSObject res = new SFSObject();
-//		
-		res.putFloat("sum", moveX + moveY);
-		
-		verseExt.send("math", res, user);
-		
-//		gameExt.trace(String.format("Handling move from player %s. (%s, %s) = %s ", user.getPlayerId(), moveX, moveY));
-		
-	}
-	
-}
+public class MathHandler extends BaseClientRequestHandler {
 
+	@Override
+	public void handleClientRequest(final User user, final ISFSObject params) {
+		// Check params
+		if (!params.containsKey("x") || !params.containsKey("y")) {
+			throw new SFSRuntimeException("Invalid request, one mandatory param is missing. Required 'x' and 'y'");
+		}
+
+		final VerseExtension verseExt = (VerseExtension) getParentExtension();
+		// final Verse verse = verseExt.getVerse();
+
+		final Float moveX = params.getFloat("x");
+		final Float moveY = params.getFloat("y");
+
+		final ISFSObject res = new SFSObject();
+		//
+		res.putFloat("sum", moveX + moveY);
+
+		verseExt.send("math", res, user);
+
+		// gameExt.trace(String.format("Handling move from player %s. (%s, %s) = %s ",
+		// user.getPlayerId(), moveX, moveY));
+
+	}
+
+}

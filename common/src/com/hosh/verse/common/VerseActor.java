@@ -33,7 +33,7 @@ public class VerseActor {
 
 		setCurOrientation(new Vector2(0, 0));
 		rotationAngle = 0.f;
-		rotationSpeed = 0.f;
+		setRotationSpeed(0.f);
 
 		setMaxSpeed(50);
 		setCurSpeed(0);
@@ -112,12 +112,28 @@ public class VerseActor {
 		curOrientation = orientation;
 	}
 
+	public Vector2 getTargetOrientation() {
+		return targetOrientation;
+	}
+
+	public void setTargetOrientation(Vector2 targetOrientation) {
+		this.targetOrientation = targetOrientation;
+	}
+
 	public float getRotationAngle() {
 		return rotationAngle;
 	}
 
 	public void setRotationAngle(final float rotationAngle) {
 		this.rotationAngle = rotationAngle;
+	}
+
+	public float getRotationSpeed() {
+		return rotationSpeed;
+	}
+
+	public void setRotationSpeed(float rotationSpeed) {
+		this.rotationSpeed = rotationSpeed;
 	}
 
 	public float getShieldStrength() {
