@@ -19,7 +19,5 @@
         <folder path="/verse-server/libs"/>
         <file path="/verse-server/.classpath"/>
         <file path="/verse-common/.project"/>
-        <file path="/verse-server/deploy.jardesc"/>
-        <file path="/verse-common/deploy.jardesc"/>
     </selectedElements>
 </jardesc>

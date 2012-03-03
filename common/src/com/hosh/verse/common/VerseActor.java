@@ -4,6 +4,20 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 
 public class VerseActor {
+	private int charId;
+	private String name;
+
+	private int exp;
+	private int level;
+
+	private float maxHp;
+	private float curHp;
+
+	private float shieldStrength;
+
+	private float maxSpeed;
+	private float curSpeed;
+
 	private Vector2 curPos;
 	private Vector2 targetPos;
 
@@ -17,12 +31,7 @@ public class VerseActor {
 	private float rotationAngle;
 	private float rotationSpeed;
 
-	private float maxSpeed;
-	private float curSpeed;
-
-	private float shieldStrength;
-	private int id;
-
+	/** default constructor */
 	public VerseActor(final int id, final float posX, final float posY, final float radius) {
 		this.setId(id);
 		curPos = new Vector2(posX, posY);
@@ -32,6 +41,32 @@ public class VerseActor {
 		squaredRadius = radius * radius;
 
 		setCurOrientation(new Vector2(0, 0));
+		rotationAngle = 0.f;
+		setRotationSpeed(0.f);
+
+		setMaxSpeed(50);
+		setCurSpeed(0);
+
+		setShieldStrength(0.4f);
+	}
+
+	/** player constructor */
+	public VerseActor(final int charId, final String name, final int exp, final int level, final int maxHp, final int curHp,
+			final float posX, final float posY, final float heading, final float radius) {
+		this.setId(charId);
+		this.setName(name);
+		this.setExp(exp);
+		this.setLevel(level);
+		this.setMaxHp(maxHp);
+		this.setCurHp(curHp);
+
+		curPos = new Vector2(posX, posY);
+		targetPos = new Vector2(posX, posY);
+		this.radius = radius;
+		bounds = new Circle(curPos, radius);
+		squaredRadius = radius * radius;
+
+		setCurOrientation(new Vector2(0, heading));
 		rotationAngle = 0.f;
 		setRotationSpeed(0.f);
 
@@ -116,7 +151,7 @@ public class VerseActor {
 		return targetOrientation;
 	}
 
-	public void setTargetOrientation(Vector2 targetOrientation) {
+	public void setTargetOrientation(final Vector2 targetOrientation) {
 		this.targetOrientation = targetOrientation;
 	}
 
@@ -132,7 +167,7 @@ public class VerseActor {
 		return rotationSpeed;
 	}
 
-	public void setRotationSpeed(float rotationSpeed) {
+	public void setRotationSpeed(final float rotationSpeed) {
 		this.rotationSpeed = rotationSpeed;
 	}
 
@@ -140,16 +175,68 @@ public class VerseActor {
 		return shieldStrength;
 	}
 
+	public int getCharId() {
+		return charId;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(final String name) {
+		this.name = name;
+	}
+
+	public int getExp() {
+		return exp;
+	}
+
+	public int getLevel() {
+		return level;
+	}
+
+	public float getMaxHp() {
+		return maxHp;
+	}
+
+	public float getCurHp() {
+		return curHp;
+	}
+
+	public Vector2 getCurPos() {
+		return curPos;
+	}
+
+	public void setExp(final int exp) {
+		this.exp = exp;
+	}
+
+	public void setLevel(final int level) {
+		this.level = level;
+	}
+
+	public void setMaxHp(final float maxHp) {
+		this.maxHp = maxHp;
+	}
+
+	public void setCurHp(final float curHp) {
+		this.curHp = curHp;
+	}
+
+	public void setCurPos(final Vector2 curPos) {
+		this.curPos = curPos;
+	}
+
 	public void setShieldStrength(final float shieldStrength) {
 		this.shieldStrength = shieldStrength;
 	}
 
 	public int getId() {
-		return id;
+		return charId;
 	}
 
 	public void setId(final int id) {
-		this.id = id;
+		this.charId = id;
 	}
 
 	@Override

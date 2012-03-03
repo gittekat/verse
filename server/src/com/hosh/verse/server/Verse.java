@@ -1,5 +1,6 @@
 package com.hosh.verse.server;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -11,21 +12,21 @@ import com.hosh.verse.common.VerseActor;
 import com.hosh.verse.quadtree.PointQuadTree;
 
 public class Verse {
+	Connection dbConnection;
+
 	public final int dimensionX;
 	public final int dimensionY;
-	private VerseActor player;
+	private List<VerseActor> playerList;
 	private List<VerseActor> actorList;
 	private PointQuadTree<VerseActor> qtTree;
 
-	public Verse(final int dimensionX, final int dimensionY) {
+	public Verse(final Connection dbConnection, final int dimensionX, final int dimensionY) {
+		this.dbConnection = dbConnection;
+
 		this.dimensionX = dimensionX;
 		this.dimensionY = dimensionY;
-		setPlayer(ActorFactory.createActor(500.f, 500.f, 5.f));
 
 		actorList = new ArrayList<VerseActor>();
-		// actorList.add(ActorFactory.createActor(1100.f, 1100.f, 5.f)); //
-		// debug
-		// probe
 		for (int i = 0; i < 10000; ++i) {
 			final VerseActor actor = ActorFactory.createActor(MathUtils.random(dimensionX), MathUtils.random(dimensionX), 5.f);
 			actorList.add(actor);
@@ -37,49 +38,43 @@ public class Verse {
 			qtTree.insert((int) a.getPos().x, (int) a.getPos().y, a);
 		}
 		System.out.println("width of deepest quadtree region: " + dimensionX / Math.pow(2, depth));
+
+		playerList = new ArrayList<VerseActor>();
 	}
 
 	public void update(final float deltaTime) {
-		player.update(deltaTime);
+		for (final VerseActor player : playerList) {
+			player.update(deltaTime);
+		}
+
 		for (final VerseActor a : actorList) {
 			a.update(deltaTime);
 		}
 
-		// // final Stopwatch stopwatch = new Stopwatch().start();
 		// final ArrayList<VerseActor> collidedList = new
 		// ArrayList<VerseActor>();
-		// for (final VerseActor a : actorsToCheckList) {
+		// for (final VerseActor a : playerList) {
 		// if (CollisionChecker.collistionActors(player, a)) {
-		// // System.err.println("collision!!!");
-		//
 		// // TODO resolve collision
-		//
 		// collidedList.add(a);
 		// }
 		// }
-		// // final long collisionProcessingTime = stopwatch.elapsedMillis();
-		// // Gdx.app.log("profiling", "collision checking took: " +
-		// // collisionProcessingTime);
-	}
-
-	public VerseActor getPlayer() {
-		return player;
-	}
-
-	public void setPlayer(final VerseActor player) {
-		this.player = player;
 	}
 
 	public List<VerseActor> getActorList() {
 		return actorList;
 	}
 
-	public Set<VerseActor> getVisibleActors() {
+	public Set<VerseActor> getVisibleActors(final VerseActor player) {
 		final int visibleRadius = 10;
 		final int actorPosX = (int) player.getPos().x;
 		final int actorPosY = (int) player.getPos().y;
 
 		final Set<VerseActor> visibleActors = qtTree.getElements(actorPosX, actorPosY, visibleRadius);
 		return visibleActors;
+	}
+
+	public void addPlayer(final VerseActor player) {
+		playerList.add(player);
 	}
 }

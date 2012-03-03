@@ -5,12 +5,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.hosh.verse.server.database.DatabaseAccessor;
 import com.smartfoxserver.bitswarm.sessions.ISession;
 import com.smartfoxserver.v2.annotations.Instantiation;
 import com.smartfoxserver.v2.annotations.Instantiation.InstantiationMode;
 import com.smartfoxserver.v2.core.ISFSEvent;
 import com.smartfoxserver.v2.core.SFSEventParam;
-import com.smartfoxserver.v2.db.IDBManager;
 import com.smartfoxserver.v2.exceptions.SFSErrorCode;
 import com.smartfoxserver.v2.exceptions.SFSErrorData;
 import com.smartfoxserver.v2.exceptions.SFSException;
@@ -23,21 +23,22 @@ public class LoginEventHandler extends BaseServerEventHandler {
 	int cnt = 0;
 	private VerseExtension verseExt;
 	private Verse verse;
+	private DatabaseAccessor databaseAccessor;
 
 	@Override
 	public void handleServerEvent(final ISFSEvent event) throws SFSException {
+		verseExt = (VerseExtension) getParentExtension();
+		verse = verseExt.getVerse();
+		databaseAccessor = verseExt.getDatabaseAccessor();
+
 		final String userName = (String) event.getParameter(SFSEventParam.LOGIN_NAME);
 		final String cryptedPass = (String) event.getParameter(SFSEventParam.LOGIN_PASSWORD);
 		final ISession session = (ISession) event.getParameter(SFSEventParam.SESSION);
-
-		trace("LoginEventHandler: " + cryptedPass);
 
 		login(userName, cryptedPass, session);
 
 		cnt++;
 
-		verseExt = (VerseExtension) getParentExtension();
-		verse = verseExt.getVerse();
 	}
 
 	private void login(final String userName, final String cryptedPass, final ISession session) throws SFSException {
@@ -45,12 +46,12 @@ public class LoginEventHandler extends BaseServerEventHandler {
 		trace("LoginEventHandler invoked: loggin in " + userName + "...");
 
 		// Get password from DB
-		final IDBManager dbManager = getParentExtension().getParentZone().getDBManager();
-		Connection connection;
+		// final IDBManager dbManager =
+		// getParentExtension().getParentZone().getDBManager();
 
 		try {
-			// Grab a connection from the DBManager connection pool
-			connection = dbManager.getConnection();
+			final Connection connection = databaseAccessor.getDbConnection();
+			// connection = dbManager.getConnection();
 
 			// Build a prepared statement
 			final PreparedStatement stmt = connection.prepareStatement("SELECT password FROM accounts WHERE login=?");
@@ -97,6 +98,9 @@ public class LoginEventHandler extends BaseServerEventHandler {
 
 			final String charName = resChar.getString("char_name");
 			final int charId = resChar.getInt("charId");
+
+			verse.addPlayer(databaseAccessor.createActor(charId));
+
 			trace("LoginEventHandler: " + charName + " logged in");
 
 			// Store the client dbId in the session
