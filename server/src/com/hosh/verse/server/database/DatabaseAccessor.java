@@ -6,32 +6,44 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.hosh.verse.common.VerseActor;
+import com.hosh.verse.server.Verse;
+import com.hosh.verse.server.VerseExtension;
+import com.smartfoxserver.v2.entities.User;
 
 public class DatabaseAccessor {
-	Connection dbConnection;
 
-	public DatabaseAccessor(final Connection dbConnection) {
-		this.dbConnection = dbConnection;
-	}
+	public static final String DBID_CHAR_ID = "charId";
+	public static final String DBID_CHAR_NAME = "char_name";
+	public static final String DBID_EXP = "exp";
+	public static final String DBID_LEVEL = "level";
+	public static final String DBID_POS_X = "x";
+	public static final String DBID_POS_Y = "y";
+	public static final String HEADING = "heading";
+	public static final String DBID_MAX_HP = "maxHp";
+	public static final String DBID_CUR_HP = "curHp";
 
-	public VerseActor createActor(final int charId) {
+	public static VerseActor createActor(final Connection dbConnection, final String charId) {
 		PreparedStatement stmt;
 		try {
-
 			stmt = dbConnection.prepareStatement("SELECT * FROM characters WHERE charId=?");
-			stmt.setString(1, "" + charId);
+			stmt.setString(1, charId);
 
 			final ResultSet res = stmt.executeQuery();
-			final String charName = res.getString("char_name");
-			final int exp = res.getInt("exp");
-			final int level = res.getInt("level");
-			final int x = res.getInt("x");
-			final int y = res.getInt("y");
-			final int heading = res.getInt("heading");
-			final int maxHp = res.getInt("maxHp");
-			final int curHp = res.getInt("curHp");
+			if (!res.first()) {
+				return null;
+			}
 
-			return new VerseActor(charId, charName, exp, level, maxHp, curHp, x, y, heading, 5.0f);
+			final String charName = res.getString(DBID_CHAR_NAME);
+			final int id = res.getInt(DBID_CHAR_ID);
+			final int exp = res.getInt(DBID_EXP);
+			final int level = res.getInt(DBID_LEVEL);
+			final int x = res.getInt(DBID_POS_X);
+			final int y = res.getInt(DBID_POS_Y);
+			final int heading = res.getInt(HEADING);
+			final int maxHp = res.getInt(DBID_MAX_HP);
+			final int curHp = res.getInt(DBID_CUR_HP);
+
+			return new VerseActor(id, charName, exp, level, maxHp, curHp, x, y, heading, 5.0f);
 
 		} catch (final SQLException e) {
 			// TODO Auto-generated catch block
@@ -41,8 +53,8 @@ public class DatabaseAccessor {
 		return null;
 	}
 
-	public Connection getDbConnection() {
-		return dbConnection;
+	public static void addPlayer(final VerseExtension verseExt, final Verse verse, final VerseActor player, final User user) {
+		verseExt.getUserLookupTable().put(player.getCharId(), user);
+		verse.addPlayer(player);
 	}
-
 }

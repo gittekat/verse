@@ -3,27 +3,34 @@ package com.hosh.verse.server;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import com.hosh.verse.server.database.DatabaseAccessor;
+import com.hosh.verse.common.VerseActor;
 import com.smartfoxserver.v2.SmartFoxServer;
 import com.smartfoxserver.v2.core.SFSEventType;
 import com.smartfoxserver.v2.db.IDBManager;
+import com.smartfoxserver.v2.entities.User;
+import com.smartfoxserver.v2.entities.data.ISFSObject;
+import com.smartfoxserver.v2.entities.data.SFSObject;
 import com.smartfoxserver.v2.extensions.ExtensionLogLevel;
 import com.smartfoxserver.v2.extensions.SFSExtension;
 
 public class VerseExtension extends SFSExtension {
 	private final static String version = "0.0.1";
 	public static final String DATABASE_ID = "dbID";
+	public static final String ACCOUNT_NAME = "accountName";
 	private Verse verse;
+
+	private Map<Integer, User> userLookupTable = new HashMap<Integer, User>();
 
 	// Keeps a reference to the task execution
 	private ScheduledFuture<?> taskHandle;
 	private int milliseconds = 500;
 	private float seconds = milliseconds / 1000.f;
-
-	private DatabaseAccessor databaseAccessor;
 
 	@Override
 	public void init() {
@@ -34,8 +41,8 @@ public class VerseExtension extends SFSExtension {
 			trace(ExtensionLogLevel.ERROR, "database connection failed!");
 		}
 
-		databaseAccessor = new DatabaseAccessor(connection);
-		verse = new Verse(connection, 1000, 1000);
+		verse = new Verse(connection, 1000, 1000); // TODO don't use connection
+													// and please close it here!
 
 		final SmartFoxServer sfs = SmartFoxServer.getInstance();
 		// Schedule the task to run every second, with no initial delay
@@ -55,6 +62,22 @@ public class VerseExtension extends SFSExtension {
 			// trace("Inside the running task. Cycle:  " + runningCycles);
 
 			verse.update(seconds);
+
+			final List<VerseActor> playerList = verse.getPlayerList();
+			if (runningCycles % 100 == 0) {
+				trace("TaskRunner alive with player count: " + playerList.size());
+			}
+			for (final VerseActor actor : playerList) {
+				final User user = userLookupTable.get(actor.getCharId());
+
+				if (user != null) {
+					final ISFSObject posData = new SFSObject();
+					posData.putFloat("x", actor.getPos().x);
+					posData.putFloat("y", actor.getPos().y);
+
+					send("posData", posData, user, true);
+				}
+			}
 
 			// if (runningCycles >= 200) {
 			// trace("Time to stop the task!");
@@ -101,8 +124,7 @@ public class VerseExtension extends SFSExtension {
 		return verse;
 	}
 
-	public DatabaseAccessor getDatabaseAccessor() {
-		return databaseAccessor;
+	public Map<Integer, User> getUserLookupTable() {
+		return userLookupTable;
 	}
-
 }

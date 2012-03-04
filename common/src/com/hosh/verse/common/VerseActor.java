@@ -33,7 +33,7 @@ public class VerseActor {
 
 	/** default constructor */
 	public VerseActor(final int id, final float posX, final float posY, final float radius) {
-		this.setId(id);
+		this.setCharId(id);
 		curPos = new Vector2(posX, posY);
 		targetPos = new Vector2(posX, posY);
 		this.radius = radius;
@@ -53,7 +53,7 @@ public class VerseActor {
 	/** player constructor */
 	public VerseActor(final int charId, final String name, final int exp, final int level, final int maxHp, final int curHp,
 			final float posX, final float posY, final float heading, final float radius) {
-		this.setId(charId);
+		this.setCharId(charId);
 		this.setName(name);
 		this.setExp(exp);
 		this.setLevel(level);
@@ -179,6 +179,10 @@ public class VerseActor {
 		return charId;
 	}
 
+	private void setCharId(final int charId) {
+		this.charId = charId;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -231,19 +235,11 @@ public class VerseActor {
 		this.shieldStrength = shieldStrength;
 	}
 
-	public int getId() {
-		return charId;
-	}
-
-	public void setId(final int id) {
-		this.charId = id;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + getId();
+		result = prime * result + getCharId();
 		return result;
 	}
 
@@ -259,7 +255,7 @@ public class VerseActor {
 			return false;
 		}
 		final VerseActor other = (VerseActor) obj;
-		if (getId() != other.getId()) {
+		if (getCharId() != other.getCharId()) {
 			return false;
 		}
 		return true;

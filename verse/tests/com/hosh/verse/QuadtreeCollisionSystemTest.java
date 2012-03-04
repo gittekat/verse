@@ -171,6 +171,6 @@ public class QuadtreeCollisionSystemTest {
 	}
 
 	private static void printActor(final VerseActor actor) {
-		System.out.println(actor.getPos().x + " x " + actor.getPos().y + " id: " + actor.getId());
+		System.out.println(actor.getPos().x + " x " + actor.getPos().y + " id: " + actor.getCharId());
 	}
 }

@@ -77,4 +77,8 @@ public class Verse {
 	public void addPlayer(final VerseActor player) {
 		playerList.add(player);
 	}
+
+	public List<VerseActor> getPlayerList() {
+		return playerList;
+	}
 }

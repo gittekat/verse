@@ -58,7 +58,7 @@ public class Game implements ApplicationListener, IEventListener {
 	Vector3 touchPoint;
 
 	private VerseActor player = new VerseActor(0, 100, 100, 5);
-	private Vector2 playerPos = new Vector2(100, 100);
+	// private Vector2 playerPos = new Vector2(100, 100);
 
 	// smartfox
 	SmartFox sfsClient;
@@ -385,13 +385,28 @@ public class Game implements ApplicationListener, IEventListener {
 		if (event.getType().equalsIgnoreCase(SFSEvent.EXTENSION_RESPONSE)) {
 
 			final String cmd = event.getArguments().get("cmd").toString();
-			ISFSObject resObj = new SFSObject();
-			resObj = (ISFSObject) event.getArguments().get("params");
 
-			final Float dunno = resObj.getFloat("sum");
+			if ("math".equals(cmd)) {
+				ISFSObject resObj = new SFSObject();
+				resObj = (ISFSObject) event.getArguments().get("params");
 
-			serverStatus = "got response (" + cmd + "): " + dunno;
-			System.out.println(serverStatus);
+				final Float dunno = resObj.getFloat("sum");
+
+				serverStatus = "got response (" + cmd + "): " + dunno;
+				System.out.println(serverStatus);
+			}
+
+			if ("posData".equals(cmd)) {
+				ISFSObject resObj = new SFSObject();
+				resObj = (ISFSObject) event.getArguments().get("params");
+
+				final Float x = resObj.getFloat("x");
+				final Float y = resObj.getFloat("y");
+
+				player.setPos(new Vector2(x, y));
+
+				System.out.println("recv. posData: " + x + " X " + y);
+			}
 		}
 	}
 }
