@@ -1,5 +1,6 @@
-package com.hosh.verse.server;
+package com.hosh.verse.server.eventhandler;
 
+import com.hosh.verse.server.VerseExtension;
 import com.smartfoxserver.v2.annotations.Instantiation;
 import com.smartfoxserver.v2.annotations.Instantiation.InstantiationMode;
 import com.smartfoxserver.v2.entities.User;

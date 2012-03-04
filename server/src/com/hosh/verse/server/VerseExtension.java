@@ -4,12 +4,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import com.hosh.verse.common.VerseActor;
+import com.hosh.verse.server.eventhandler.LoginEventHandler;
+import com.hosh.verse.server.eventhandler.LogoutEventHandler;
+import com.hosh.verse.server.eventhandler.MathHandler;
+import com.hosh.verse.server.eventhandler.OnRoomJoinHandler;
 import com.smartfoxserver.v2.SmartFoxServer;
 import com.smartfoxserver.v2.core.SFSEventType;
 import com.smartfoxserver.v2.db.IDBManager;
@@ -23,6 +26,7 @@ public class VerseExtension extends SFSExtension {
 	private final static String version = "0.0.1";
 	public static final String DATABASE_ID = "dbID";
 	public static final String ACCOUNT_NAME = "accountName";
+	public static final String CHAR_ID = "charId";
 	private Verse verse;
 
 	private Map<Integer, User> userLookupTable = new HashMap<Integer, User>();
@@ -50,6 +54,7 @@ public class VerseExtension extends SFSExtension {
 
 		addEventHandler(SFSEventType.USER_LOGIN, LoginEventHandler.class);
 		addEventHandler(SFSEventType.USER_JOIN_ROOM, OnRoomJoinHandler.class);
+		addEventHandler(SFSEventType.USER_LOGOUT, LogoutEventHandler.class);
 		addRequestHandler("move", MathHandler.class);
 	}
 
@@ -63,11 +68,12 @@ public class VerseExtension extends SFSExtension {
 
 			verse.update(seconds);
 
-			final List<VerseActor> playerList = verse.getPlayerList();
+			final Map<Integer, VerseActor> playerMap = verse.getPlayerMap();
 			if (runningCycles % 100 == 0) {
-				trace("TaskRunner alive with player count: " + playerList.size());
+				trace("TaskRunner alive with player count: " + playerMap.size());
 			}
-			for (final VerseActor actor : playerList) {
+
+			for (final VerseActor actor : playerMap.values()) {
 				final User user = userLookupTable.get(actor.getCharId());
 
 				if (user != null) {

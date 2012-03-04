@@ -14,6 +14,7 @@ import sfs2x.client.entities.User;
 import sfs2x.client.requests.ExtensionRequest;
 import sfs2x.client.requests.JoinRoomRequest;
 import sfs2x.client.requests.LoginRequest;
+import sfs2x.client.requests.LogoutRequest;
 import sfs2x.client.requests.PublicMessageRequest;
 
 import com.badlogic.gdx.ApplicationListener;
@@ -57,7 +58,7 @@ public class Game implements ApplicationListener, IEventListener {
 	private Texture pixmapTexture;
 	Vector3 touchPoint;
 
-	private VerseActor player = new VerseActor(0, 100, 100, 5);
+	private VerseActor player = new VerseActor(0, 0, 0, 5);
 	// private Vector2 playerPos = new Vector2(100, 100);
 
 	// smartfox
@@ -315,6 +316,14 @@ public class Game implements ApplicationListener, IEventListener {
 			}
 		});
 
+		sfsClient.addEventListener(SFSEvent.LOGOUT, new IEventListener() {
+
+			@Override
+			public void dispatch(final BaseEvent event) throws SFSException {
+				System.out.println("logout - I played verse");
+			}
+		});
+
 		sfsClient.addEventListener(SFSEvent.ROOM_JOIN, this);
 		sfsClient.addEventListener(SFSEvent.USER_ENTER_ROOM, this);
 		sfsClient.addEventListener(SFSEvent.USER_EXIT_ROOM, this);
@@ -325,6 +334,7 @@ public class Game implements ApplicationListener, IEventListener {
 	private void shutdownSmartFox() {
 		if (sfsClient != null) {
 			sfsClient.removeAllEventListeners();
+			sfsClient.send(new LogoutRequest());
 			sfsClient.disconnect();
 		}
 	}

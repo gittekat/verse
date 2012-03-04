@@ -2,7 +2,9 @@ package com.hosh.verse.server;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.badlogic.gdx.math.MathUtils;
@@ -16,8 +18,8 @@ public class Verse {
 
 	public final int dimensionX;
 	public final int dimensionY;
-	private List<VerseActor> playerList;
 	private List<VerseActor> actorList;
+	private Map<Integer, VerseActor> playerMap;
 	private PointQuadTree<VerseActor> qtTree;
 
 	public Verse(final Connection dbConnection, final int dimensionX, final int dimensionY) {
@@ -39,11 +41,11 @@ public class Verse {
 		}
 		System.out.println("width of deepest quadtree region: " + dimensionX / Math.pow(2, depth));
 
-		playerList = new ArrayList<VerseActor>();
+		playerMap = new HashMap<Integer, VerseActor>();
 	}
 
 	public void update(final float deltaTime) {
-		for (final VerseActor player : playerList) {
+		for (final VerseActor player : playerMap.values()) {
 			player.update(deltaTime);
 		}
 
@@ -75,10 +77,14 @@ public class Verse {
 	}
 
 	public void addPlayer(final VerseActor player) {
-		playerList.add(player);
+		playerMap.put(player.getCharId(), player);
 	}
 
-	public List<VerseActor> getPlayerList() {
-		return playerList;
+	public void removePlayer(final Integer charId) {
+		playerMap.remove(charId);
+	}
+
+	public Map<Integer, VerseActor> getPlayerMap() {
+		return playerMap;
 	}
 }

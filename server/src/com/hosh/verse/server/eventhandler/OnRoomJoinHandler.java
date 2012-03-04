@@ -1,4 +1,4 @@
-package com.hosh.verse.server;
+package com.hosh.verse.server.eventhandler;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.hosh.verse.common.VerseActor;
+import com.hosh.verse.server.Verse;
+import com.hosh.verse.server.VerseExtension;
 import com.hosh.verse.server.database.DatabaseAccessor;
 import com.smartfoxserver.bitswarm.sessions.ISession;
 import com.smartfoxserver.v2.core.ISFSEvent;
@@ -77,27 +79,6 @@ public class OnRoomJoinHandler extends BaseServerEventHandler {
 			}
 
 			final VerseActor actor = DatabaseAccessor.createActor(connection, charId);
-			// final PreparedStatement psChar =
-			// connection.prepareStatement("SELECT * FROM characters WHERE charId=?");
-			// psChar.setString(1, charId);
-			//
-			// final ResultSet res = psChar.executeQuery();
-			// if (!res.first()) {
-			// return;
-			// }
-			//
-			// final String charName = res.getString("char_name");
-			// final int id = res.getInt("chaId");
-			// final int exp = res.getInt("exp");
-			// final int level = res.getInt("level");
-			// final int x = res.getInt("x");
-			// final int y = res.getInt("y");
-			// final int heading = res.getInt("heading");
-			// final int maxHp = res.getInt("maxHp");
-			// final int curHp = res.getInt("curHp");
-			// final VerseActor actor = new VerseActor(id, charName, exp, level,
-			// maxHp, curHp, x, y, heading, 5.0f);
-
 			final VerseExtension verseExt = (VerseExtension) getParentExtension();
 			final Verse verse = verseExt.getVerse();
 
