@@ -54,14 +54,17 @@ public class DatabaseAccessor {
 	}
 
 	public static void addPlayer(final VerseExtension verseExt, final Verse verse, final VerseActor player, final User user) {
-		verseExt.getUserLookupTable().put(player.getCharId(), user);
+		// verseExt.getUserLookupTable().put(player.getCharId(), user);
+		verseExt.addPlayer(player.getCharId(), user);
 		user.getSession().setProperty(VerseExtension.CHAR_ID, player.getCharId());
 		verse.addPlayer(player);
 	}
 
 	public static void removePlayer(final VerseExtension verseExt, final Verse verse, final User user) {
-		final Integer charId = (Integer) user.getSession().getProperty(VerseExtension.CHAR_ID);
-		verseExt.getUserLookupTable().remove(charId);
+		// final Integer charId = (Integer)
+		// user.getSession().getProperty(VerseExtension.CHAR_ID);
+		// verseExt.getUserLookupTable().remove(charId);
+		final Integer charId = verseExt.removePlayer(user);
 		verse.removePlayer(charId);
 	}
 }

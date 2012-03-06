@@ -1,8 +1,8 @@
 package com.hosh.verse;
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.ini4j.Wini;
 
@@ -15,7 +15,6 @@ import sfs2x.client.requests.ExtensionRequest;
 import sfs2x.client.requests.JoinRoomRequest;
 import sfs2x.client.requests.LoginRequest;
 import sfs2x.client.requests.LogoutRequest;
-import sfs2x.client.requests.PublicMessageRequest;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -31,6 +30,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.hosh.verse.common.ActorFactory;
 import com.hosh.verse.common.VerseActor;
 import com.smartfoxserver.v2.entities.data.ISFSObject;
 import com.smartfoxserver.v2.entities.data.SFSObject;
@@ -60,6 +60,7 @@ public class Game implements ApplicationListener, IEventListener {
 
 	private VerseActor player = new VerseActor(0, 0, 0, 5);
 	// private Vector2 playerPos = new Vector2(100, 100);
+	private Set<VerseActor> visibleActors;
 
 	// smartfox
 	SmartFox sfsClient;
@@ -81,6 +82,7 @@ public class Game implements ApplicationListener, IEventListener {
 
 		// verse = new Verse(1000, 1000);
 		// player = verse.getPlayer();
+		visibleActors = new CopyOnWriteArraySet<VerseActor>();
 
 		font = new BitmapFont();
 		font.setColor(Color.RED);
@@ -112,7 +114,7 @@ public class Game implements ApplicationListener, IEventListener {
 		pixmapTexture = new Texture(pixmap);
 
 		initSmartFox();
-		connectToServer("192.168.178.35", 9933);
+		connectToServer("192.168.178.35", 9933); // TODO use sfs-config.xml
 	}
 
 	private void readConfig() {
@@ -156,7 +158,7 @@ public class Game implements ApplicationListener, IEventListener {
 		batch.begin();
 		{
 			// final Set<VerseActor> visibleActors = verse.getVisibleActors();
-			final Set<VerseActor> visibleActors = new HashSet<VerseActor>();
+			// final Set<VerseActor> visibleActors = new HashSet<VerseActor>();
 			font.draw(batch, "visible: " + visibleActors.size(), 20, 60);
 			drawHUD();
 
@@ -244,11 +246,14 @@ public class Game implements ApplicationListener, IEventListener {
 
 			player.setCurSpeed(100);
 
-			sfsClient.send(new PublicMessageRequest("player: " + touchPoint.x + " X " + touchPoint.y));
+			// sfsClient.send(new PublicMessageRequest("player: " + touchPoint.x
+			// + " X " + touchPoint.y));
 
 			final ISFSObject sfso = new SFSObject();
-			sfso.putFloat("x", 90.f);
-			sfso.putFloat("y", 19.109f);
+			sfso.putFloat(VerseActor.POS_X, targetPos.x);
+			sfso.putFloat(VerseActor.POS_Y, targetPos.y);
+			sfso.putFloat(VerseActor.ORIENTATION_X, orientation.x);
+			sfso.putFloat(VerseActor.ORIENTATION_Y, orientation.y);
 			sfsClient.send(new ExtensionRequest("move", sfso));
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
@@ -329,6 +334,23 @@ public class Game implements ApplicationListener, IEventListener {
 		sfsClient.addEventListener(SFSEvent.USER_EXIT_ROOM, this);
 		sfsClient.addEventListener(SFSEvent.PUBLIC_MESSAGE, this);
 		sfsClient.addEventListener(SFSEvent.EXTENSION_RESPONSE, this);
+
+		sfsClient.addEventListener(SFSEvent.CONFIG_LOAD_FAILURE, new IEventListener() {
+
+			@Override
+			public void dispatch(final BaseEvent arg0) throws SFSException {
+				System.out.println("config loading failure!");
+			}
+		});
+
+		sfsClient.addEventListener(SFSEvent.CONFIG_LOAD_SUCCESS, new IEventListener() {
+
+			@Override
+			public void dispatch(final BaseEvent arg0) throws SFSException {
+				System.out.println("config loaded successfully!");
+				// sfsClient.getConfig().get
+			}
+		});
 	}
 
 	private void shutdownSmartFox() {
@@ -346,6 +368,7 @@ public class Game implements ApplicationListener, IEventListener {
 		new Thread() {
 			@Override
 			public void run() {
+				sfs.loadConfig();
 				sfs.connect(ip, port);
 			}
 		}.start();
@@ -416,6 +439,13 @@ public class Game implements ApplicationListener, IEventListener {
 				player.setPos(new Vector2(x, y));
 
 				System.out.println("recv. posData: " + x + " X " + y);
+			}
+
+			if ("actor".equals(cmd)) {
+				ISFSObject resObj = new SFSObject();
+				resObj = (ISFSObject) event.getArguments().get("params");
+
+				visibleActors.add(ActorFactory.createActor(resObj));
 			}
 		}
 	}

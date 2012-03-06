@@ -8,10 +8,11 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import com.hosh.verse.common.ActorFactory;
 import com.hosh.verse.common.VerseActor;
 import com.hosh.verse.server.eventhandler.LoginEventHandler;
 import com.hosh.verse.server.eventhandler.LogoutEventHandler;
-import com.hosh.verse.server.eventhandler.MathHandler;
+import com.hosh.verse.server.eventhandler.MoveHandler;
 import com.hosh.verse.server.eventhandler.OnRoomJoinHandler;
 import com.smartfoxserver.v2.SmartFoxServer;
 import com.smartfoxserver.v2.core.SFSEventType;
@@ -30,6 +31,7 @@ public class VerseExtension extends SFSExtension {
 	private Verse verse;
 
 	private Map<Integer, User> userLookupTable = new HashMap<Integer, User>();
+	private Map<User, Integer> charIdLookupTable = new HashMap<User, Integer>();
 
 	// Keeps a reference to the task execution
 	private ScheduledFuture<?> taskHandle;
@@ -55,7 +57,7 @@ public class VerseExtension extends SFSExtension {
 		addEventHandler(SFSEventType.USER_LOGIN, LoginEventHandler.class);
 		addEventHandler(SFSEventType.USER_JOIN_ROOM, OnRoomJoinHandler.class);
 		addEventHandler(SFSEventType.USER_LOGOUT, LogoutEventHandler.class);
-		addRequestHandler("move", MathHandler.class);
+		addRequestHandler("move", MoveHandler.class);
 	}
 
 	private class TaskRunner implements Runnable {
@@ -82,6 +84,10 @@ public class VerseExtension extends SFSExtension {
 					posData.putFloat("y", actor.getPos().y);
 
 					send("posData", posData, user, true);
+
+					for (final VerseActor others : verse.getVisibleActors(actor)) {
+						send("actor", ActorFactory.createSFSObject(others), user, false);
+					}
 				}
 			}
 
@@ -130,7 +136,27 @@ public class VerseExtension extends SFSExtension {
 		return verse;
 	}
 
-	public Map<Integer, User> getUserLookupTable() {
-		return userLookupTable;
+	// public Map<Integer, User> getUserLookupTable() {
+	// return userLookupTable;
+	// }
+
+	public void addPlayer(final int charId, final User user) {
+		userLookupTable.put(charId, user);
+		charIdLookupTable.put(user, charId);
+	}
+
+	public Integer removePlayer(final User user) {
+		final Integer charId = charIdLookupTable.get(user);
+		userLookupTable.remove(charId);
+		charIdLookupTable.remove(user);
+		return charId;
+	}
+
+	public Integer getCharId(final User user) {
+		return charIdLookupTable.get(user);
+	}
+
+	public User getUser(final Integer charId) {
+		return userLookupTable.get(charId);
 	}
 }

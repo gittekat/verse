@@ -1,0 +1,24 @@
+<!--
+	:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+	SFS2X Client Configuration file
+	(c) 2011 gotoAndPlay
+	:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+-->
+
+<SmartFoxConfig>
+
+	<!-- Mandatory Settings -->
+	<ip>192.168.178.35</ip>
+	<port>9933</port>
+	<udpIp>192.168.178.35</udpIp>
+	<udpPort>9933</udpPort>
+	<zone>VerseZone</zone>
+	<!-- End Mandatory Settings -->
+	
+	<debug>false</debug>
+	
+	
+	<useBlueBox>true</useBlueBox>
+	<blueBoxPollingRate>500</blueBoxPollingRate>
+	
+</SmartFoxConfig>

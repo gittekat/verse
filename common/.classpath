@@ -9,5 +9,7 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/verse-common/libs/ini4j-0.5.2-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="libs/sfs2x-core.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/sfs2x.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -4,6 +4,13 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 
 public class VerseActor {
+	public static final String CHAR_ID = "charId";
+	public static final String RADIUS = "radius";
+	public static final String POS_X = "x";
+	public static final String POS_Y = "y";
+	public static final String ORIENTATION_X = "oriX";
+	public static final String ORIENTATION_Y = "oriY";
+
 	private int charId;
 	private String name;
 
@@ -40,7 +47,7 @@ public class VerseActor {
 		bounds = new Circle(curPos, radius);
 		squaredRadius = radius * radius;
 
-		setCurOrientation(new Vector2(0, 0));
+		setCurOrientation(new Vector2(1, 0));
 		rotationAngle = 0.f;
 		setRotationSpeed(0.f);
 
@@ -82,6 +89,7 @@ public class VerseActor {
 			curPos.add(curOrientation.cpy().mul(deltaMovement));
 		} else {
 			curPos = targetPos;
+			setCurSpeed(0.0f);
 		}
 	}
 
@@ -99,6 +107,9 @@ public class VerseActor {
 
 	public void setTargetPos(final Vector2 targetPos) {
 		this.targetPos = targetPos;
+		if (curPos.cpy().sub(targetPos).len() > 1.f) {
+			setCurSpeed(0.10f);
+		}
 	}
 
 	public Circle getBounds() {

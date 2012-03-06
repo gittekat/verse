@@ -1,5 +1,7 @@
 package com.hosh.verse.server.eventhandler;
 
+import com.hosh.verse.common.VerseActor;
+import com.hosh.verse.server.Verse;
 import com.hosh.verse.server.VerseExtension;
 import com.smartfoxserver.v2.annotations.Instantiation;
 import com.smartfoxserver.v2.annotations.Instantiation.InstantiationMode;
@@ -10,7 +12,7 @@ import com.smartfoxserver.v2.exceptions.SFSRuntimeException;
 import com.smartfoxserver.v2.extensions.BaseClientRequestHandler;
 
 @Instantiation(InstantiationMode.SINGLE_INSTANCE)
-public class MathHandler extends BaseClientRequestHandler {
+public class MoveHandler extends BaseClientRequestHandler {
 
 	@Override
 	public void handleClientRequest(final User user, final ISFSObject params) {
@@ -20,14 +22,20 @@ public class MathHandler extends BaseClientRequestHandler {
 		}
 
 		final VerseExtension verseExt = (VerseExtension) getParentExtension();
-		// final Verse verse = verseExt.getVerse();
+		final Verse verse = verseExt.getVerse();
 
-		final Float moveX = params.getFloat("x");
-		final Float moveY = params.getFloat("y");
+		final Float x = params.getFloat(VerseActor.POS_X);
+		final Float y = params.getFloat(VerseActor.POS_Y);
+
+		final Float orientationX = params.getFloat(VerseActor.ORIENTATION_X);
+		final Float orientationY = params.getFloat(VerseActor.ORIENTATION_Y);
+
+		final Integer charId = verseExt.getCharId(user);
+		verse.movePlayer(charId, x, y, orientationX, orientationY);
 
 		final ISFSObject res = new SFSObject();
 		//
-		res.putFloat("sum", moveX + moveY);
+		res.putFloat("sum", x + y);
 
 		verseExt.send("math", res, user);
 

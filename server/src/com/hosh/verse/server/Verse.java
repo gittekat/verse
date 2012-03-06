@@ -29,7 +29,7 @@ public class Verse {
 		this.dimensionY = dimensionY;
 
 		actorList = new ArrayList<VerseActor>();
-		for (int i = 0; i < 10000; ++i) {
+		for (int i = 0; i < 0; ++i) {
 			final VerseActor actor = ActorFactory.createActor(MathUtils.random(dimensionX), MathUtils.random(dimensionX), 5.f);
 			actorList.add(actor);
 		}
@@ -86,5 +86,11 @@ public class Verse {
 
 	public Map<Integer, VerseActor> getPlayerMap() {
 		return playerMap;
+	}
+
+	public void movePlayer(final Integer charId, final Float x, final Float y, final Float orientationX, final Float orientationY) {
+		final VerseActor player = playerMap.get(charId);
+		player.setTargetPos(new Vector2(x, y));
+		player.setCurOrientation(new Vector2(orientationX, orientationY));
 	}
 }
