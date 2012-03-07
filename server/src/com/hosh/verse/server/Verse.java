@@ -29,7 +29,7 @@ public class Verse {
 		this.dimensionY = dimensionY;
 
 		actorList = new ArrayList<VerseActor>();
-		for (int i = 0; i < 0; ++i) {
+		for (int i = 0; i < 10; ++i) {
 			final VerseActor actor = ActorFactory.createActor(MathUtils.random(dimensionX), MathUtils.random(dimensionX), 5.f);
 			actorList.add(actor);
 		}

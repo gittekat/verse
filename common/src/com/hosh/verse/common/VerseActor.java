@@ -89,7 +89,7 @@ public class VerseActor {
 			curPos.add(curOrientation.cpy().mul(deltaMovement));
 		} else {
 			curPos = targetPos;
-			setCurSpeed(0.0f);
+			setCurSpeed(getMaxSpeed());
 		}
 	}
 
@@ -108,7 +108,7 @@ public class VerseActor {
 	public void setTargetPos(final Vector2 targetPos) {
 		this.targetPos = targetPos;
 		if (curPos.cpy().sub(targetPos).len() > 1.f) {
-			setCurSpeed(0.10f);
+			setCurSpeed(1.0f);
 		}
 	}
 
@@ -190,7 +190,7 @@ public class VerseActor {
 		return charId;
 	}
 
-	private void setCharId(final int charId) {
+	public void setCharId(final int charId) {
 		this.charId = charId;
 	}
 

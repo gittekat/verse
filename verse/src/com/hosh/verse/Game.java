@@ -60,6 +60,7 @@ public class Game implements ApplicationListener, IEventListener {
 
 	private VerseActor player = new VerseActor(0, 0, 0, 5);
 	// private Vector2 playerPos = new Vector2(100, 100);
+	private Set<VerseActor> visiblePlayers;
 	private Set<VerseActor> visibleActors;
 
 	// smartfox
@@ -83,6 +84,7 @@ public class Game implements ApplicationListener, IEventListener {
 		// verse = new Verse(1000, 1000);
 		// player = verse.getPlayer();
 		visibleActors = new CopyOnWriteArraySet<VerseActor>();
+		visiblePlayers = new CopyOnWriteArraySet<VerseActor>();
 
 		font = new BitmapFont();
 		font.setColor(Color.RED);
@@ -162,7 +164,7 @@ public class Game implements ApplicationListener, IEventListener {
 			font.draw(batch, "visible: " + visibleActors.size(), 20, 60);
 			drawHUD();
 
-			drawPlayer();
+			drawPlayer(HALF_WIDTH, HALF_HEIGHT);
 
 			for (final VerseActor a : visibleActors) {
 
@@ -180,6 +182,14 @@ public class Game implements ApplicationListener, IEventListener {
 				// 0.9f, 0.9f, 0.f);
 			}
 
+			for (final VerseActor p : visiblePlayers) {
+				if (!(p.getCharId() == player.getCharId())) {
+					final Vector2 pos = getScreenCoordinates(p.getPos());
+					drawPlayer(pos.x, pos.y);
+				}
+
+			}
+
 		}
 		batch.end();
 	}
@@ -194,12 +204,12 @@ public class Game implements ApplicationListener, IEventListener {
 		return pos;
 	}
 
-	private void drawPlayer() {
+	private void drawPlayer(final float x, final float y) {
 		// Gdx.gl.glEnable(GL10.GL_DITHER);
 		batch.setColor(0.f, 0.f, 0.f, player.getShieldStrength());
-		batch.draw(shieldRegion, HALF_WIDTH - 16, HALF_HEIGHT - 16, 16, 16, 32, 32, 0.95f, 0.95f, 0.f);
+		batch.draw(shieldRegion, x - 16, y - 16, 16, 16, 32, 32, 0.95f, 0.95f, 0.f);
 		batch.setColor(1.f, 1.f, 1.f, 1.f);
-		batch.draw(shipRegion, HALF_WIDTH - 16, HALF_HEIGHT - 16, 16, 16, 32, 32, 0.95f, 0.95f, player.getRotationAngle());
+		batch.draw(shipRegion, x - 16, y - 16, 16, 16, 32, 32, 0.95f, 0.95f, player.getRotationAngle());
 	}
 
 	private void drawHUD() {
@@ -235,23 +245,23 @@ public class Game implements ApplicationListener, IEventListener {
 
 			final Vector2 targetPos = new Vector2(posX + touchPoint.x, posY + touchPoint.y);
 
-			player.setTargetPos(targetPos);
+			// player.setTargetPos(targetPos);
+			final ISFSObject sfso = new SFSObject();
+			sfso.putFloat(VerseActor.POS_X, targetPos.x);
+			sfso.putFloat(VerseActor.POS_Y, targetPos.y);
 
 			touchPoint = touchPoint.nor();
 			final Vector2 orientation = new Vector2(touchPoint.x, touchPoint.y);
-			player.setCurOrientation(orientation);
+			player.setCurOrientation(orientation); // TODO send to server
 			double theta = Math.atan2(orientation.x, orientation.y);
 			theta = 360 - MathUtils.radiansToDegrees * theta;
-			player.setRotationAngle((float) theta);
+			player.setRotationAngle((float) theta); // TODO send to server
 
-			player.setCurSpeed(100);
+			player.setCurSpeed(100); // TODO send to server
 
 			// sfsClient.send(new PublicMessageRequest("player: " + touchPoint.x
 			// + " X " + touchPoint.y));
 
-			final ISFSObject sfso = new SFSObject();
-			sfso.putFloat(VerseActor.POS_X, targetPos.x);
-			sfso.putFloat(VerseActor.POS_Y, targetPos.y);
 			sfso.putFloat(VerseActor.ORIENTATION_X, orientation.x);
 			sfso.putFloat(VerseActor.ORIENTATION_Y, orientation.y);
 			sfsClient.send(new ExtensionRequest("move", sfso));
@@ -429,13 +439,15 @@ public class Game implements ApplicationListener, IEventListener {
 				System.out.println(serverStatus);
 			}
 
-			if ("posData".equals(cmd)) {
+			if ("playerData".equals(cmd)) {
 				ISFSObject resObj = new SFSObject();
 				resObj = (ISFSObject) event.getArguments().get("params");
 
+				final int charId = resObj.getInt(VerseActor.CHAR_ID);
 				final Float x = resObj.getFloat("x");
 				final Float y = resObj.getFloat("y");
 
+				player.setCharId(charId);
 				player.setPos(new Vector2(x, y));
 
 				System.out.println("recv. posData: " + x + " X " + y);
@@ -446,6 +458,13 @@ public class Game implements ApplicationListener, IEventListener {
 				resObj = (ISFSObject) event.getArguments().get("params");
 
 				visibleActors.add(ActorFactory.createActor(resObj));
+			}
+
+			if ("player".equals(cmd)) {
+				ISFSObject resObj = new SFSObject();
+				resObj = (ISFSObject) event.getArguments().get("params");
+
+				visiblePlayers.add(ActorFactory.createActor(resObj));
 			}
 		}
 	}

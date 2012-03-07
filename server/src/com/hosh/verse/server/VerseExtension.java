@@ -35,7 +35,7 @@ public class VerseExtension extends SFSExtension {
 
 	// Keeps a reference to the task execution
 	private ScheduledFuture<?> taskHandle;
-	private int milliseconds = 500;
+	private int milliseconds = 50;
 	private float seconds = milliseconds / 1000.f;
 
 	@Override
@@ -79,14 +79,23 @@ public class VerseExtension extends SFSExtension {
 				final User user = userLookupTable.get(actor.getCharId());
 
 				if (user != null) {
-					final ISFSObject posData = new SFSObject();
-					posData.putFloat("x", actor.getPos().x);
-					posData.putFloat("y", actor.getPos().y);
+					if (runningCycles % 20 == 0) {
+						final ISFSObject playerData = new SFSObject();
+						playerData.putInt(VerseActor.CHAR_ID, actor.getCharId());
+						playerData.putFloat("x", actor.getPos().x);
+						playerData.putFloat("y", actor.getPos().y);
 
-					send("posData", posData, user, true);
+						send("playerData", playerData, user, false);
+					}
 
-					for (final VerseActor others : verse.getVisibleActors(actor)) {
-						send("actor", ActorFactory.createSFSObject(others), user, false);
+					if (runningCycles % 100 == 0) {
+						for (final VerseActor others : verse.getVisibleActors(actor)) {
+							send("actor", ActorFactory.createSFSObject(others), user, false);
+						}
+
+						for (final VerseActor player : verse.getPlayerMap().values()) {
+							send("player", ActorFactory.createSFSObject(player), user, false);
+						}
 					}
 				}
 			}
