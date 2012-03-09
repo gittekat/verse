@@ -503,6 +503,30 @@ public class Game implements ApplicationListener, IEventListener {
 				sfso.putInt("bine", posY1);
 				System.out.println("----------------------:" + posX1 + " " + posY1);
 				sfsClient.send(new ExtensionRequest("YouBitch", sfso));
+
+				final ISFSObject sfso2 = new SFSObject();
+				posX1 = MathUtils.random(2000) - 1000;
+				posY1 = MathUtils.random(2000) - 1000;
+				sfso2.putInt("hosh", posX1);
+				sfso2.putInt("bine", posY1);
+				System.out.println("----------------------:" + posX1 + " " + posY1);
+				sfsClient.send(new ExtensionRequest("YouBitch", sfso2));
+
+				final ISFSObject sfso3 = new SFSObject();
+				posX1 = MathUtils.random(2000) - 1000;
+				posY1 = MathUtils.random(2000) - 1000;
+				sfso3.putInt("hosh", posX1);
+				sfso3.putInt("bine", posY1);
+				System.out.println("----------------------:" + posX1 + " " + posY1);
+				sfsClient.send(new ExtensionRequest("YouBitch", sfso3));
+
+				final ISFSObject sfso4 = new SFSObject();
+				posX1 = MathUtils.random(2000) - 1000;
+				posY1 = MathUtils.random(2000) - 1000;
+				sfso4.putInt("hosh", posX1);
+				sfso4.putInt("bine", posY1);
+				System.out.println("----------------------:" + posX1 + " " + posY1);
+				sfsClient.send(new ExtensionRequest("YouBitch", sfso4));
 			}
 
 			if ("actor".equals(cmd)) {
