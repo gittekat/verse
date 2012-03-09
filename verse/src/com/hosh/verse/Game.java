@@ -73,6 +73,8 @@ public class Game implements ApplicationListener, IEventListener {
 	private String userName;
 	private String password;
 
+	private int test = 120;
+
 	@Override
 	public void create() {
 		readConfig();
@@ -245,10 +247,22 @@ public class Game implements ApplicationListener, IEventListener {
 
 			final Vector2 targetPos = new Vector2(posX + touchPoint.x, posY + touchPoint.y);
 
-			// player.setTargetPos(targetPos);
 			final ISFSObject sfso = new SFSObject();
-			sfso.putFloat(VerseActor.POS_X, targetPos.x);
-			sfso.putFloat(VerseActor.POS_Y, targetPos.y);
+			// sfso.putFloat(VerseActor.POS_X, targetPos.x);
+			// sfso.putFloat(VerseActor.POS_Y, targetPos.y);
+			// sfso.putFloat(VerseActor.POS_X, 1.f);
+			// sfso.putFloat(VerseActor.POS_Y, 1.f);
+			sfso.putInt(VerseActor.POS_X, (int) targetPos.x);
+			sfso.putInt(VerseActor.POS_Y, (int) targetPos.y);
+			// sfso.putInt(VerseActor.POS_X, 250);
+			// sfso.putInt(VerseActor.POS_Y, 190);
+			// sfso.putInt(VerseActor.POS_X, test);
+			// sfso.putInt(VerseActor.POS_Y, test);
+			// sfso.putIntArray("pos", ImmutableList.of(250, 190));
+			sfso.putUtfString("hosh", "sucks biggy");
+			serverMessage = "" + (int) targetPos.x + " x " + (int) targetPos.y;
+
+			System.out.println("*********************" + sfso.getInt(VerseActor.POS_X) + " -  " + sfso.getInt(VerseActor.POS_Y));
 
 			touchPoint = touchPoint.nor();
 			final Vector2 orientation = new Vector2(touchPoint.x, touchPoint.y);
@@ -262,9 +276,18 @@ public class Game implements ApplicationListener, IEventListener {
 			// sfsClient.send(new PublicMessageRequest("player: " + touchPoint.x
 			// + " X " + touchPoint.y));
 
-			sfso.putFloat(VerseActor.ORIENTATION_X, orientation.x);
-			sfso.putFloat(VerseActor.ORIENTATION_Y, orientation.y);
-			sfsClient.send(new ExtensionRequest("move", sfso));
+			// sfso.putFloat(VerseActor.ORIENTATION_X, orientation.x);
+			// sfso.putFloat(VerseActor.ORIENTATION_Y, orientation.y);
+			System.out.println(Thread.currentThread().getName());
+
+			try {
+				dispatch(new BaseEvent("lala"));
+			} catch (final SFSException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			// sfsClient.send(new ExtensionRequest("move", sfso));
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
 			cam.zoom += 0.02;
@@ -378,7 +401,7 @@ public class Game implements ApplicationListener, IEventListener {
 		new Thread() {
 			@Override
 			public void run() {
-				sfs.loadConfig();
+				// sfs.loadConfig();
 				sfs.connect(ip, port);
 			}
 		}.start();
@@ -386,6 +409,13 @@ public class Game implements ApplicationListener, IEventListener {
 
 	@Override
 	public void dispatch(final BaseEvent event) throws SFSException {
+		// if (Objects.equal(event.getType(), "lala")) {
+		// System.err.println("hulu");
+		// final ISFSObject sfso = new SFSObject();
+		// sfso.putInt("hosh", 250);
+		// sfso.putInt("bine", 190);
+		// sfsClient.send(new ExtensionRequest("move", sfso));
+		// }
 		if (event.getType().equalsIgnoreCase(SFSEvent.CONNECTION)) {
 			if (event.getArguments().get("success").equals(true)) {
 				sfsClient.send(new LoginRequest(userName, password, "VerseZone"));
@@ -403,9 +433,8 @@ public class Game implements ApplicationListener, IEventListener {
 			serverMessage = "sfs: connection lost";
 
 		} else if (event.getType().equalsIgnoreCase(SFSEvent.LOGIN)) {
-			// Join The Lobby room
-			sfsClient.send(new JoinRoomRequest("The Lobby"));
-			serverStatus = "entered The Lobby";
+			sfsClient.send(new JoinRoomRequest("VerseRoom"));
+			serverStatus = "entered VerseRoom";
 			// } else if
 			// (event.getType().equalsIgnoreCase(SFSEvent.LOGIN_ERROR)) {
 			// System.out.println(event.getArguments().get("error").toString());
@@ -429,16 +458,6 @@ public class Game implements ApplicationListener, IEventListener {
 
 			final String cmd = event.getArguments().get("cmd").toString();
 
-			if ("math".equals(cmd)) {
-				ISFSObject resObj = new SFSObject();
-				resObj = (ISFSObject) event.getArguments().get("params");
-
-				final Float dunno = resObj.getFloat("sum");
-
-				serverStatus = "got response (" + cmd + "): " + dunno;
-				System.out.println(serverStatus);
-			}
-
 			if ("playerData".equals(cmd)) {
 				ISFSObject resObj = new SFSObject();
 				resObj = (ISFSObject) event.getArguments().get("params");
@@ -451,6 +470,12 @@ public class Game implements ApplicationListener, IEventListener {
 				player.setPos(new Vector2(x, y));
 
 				System.out.println("recv. posData: " + x + " X " + y);
+
+				System.err.println("and sending back!");
+				final ISFSObject sfso = new SFSObject();
+				sfso.putInt("hosh", 250);
+				sfso.putInt("bine", 190);
+				sfsClient.send(new ExtensionRequest("move2", sfso));
 			}
 
 			if ("actor".equals(cmd)) {

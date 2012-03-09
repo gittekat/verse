@@ -18,7 +18,7 @@
 	<debug>false</debug>
 	
 	
-	<useBlueBox>true</useBlueBox>
-	<blueBoxPollingRate>500</blueBoxPollingRate>
+	<useBlueBox>false</useBlueBox>
+	<!-- <blueBoxPollingRate>500</blueBoxPollingRate> -->
 	
 </SmartFoxConfig>
