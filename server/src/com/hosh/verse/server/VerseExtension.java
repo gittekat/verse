@@ -57,7 +57,7 @@ public class VerseExtension extends SFSExtension {
 		addEventHandler(SFSEventType.USER_LOGIN, LoginEventHandler.class);
 		addEventHandler(SFSEventType.USER_JOIN_ROOM, OnRoomJoinHandler.class);
 		addEventHandler(SFSEventType.USER_LOGOUT, LogoutEventHandler.class);
-		addRequestHandler("move", MoveHandler.class);
+		addRequestHandler("YouBitch", MoveHandler.class);
 	}
 
 	private class TaskRunner implements Runnable {
@@ -71,9 +71,9 @@ public class VerseExtension extends SFSExtension {
 			verse.update(seconds);
 
 			final Map<Integer, VerseActor> playerMap = verse.getPlayerMap();
-			if (runningCycles % 100 == 0) {
-				trace("TaskRunner alive with player count: " + playerMap.size());
-			}
+			// if (runningCycles % 100 == 0) {
+			// trace("TaskRunner alive with player count: " + playerMap.size());
+			// }
 
 			for (final VerseActor actor : playerMap.values()) {
 				final User user = userLookupTable.get(actor.getCharId());

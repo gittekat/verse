@@ -1,6 +1,9 @@
 package com.hosh.verse;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -75,8 +78,21 @@ public class Game implements ApplicationListener, IEventListener {
 
 	private int test = 120;
 
+	private int posX1 = 250;
+	private int posY1 = 190;
+
 	@Override
 	public void create() {
+		PrintStream out;
+		try {
+			out = new PrintStream(new FileOutputStream("output.txt"));
+			System.setOut(out);
+			// System.setErr(out);
+		} catch (final FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		readConfig();
 		WIDTH = Gdx.graphics.getWidth();
 		HEIGHT = Gdx.graphics.getHeight();
@@ -118,7 +134,7 @@ public class Game implements ApplicationListener, IEventListener {
 		pixmapTexture = new Texture(pixmap);
 
 		initSmartFox();
-		connectToServer("192.168.178.35", 9933); // TODO use sfs-config.xml
+		connectToServer("127.0.0.1", 9933); // TODO use sfs-config.xml
 	}
 
 	private void readConfig() {
@@ -260,6 +276,10 @@ public class Game implements ApplicationListener, IEventListener {
 			// sfso.putInt(VerseActor.POS_Y, test);
 			// sfso.putIntArray("pos", ImmutableList.of(250, 190));
 			sfso.putUtfString("hosh", "sucks biggy");
+
+			posX1 = (int) targetPos.x;
+			posY1 = (int) targetPos.y;
+
 			serverMessage = "" + (int) targetPos.x + " x " + (int) targetPos.y;
 
 			System.out.println("*********************" + sfso.getInt(VerseActor.POS_X) + " -  " + sfso.getInt(VerseActor.POS_Y));
@@ -473,9 +493,16 @@ public class Game implements ApplicationListener, IEventListener {
 
 				System.err.println("and sending back!");
 				final ISFSObject sfso = new SFSObject();
-				sfso.putInt("hosh", 250);
-				sfso.putInt("bine", 190);
-				sfsClient.send(new ExtensionRequest("move2", sfso));
+				// sfso.putInt("hosh", 250);
+				// sfso.putInt("bine", 190);
+				// posX1 = 339;
+				// posY1 = 248;
+				posX1 = MathUtils.random(2000) - 1000;
+				posY1 = MathUtils.random(2000) - 1000;
+				sfso.putInt("hosh", posX1);
+				sfso.putInt("bine", posY1);
+				System.out.println("----------------------:" + posX1 + " " + posY1);
+				sfsClient.send(new ExtensionRequest("YouBitch", sfso));
 			}
 
 			if ("actor".equals(cmd)) {
