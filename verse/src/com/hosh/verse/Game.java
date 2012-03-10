@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -28,6 +29,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
@@ -61,7 +63,8 @@ public class Game implements ApplicationListener, IEventListener {
 	private Texture pixmapTexture;
 	Vector3 touchPoint;
 
-	private VerseActor player = new VerseActor(0, 0, 0, 5);
+	private VerseActor player;
+	private VerseActor debugDrone;
 	// private Vector2 playerPos = new Vector2(100, 100);
 	private Set<VerseActor> visiblePlayers;
 	private Set<VerseActor> visibleActors;
@@ -75,19 +78,15 @@ public class Game implements ApplicationListener, IEventListener {
 
 	private String userName;
 	private String password;
-
-	private int test = 120;
-
-	private int posX1 = 250;
-	private int posY1 = 190;
+	private ArrayList<Sprite> sprites;
 
 	@Override
 	public void create() {
 		PrintStream out;
 		try {
 			out = new PrintStream(new FileOutputStream("output.txt"));
-			System.setOut(out);
-			// System.setErr(out);
+			// System.setOut(out);
+			System.setErr(out);
 		} catch (final FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -126,16 +125,63 @@ public class Game implements ApplicationListener, IEventListener {
 		// Texture.TextureFilter.Linear);
 		// planetRegion = new TextureRegion(planet);
 
-		touchPoint = new Vector3();
-
 		pixmap = new Pixmap(32, 32, Pixmap.Format.Alpha);
 		pixmap.setColor(0.f, 0.f, 0.f, 1.f);
 		pixmap.fill();
 		pixmapTexture = new Texture(pixmap);
 
+		touchPoint = new Vector3();
+
+		player = new VerseActor(0, 100, 100, 5);
+		debugDrone = new VerseActor(1, 130, 100, 5);
+
 		initSmartFox();
 		connectToServer("127.0.0.1", 9933); // TODO use sfs-config.xml
+
+		// ///
+		// /// Tests
+		// ///
+
+		// final Gdx2DPixmap alpha = createPixmap(32, 32,
+		// Gdx2DPixmap.GDX2D_FORMAT_ALPHA);
+		// Gdx2DPixmap.setBlend(1);
+		//
+		// alpha.clear(Color.alpha(0.1f));
+		// alpha.setPixel(16, 16, Color.alpha(1.0f));
+		// if (alpha.getPixel(16, 16) != 0xff) {
+		// throw new RuntimeException("alpha error");
+		// }
+		// if (alpha.getPixel(15, 16) != Color.alpha(0.1f)) {
+		// throw new RuntimeException("alpha error");
+		// }
+		// alpha.drawLine(0, 0, 31, 31, Color.alpha(1.0f));
+		// alpha.drawRect(10, 10, 5, 7, Color.alpha(1.0f));
+		// alpha.fillRect(20, 10, 5, 7, Color.alpha(1.0f));
+		// alpha.drawCircle(16, 16, 10, Color.alpha(1.0f));
+		// alpha.fillCircle(16, 16, 6, Color.alpha(1.0f));
+		//
+		// sprites = new ArrayList<Sprite>();
+		// sprites.add(new Sprite(textureFromPixmap(alpha)));
+		// sprites.get(0).setPosition(10, 10);
 	}
+
+	// Gdx2DPixmap createPixmap(final int width, final int height, final int
+	// format) {
+	// return Gdx2DPixmap.newPixmap(width, height, format);
+	// }
+	//
+	// Texture textureFromPixmap(final Gdx2DPixmap pixmap) {
+	// final Texture texture =
+	// Gdx.graphics.newUnmanagedTexture(pixmap.getWidth(), pixmap.getHeight(),
+	// Format.RGB565,
+	// TextureFilter.Nearest, TextureFilter.Nearest, TextureWrap.ClampToEdge,
+	// TextureWrap.ClampToEdge);
+	// texture.bind();
+	// Gdx.gl.glTexImage2D(GL10.GL_TEXTURE_2D, 0, pixmap.getGLInternalFormat(),
+	// pixmap.getWidth(), pixmap.getHeight(), 0,
+	// pixmap.getGLFormat(), pixmap.getGLType(), pixmap.getPixels());
+	// return texture;
+	// }
 
 	private void readConfig() {
 		Wini ini;
@@ -182,7 +228,13 @@ public class Game implements ApplicationListener, IEventListener {
 			font.draw(batch, "visible: " + visibleActors.size(), 20, 60);
 			drawHUD();
 
+			player.update(Gdx.graphics.getDeltaTime());
 			drawPlayer(HALF_WIDTH, HALF_HEIGHT);
+
+			// draw drone
+			debugDrone.update(Gdx.graphics.getDeltaTime());
+			final Vector2 dronePos = getScreenCoordinates(debugDrone.getPos());
+			drawPlayer(dronePos.x, dronePos.y);
 
 			for (final VerseActor a : visibleActors) {
 
@@ -264,25 +316,13 @@ public class Game implements ApplicationListener, IEventListener {
 			final Vector2 targetPos = new Vector2(posX + touchPoint.x, posY + touchPoint.y);
 
 			final ISFSObject sfso = new SFSObject();
-			// sfso.putFloat(VerseActor.POS_X, targetPos.x);
-			// sfso.putFloat(VerseActor.POS_Y, targetPos.y);
-			// sfso.putFloat(VerseActor.POS_X, 1.f);
-			// sfso.putFloat(VerseActor.POS_Y, 1.f);
-			sfso.putInt(VerseActor.POS_X, (int) targetPos.x);
-			sfso.putInt(VerseActor.POS_Y, (int) targetPos.y);
-			// sfso.putInt(VerseActor.POS_X, 250);
-			// sfso.putInt(VerseActor.POS_Y, 190);
-			// sfso.putInt(VerseActor.POS_X, test);
-			// sfso.putInt(VerseActor.POS_Y, test);
+			// sfso.putInt(VerseActor.POS_X, (int) targetPos.x);
+			// sfso.putInt(VerseActor.POS_Y, (int) targetPos.y);
+			sfso.putFloat(VerseActor.POS_X, targetPos.x);
+			sfso.putFloat(VerseActor.POS_Y, targetPos.y);
 			// sfso.putIntArray("pos", ImmutableList.of(250, 190));
-			sfso.putUtfString("hosh", "sucks biggy");
-
-			posX1 = (int) targetPos.x;
-			posY1 = (int) targetPos.y;
 
 			serverMessage = "" + (int) targetPos.x + " x " + (int) targetPos.y;
-
-			System.out.println("*********************" + sfso.getInt(VerseActor.POS_X) + " -  " + sfso.getInt(VerseActor.POS_Y));
 
 			touchPoint = touchPoint.nor();
 			final Vector2 orientation = new Vector2(touchPoint.x, touchPoint.y);
@@ -291,23 +331,16 @@ public class Game implements ApplicationListener, IEventListener {
 			theta = 360 - MathUtils.radiansToDegrees * theta;
 			player.setRotationAngle((float) theta); // TODO send to server
 
-			player.setCurSpeed(100); // TODO send to server
+			sfso.putFloat(VerseActor.ORIENTATION_X, orientation.x);
+			sfso.putFloat(VerseActor.ORIENTATION_Y, orientation.y);
+			sfsClient.send(new ExtensionRequest("move", sfso));
+
+			player.setCurSpeed(player.getMaxSpeed()); // TODO send to server
+			player.setTargetPos(targetPos);
+			player.setTargetOrientation(orientation);
 
 			// sfsClient.send(new PublicMessageRequest("player: " + touchPoint.x
 			// + " X " + touchPoint.y));
-
-			// sfso.putFloat(VerseActor.ORIENTATION_X, orientation.x);
-			// sfso.putFloat(VerseActor.ORIENTATION_Y, orientation.y);
-			System.out.println(Thread.currentThread().getName());
-
-			try {
-				dispatch(new BaseEvent("lala"));
-			} catch (final SFSException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			// sfsClient.send(new ExtensionRequest("move", sfso));
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
 			cam.zoom += 0.02;
@@ -401,7 +434,6 @@ public class Game implements ApplicationListener, IEventListener {
 			@Override
 			public void dispatch(final BaseEvent arg0) throws SFSException {
 				System.out.println("config loaded successfully!");
-				// sfsClient.getConfig().get
 			}
 		});
 	}
@@ -429,13 +461,6 @@ public class Game implements ApplicationListener, IEventListener {
 
 	@Override
 	public void dispatch(final BaseEvent event) throws SFSException {
-		// if (Objects.equal(event.getType(), "lala")) {
-		// System.err.println("hulu");
-		// final ISFSObject sfso = new SFSObject();
-		// sfso.putInt("hosh", 250);
-		// sfso.putInt("bine", 190);
-		// sfsClient.send(new ExtensionRequest("move", sfso));
-		// }
 		if (event.getType().equalsIgnoreCase(SFSEvent.CONNECTION)) {
 			if (event.getArguments().get("success").equals(true)) {
 				sfsClient.send(new LoginRequest(userName, password, "VerseZone"));
@@ -478,6 +503,20 @@ public class Game implements ApplicationListener, IEventListener {
 
 			final String cmd = event.getArguments().get("cmd").toString();
 
+			if ("initialPlayerData".equals(cmd)) {
+				ISFSObject resObj = new SFSObject();
+				resObj = (ISFSObject) event.getArguments().get("params");
+
+				final int charId = resObj.getInt(VerseActor.CHAR_ID);
+				final Float x = resObj.getFloat("x");
+				final Float y = resObj.getFloat("y");
+
+				player.setCharId(charId);
+				final Vector2 posVector = new Vector2(x, y);
+				player.setPos(posVector);
+				player.setTargetPos(posVector);
+			}
+
 			if ("playerData".equals(cmd)) {
 				ISFSObject resObj = new SFSObject();
 				resObj = (ISFSObject) event.getArguments().get("params");
@@ -487,46 +526,11 @@ public class Game implements ApplicationListener, IEventListener {
 				final Float y = resObj.getFloat("y");
 
 				player.setCharId(charId);
-				player.setPos(new Vector2(x, y));
+				final Vector2 posVector = new Vector2(x, y);
+				player.setPos(posVector);
+				// player.setTargetPos(posVector);
 
-				System.out.println("recv. posData: " + x + " X " + y);
-
-				System.err.println("and sending back!");
-				final ISFSObject sfso = new SFSObject();
-				// sfso.putInt("hosh", 250);
-				// sfso.putInt("bine", 190);
-				// posX1 = 339;
-				// posY1 = 248;
-				posX1 = MathUtils.random(2000) - 1000;
-				posY1 = MathUtils.random(2000) - 1000;
-				sfso.putInt("hosh", posX1);
-				sfso.putInt("bine", posY1);
-				System.out.println("----------------------:" + posX1 + " " + posY1);
-				sfsClient.send(new ExtensionRequest("YouBitch", sfso));
-
-				final ISFSObject sfso2 = new SFSObject();
-				posX1 = MathUtils.random(2000) - 1000;
-				posY1 = MathUtils.random(2000) - 1000;
-				sfso2.putInt("hosh", posX1);
-				sfso2.putInt("bine", posY1);
-				System.out.println("----------------------:" + posX1 + " " + posY1);
-				sfsClient.send(new ExtensionRequest("YouBitch", sfso2));
-
-				final ISFSObject sfso3 = new SFSObject();
-				posX1 = MathUtils.random(2000) - 1000;
-				posY1 = MathUtils.random(2000) - 1000;
-				sfso3.putInt("hosh", posX1);
-				sfso3.putInt("bine", posY1);
-				System.out.println("----------------------:" + posX1 + " " + posY1);
-				sfsClient.send(new ExtensionRequest("YouBitch", sfso3));
-
-				final ISFSObject sfso4 = new SFSObject();
-				posX1 = MathUtils.random(2000) - 1000;
-				posY1 = MathUtils.random(2000) - 1000;
-				sfso4.putInt("hosh", posX1);
-				sfso4.putInt("bine", posY1);
-				System.out.println("----------------------:" + posX1 + " " + posY1);
-				sfsClient.send(new ExtensionRequest("YouBitch", sfso4));
+				// System.out.println("recv. posData: " + x + " X " + y);
 			}
 
 			if ("actor".equals(cmd)) {

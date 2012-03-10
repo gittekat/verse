@@ -51,7 +51,7 @@ public class VerseActor {
 		rotationAngle = 0.f;
 		setRotationSpeed(0.f);
 
-		setMaxSpeed(50);
+		setMaxSpeed(100);
 		setCurSpeed(0);
 
 		setShieldStrength(0.4f);
@@ -77,7 +77,7 @@ public class VerseActor {
 		rotationAngle = 0.f;
 		setRotationSpeed(0.f);
 
-		setMaxSpeed(50);
+		setMaxSpeed(100);
 		setCurSpeed(0);
 
 		setShieldStrength(0.4f);

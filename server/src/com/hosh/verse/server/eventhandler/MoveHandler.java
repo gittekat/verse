@@ -1,5 +1,8 @@
 package com.hosh.verse.server.eventhandler;
 
+import com.hosh.verse.common.VerseActor;
+import com.hosh.verse.server.Verse;
+import com.hosh.verse.server.VerseExtension;
 import com.smartfoxserver.v2.annotations.Instantiation;
 import com.smartfoxserver.v2.annotations.Instantiation.InstantiationMode;
 import com.smartfoxserver.v2.entities.User;
@@ -22,24 +25,23 @@ public class MoveHandler extends BaseClientRequestHandler {
 		// return;
 		// }
 
-		// final VerseExtension verseExt = (VerseExtension)
-		// getParentExtension();
-		// final Verse verse = verseExt.getVerse();
-		//
-		// // final Float x = params.getFloat(VerseActor.POS_X);
-		// // final Float y = params.getFloat(VerseActor.POS_Y);
+		final VerseExtension verseExt = (VerseExtension) getParentExtension();
+		final Verse verse = verseExt.getVerse();
+
+		final Float x = params.getFloat(VerseActor.POS_X);
+		final Float y = params.getFloat(VerseActor.POS_Y);
 		// final int x = params.getInt(VerseActor.POS_X);
 		// final int y = params.getInt(VerseActor.POS_Y);
-		//
+
 		// // TODO set orientation??
-		// // final Float orientationX =
-		// params.getFloat(VerseActor.ORIENTATION_X);
-		// // final Float orientationY =
-		// params.getFloat(VerseActor.ORIENTATION_Y);
-		//
-		// final Integer charId = verseExt.getCharId(user);
-		// // verse.movePlayer(charId, x, y, orientationX, orientationY);
-		// verse.movePlayer(charId, (float) x, (float) y, 1.f, 1.f);
+		final Float orientationX = params.getFloat(VerseActor.ORIENTATION_X);
+		final Float orientationY = params.getFloat(VerseActor.ORIENTATION_Y);
+
+		final Integer charId = verseExt.getCharId(user);
+		verse.movePlayer(charId, x, y, orientationX, orientationY);
+		// verse.movePlayer(charId, (float) x, (float) y, orientationX,
+		// orientationY);
+		trace("target pos set to (" + charId + "): " + x + " x " + y);
 
 	}
 }

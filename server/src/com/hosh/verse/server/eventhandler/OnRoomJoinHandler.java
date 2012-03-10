@@ -18,6 +18,8 @@ import com.smartfoxserver.v2.db.IDBManager;
 import com.smartfoxserver.v2.entities.Room;
 import com.smartfoxserver.v2.entities.User;
 import com.smartfoxserver.v2.entities.Zone;
+import com.smartfoxserver.v2.entities.data.ISFSObject;
+import com.smartfoxserver.v2.entities.data.SFSObject;
 import com.smartfoxserver.v2.exceptions.SFSException;
 import com.smartfoxserver.v2.extensions.BaseServerEventHandler;
 
@@ -83,6 +85,13 @@ public class OnRoomJoinHandler extends BaseServerEventHandler {
 			final Verse verse = verseExt.getVerse();
 
 			DatabaseAccessor.addPlayer(verseExt, verse, actor, user);
+
+			final ISFSObject playerData = new SFSObject();
+			playerData.putInt(VerseActor.CHAR_ID, actor.getCharId());
+			playerData.putFloat("x", actor.getPos().x);
+			playerData.putFloat("y", actor.getPos().y);
+
+			send("initialPlayerData", playerData, user, false);
 
 			connection.close();
 		} catch (final SQLException e) {

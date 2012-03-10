@@ -57,7 +57,8 @@ public class VerseExtension extends SFSExtension {
 		addEventHandler(SFSEventType.USER_LOGIN, LoginEventHandler.class);
 		addEventHandler(SFSEventType.USER_JOIN_ROOM, OnRoomJoinHandler.class);
 		addEventHandler(SFSEventType.USER_LOGOUT, LogoutEventHandler.class);
-		addRequestHandler("YouBitch", MoveHandler.class);
+		addEventHandler(SFSEventType.USER_DISCONNECT, LogoutEventHandler.class);
+		addRequestHandler("move", MoveHandler.class);
 	}
 
 	private class TaskRunner implements Runnable {
@@ -71,21 +72,26 @@ public class VerseExtension extends SFSExtension {
 			verse.update(seconds);
 
 			final Map<Integer, VerseActor> playerMap = verse.getPlayerMap();
-			// if (runningCycles % 100 == 0) {
-			// trace("TaskRunner alive with player count: " + playerMap.size());
-			// }
+			if (runningCycles % 200 == 0) {
+				trace("TaskRunner alive with player count: " + playerMap.size());
+			}
 
 			for (final VerseActor actor : playerMap.values()) {
 				final User user = userLookupTable.get(actor.getCharId());
 
 				if (user != null) {
-					if (runningCycles % 20 == 0) {
+					if (runningCycles % 100 == 0) {
 						final ISFSObject playerData = new SFSObject();
-						playerData.putInt(VerseActor.CHAR_ID, actor.getCharId());
+						playerData.putInt(VerseActor.CHAR_ID, actor.getCharId()); // TODO
+																					// only
+																					// send
+																					// in
+																					// initial
+																					// player
+																					// data
+																					// transmission
 						playerData.putFloat("x", actor.getPos().x);
 						playerData.putFloat("y", actor.getPos().y);
-						playerData.putInt("testx", 250);
-						playerData.putInt("testy", 190);
 
 						send("playerData", playerData, user, false);
 					}
