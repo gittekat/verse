@@ -88,9 +88,11 @@ public class Verse {
 		return playerMap;
 	}
 
-	public void movePlayer(final Integer charId, final Float x, final Float y, final Float orientationX, final Float orientationY) {
+	public void movePlayer(final Integer charId, final Float targetPosX, final Float targetPosY, final Float orientationX,
+			final Float orientationY, final Float speed) {
 		final VerseActor player = playerMap.get(charId);
-		player.setTargetPos(new Vector2(x, y));
+		player.setTargetPos(new Vector2(targetPosX, targetPosY));
 		player.setCurOrientation(new Vector2(orientationX, orientationY));
+		player.setCurSpeed(speed);
 	}
 }

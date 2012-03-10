@@ -28,20 +28,15 @@ public class MoveHandler extends BaseClientRequestHandler {
 		final VerseExtension verseExt = (VerseExtension) getParentExtension();
 		final Verse verse = verseExt.getVerse();
 
-		final Float x = params.getFloat(VerseActor.POS_X);
-		final Float y = params.getFloat(VerseActor.POS_Y);
-		// final int x = params.getInt(VerseActor.POS_X);
-		// final int y = params.getInt(VerseActor.POS_Y);
-
-		// // TODO set orientation??
+		final Float targetX = params.getFloat(VerseActor.TARGET_POS_X);
+		final Float targetY = params.getFloat(VerseActor.TARGET_POS_Y);
 		final Float orientationX = params.getFloat(VerseActor.ORIENTATION_X);
 		final Float orientationY = params.getFloat(VerseActor.ORIENTATION_Y);
+		final Float speed = params.getFloat(VerseActor.SPEED);
 
 		final Integer charId = verseExt.getCharId(user);
-		verse.movePlayer(charId, x, y, orientationX, orientationY);
-		// verse.movePlayer(charId, (float) x, (float) y, orientationX,
-		// orientationY);
-		trace("target pos set to (" + charId + "): " + x + " x " + y);
+		verse.movePlayer(charId, targetX, targetY, orientationX, orientationY, speed);
+		trace("target pos set to (" + charId + "): " + targetX + " x " + targetY);
 
 	}
 }

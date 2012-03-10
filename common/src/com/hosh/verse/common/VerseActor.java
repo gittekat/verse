@@ -1,6 +1,7 @@
 package com.hosh.verse.common;
 
 import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
 public class VerseActor {
@@ -8,8 +9,11 @@ public class VerseActor {
 	public static final String RADIUS = "radius";
 	public static final String POS_X = "x";
 	public static final String POS_Y = "y";
+	public static final String TARGET_POS_X = "targetX";
+	public static final String TARGET_POS_Y = "targetY";
 	public static final String ORIENTATION_X = "oriX";
 	public static final String ORIENTATION_Y = "oriY";
+	public static final String SPEED = "speed";
 
 	private int charId;
 	private String name;
@@ -38,6 +42,8 @@ public class VerseActor {
 	private float rotationAngle;
 	private float rotationSpeed;
 
+	private final float MAX_SPEED = 20.f;
+
 	/** default constructor */
 	public VerseActor(final int id, final float posX, final float posY, final float radius) {
 		this.setCharId(id);
@@ -51,10 +57,18 @@ public class VerseActor {
 		rotationAngle = 0.f;
 		setRotationSpeed(0.f);
 
-		setMaxSpeed(100);
+		setMaxSpeed(MAX_SPEED);
 		setCurSpeed(0);
 
 		setShieldStrength(0.4f);
+	}
+
+	public VerseActor(final int id, final float posX, final float posY, final float targetPosX, final float targetPosY, final float radius,
+			final float speed, final float oriX, final float oriY) {
+		this(id, posX, posY, radius);
+		targetPos = new Vector2(targetPosX, targetPosY);
+		setCurSpeed(speed);
+		setCurOrientation(new Vector2(oriX, oriY));
 	}
 
 	/** player constructor */
@@ -77,7 +91,7 @@ public class VerseActor {
 		rotationAngle = 0.f;
 		setRotationSpeed(0.f);
 
-		setMaxSpeed(100);
+		setMaxSpeed(MAX_SPEED);
 		setCurSpeed(0);
 
 		setShieldStrength(0.4f);
@@ -107,9 +121,9 @@ public class VerseActor {
 
 	public void setTargetPos(final Vector2 targetPos) {
 		this.targetPos = targetPos;
-		if (curPos.cpy().sub(targetPos).len() > 1.f) {
-			setCurSpeed(1.0f);
-		}
+		// if (curPos.cpy().sub(targetPos).len() > 1.f) {
+		// setCurSpeed(1.0f);
+		// }
 	}
 
 	public Circle getBounds() {
@@ -156,6 +170,9 @@ public class VerseActor {
 
 	public void setCurOrientation(final Vector2 orientation) {
 		curOrientation = orientation;
+		double theta = Math.atan2(orientation.x, orientation.y);
+		theta = 360 - MathUtils.radiansToDegrees * theta;
+		setRotationAngle((float) theta);
 	}
 
 	public Vector2 getTargetOrientation() {

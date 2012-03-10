@@ -6,7 +6,6 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="lib" path="libs/gdx-backend-android.jar" sourcepath="libs/gdx-backend-android-sources.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/verse"/>
-	<classpathentry kind="lib" path="/verse/libs/photon-android.jar"/>
 	<classpathentry kind="lib" path="/verse/libs/commons-lang-2.4.jar"/>
 	<classpathentry kind="lib" path="/verse/libs/jdom.jar"/>
 	<classpathentry kind="lib" path="/verse/libs/netty-3.2.2.Final.jar"/>

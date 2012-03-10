@@ -4,7 +4,6 @@
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry exported="true" kind="lib" path="libs/photon-android.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/commons-lang-2.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/jdom.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/netty-3.2.2.Final.jar"/>

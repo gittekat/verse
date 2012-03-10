@@ -24,7 +24,7 @@ import com.smartfoxserver.v2.extensions.ExtensionLogLevel;
 import com.smartfoxserver.v2.extensions.SFSExtension;
 
 public class VerseExtension extends SFSExtension {
-	private final static String version = "0.0.1";
+	private final static String version = "0.0.2";
 	public static final String DATABASE_ID = "dbID";
 	public static final String ACCOUNT_NAME = "accountName";
 	public static final String CHAR_ID = "charId";
@@ -82,14 +82,6 @@ public class VerseExtension extends SFSExtension {
 				if (user != null) {
 					if (runningCycles % 100 == 0) {
 						final ISFSObject playerData = new SFSObject();
-						playerData.putInt(VerseActor.CHAR_ID, actor.getCharId()); // TODO
-																					// only
-																					// send
-																					// in
-																					// initial
-																					// player
-																					// data
-																					// transmission
 						playerData.putFloat("x", actor.getPos().x);
 						playerData.putFloat("y", actor.getPos().y);
 
@@ -102,7 +94,15 @@ public class VerseExtension extends SFSExtension {
 						}
 
 						for (final VerseActor player : verse.getPlayerMap().values()) {
-							send("player", ActorFactory.createSFSObject(player), user, false);
+							if (actor.getCharId() == player.getCharId()) {
+								continue;
+							}
+
+							final ISFSObject playerObj = ActorFactory.createSFSObject(player);
+							if (playerObj.getFloat(VerseActor.TARGET_POS_X) != player.getTargetPos().x) {
+								trace("WTF!");
+							}
+							send("player", playerObj, user, false);
 						}
 					}
 				}
