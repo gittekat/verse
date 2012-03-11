@@ -1,14 +1,18 @@
 package com.hosh.verse;
 
+import java.awt.EventQueue;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+
+import javax.swing.ImageIcon;
 
 import org.ini4j.Wini;
 
@@ -23,25 +27,29 @@ import sfs2x.client.requests.LoginRequest;
 import sfs2x.client.requests.LogoutRequest;
 
 import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Gdx2DPixmap;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
+import com.badlogic.gdx.graphics.g2d.ParticleEmitter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.hosh.verse.common.ActorFactory;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.hosh.verse.common.Interpreter;
 import com.hosh.verse.common.VerseActor;
 import com.smartfoxserver.v2.entities.data.ISFSObject;
 import com.smartfoxserver.v2.entities.data.SFSObject;
@@ -57,7 +65,7 @@ public class Game implements ApplicationListener, IEventListener {
 
 	private OrthographicCamera cam;
 
-	BitmapFont font;
+	// private BitmapFont font;
 	private SpriteBatch batch;
 	private Texture ship;
 	private TextureRegion shipRegion;
@@ -90,88 +98,12 @@ public class Game implements ApplicationListener, IEventListener {
 
 	List<Sprite> sprites;
 	private Mesh mesh;
+	private float bg = 1.f;
+	private boolean dawn = true;
+	private ParticleEffect particleEffect;
+	private Array<ParticleEmitter> emmiter;
 
-	Texture textureFromPixmap(final Gdx2DPixmap pixmap) {
-		final Texture texture = new Texture(pixmap.getWidth(), pixmap.getHeight(), Format.RGB565);
-		texture.bind();
-		Gdx.gl.glTexImage2D(GL10.GL_TEXTURE_2D, 0, pixmap.getGLInternalFormat(), pixmap.getWidth(), pixmap.getHeight(), 0,
-				pixmap.getGLFormat(), pixmap.getGLType(), pixmap.getPixels());
-		return texture;
-	}
-
-	void drawToPixmap(final Gdx2DPixmap pixmap) {
-		pixmap.clear(Color.rgba8888(1, 0, 0, 0.1f));
-		pixmap.setPixel(16, 16, Color.rgba8888(0, 0, 1, 1));
-		int clearColor = 0;
-		int pixelColor = 0;
-		switch (pixmap.getFormat()) {
-		case Gdx2DPixmap.GDX2D_FORMAT_ALPHA:
-			clearColor = Color.rgba8888(1, 1, 1, 0.1f);
-			pixelColor = Color.rgba8888(1, 1, 1, 1);
-			break;
-		case Gdx2DPixmap.GDX2D_FORMAT_LUMINANCE_ALPHA:
-			clearColor = 0x36363619; // Color.rgba8888(1, 1, 1, 0.1f);
-			pixelColor = 0xffffff12;
-			break;
-		case Gdx2DPixmap.GDX2D_FORMAT_RGB565:
-			clearColor = Color.rgba8888(1, 0, 0, 1);
-			pixelColor = Color.rgba8888(0, 0, 1, 1);
-			break;
-		case Gdx2DPixmap.GDX2D_FORMAT_RGB888:
-			clearColor = Color.rgba8888(1, 0, 0, 1);
-			pixelColor = Color.rgba8888(0, 0, 1, 1);
-			break;
-		case Gdx2DPixmap.GDX2D_FORMAT_RGBA4444:
-			clearColor = 0xff000011;
-			pixelColor = Color.rgba8888(0, 0, 1, 1);
-			break;
-		case Gdx2DPixmap.GDX2D_FORMAT_RGBA8888:
-			clearColor = Color.rgba8888(1, 0, 0, 0.1f);
-			pixelColor = Color.rgba8888(0, 0, 1, 1);
-
-		}
-		if (pixmap.getPixel(15, 16) != clearColor) {
-			throw new RuntimeException("error clear: " + pixmap.getFormatString());
-		}
-		if (pixmap.getPixel(16, 16) != pixelColor) {
-			throw new RuntimeException("error pixel: " + pixmap.getFormatString());
-		}
-		pixmap.drawLine(0, 0, 31, 31, Color.rgba8888(1, 1, 1, 1));
-		pixmap.drawRect(10, 10, 5, 7, Color.rgba8888(1, 1, 0, 0.5f));
-		pixmap.fillRect(20, 10, 5, 7, Color.rgba8888(0, 1, 1, 0.5f));
-		pixmap.drawCircle(16, 16, 10, Color.rgba8888(1, 0, 1, 1));
-		pixmap.fillCircle(16, 16, 6, Color.rgba8888(0, 1, 0, 0.5f));
-		pixmap.drawLine(0, -1, 0, 0, Color.rgba8888(1, 1, 0, 1));
-		pixmap.drawLine(41, -10, 31, 0, Color.rgba8888(1, 1, 0, 1));
-		pixmap.drawLine(10, 41, 0, 31, Color.rgba8888(0, 1, 1, 1));
-		pixmap.drawLine(41, 41, 31, 31, Color.rgba8888(0, 1, 1, 1));
-
-		pixmap.drawRect(-10, -10, 20, 20, Color.rgba8888(0, 1, 1, 1));
-		pixmap.drawRect(21, -10, 20, 20, Color.rgba8888(0, 1, 1, 1));
-		pixmap.drawRect(-10, 21, 20, 20, Color.rgba8888(0, 1, 1, 1));
-		pixmap.drawRect(21, 21, 20, 20, Color.rgba8888(0, 1, 1, 1));
-
-		pixmap.fillRect(-10, -10, 20, 20, Color.rgba8888(0, 1, 1, 0.5f));
-		pixmap.fillRect(21, -10, 20, 20, Color.rgba8888(0, 1, 1, 0.5f));
-		pixmap.fillRect(-10, 21, 20, 20, Color.rgba8888(0, 1, 1, 0.5f));
-		pixmap.fillRect(21, 21, 20, 20, Color.rgba8888(0, 1, 1, 0.5f));
-	}
-
-	Gdx2DPixmap[] testPixmaps() {
-		final int[] formats = { Gdx2DPixmap.GDX2D_FORMAT_ALPHA, Gdx2DPixmap.GDX2D_FORMAT_LUMINANCE_ALPHA, Gdx2DPixmap.GDX2D_FORMAT_RGB565,
-				Gdx2DPixmap.GDX2D_FORMAT_RGB888, Gdx2DPixmap.GDX2D_FORMAT_RGBA4444, Gdx2DPixmap.GDX2D_FORMAT_RGBA8888 };
-
-		final Gdx2DPixmap[] pixmaps = new Gdx2DPixmap[formats.length];
-		for (int i = 0; i < pixmaps.length; i++) {
-			final Gdx2DPixmap pixmap = new Gdx2DPixmap(64, 32, formats[i]);
-			drawToPixmap(pixmap);
-			pixmaps[i] = pixmap;
-		}
-		return pixmaps;
-	}
-
-	@Override
-	public void create() {
+	public void create2() {
 		PrintStream out;
 		try {
 			out = new PrintStream(new FileOutputStream("output.txt"));
@@ -241,6 +173,15 @@ public class Game implements ApplicationListener, IEventListener {
 
 		mesh.setVertices(new float[] { -100.f, -100.f, 0, 100.f, -100.f, 0, 0, 100.f, 0 });
 		mesh.setIndices(new short[] { 0, 1, 2 });
+
+		// laserPurple.load(Gdx.files.internal("engine_effect01.p"),
+		// Gdx.files.internal("data"));
+		// laserPurple.setPosition(HALF_WIDTH + 80, HALF_HEIGHT);
+		// laserPEmitters = new Array(laserPurple.getEmitters());
+
+		particleEffect = new ParticleEffect();
+		particleEffect.load(Gdx.files.internal("engine_effect04.p"), Gdx.files.internal(""));
+		emmiter = particleEffect.getEmitters();
 	}
 
 	private void readConfig() {
@@ -268,8 +209,354 @@ public class Game implements ApplicationListener, IEventListener {
 		}
 	}
 
+	// @Override
+	// public void create() {
+	// if (batch != null) {
+	// return;
+	// }
+	//
+	// Texture.setEnforcePotImages(false);
+	//
+	// batch = new SpriteBatch();
+	//
+	// particleEffect = new ParticleEffect();
+	// particleEffect.load(Gdx.files.internal("engine_effect04.p"),
+	// Gdx.files.internal(""));
+	// // emmiter = particleEffect.getEmitters();
+	//
+	// // font = new BitmapFont(Gdx.files.getFileHandle("default.fnt",
+	// // FileType.Internal), Gdx.files.getFileHandle("default.png",
+	// // FileType.Internal), true);
+	// // effectPanel.newEmitter("Untitled", true);
+	// // // if (resources.openFile("/editor-bg.png") != null) bgImage = new
+	// // // Image(gl, "/editor-bg.png");
+	// // Gdx.input.setInputProcessor(this);
+	// }
+	//
+	// @Override
+	// public void render() {
+	// // Gdx.gl.glEnable(GL10.GL_BLEND);
+	//
+	// Gdx.gl.glClearColor(0.f, 0.f, 0.f, 0.f);
+	// Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+	// // Gdx.gl.glEnable(GL10.GL_BLEND);
+	// // Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_DST_ALPHA); // TODO ??
+	// // Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+	//
+	// // Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
+	// // Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+	//
+	// // Gdx.gl.glEnable(GL10.GL_DEPTH_TEST);
+	// // Gdx.gl.glEnable(GL10.GL_ALPHA_TEST);
+	// //
+	// // Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
+	// // Gdx.gl10.glAlphaFunc(GL10.GL_GREATER, 0);
+	//
+	// // batch.begin();
+	// // // batch.enableBlending();
+	// // // batch.setBlendFunction(GL10.GL_SRC_ALPHA,
+	// // // GL10.GL_ONE_MINUS_SRC_ALPHA);
+	// // // batch.setBlendFunction(GL10.GL_ONE_MINUS_DST_COLOR, GL10.GL_ONE);
+	// // // batch.setBlendFunction(GL10.GL_SRC_COLOR,
+	// // // GL10.GL_ONE_MINUS_SRC_COLOR);
+	// // {
+	// // particleEffect.setPosition(HALF_WIDTH + 300, HALF_HEIGHT);
+	// // // emmiter.get(0).getAngle().setLow(value)
+	// // particleEffect.draw(batch, Gdx.graphics.getDeltaTime() * 2);
+	// // }
+	// // batch.end();
+	//
+	// final int viewWidth = Gdx.graphics.getWidth();
+	// final int viewHeight = Gdx.graphics.getHeight();
+	//
+	// // Texture.setEnforcePotImages(false);
+	//
+	// final float delta = Gdx.graphics.getDeltaTime();
+	//
+	// Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+	//
+	// // Gdx.gl.glDepthMask(false);
+	//
+	// batch.begin();
+	// batch.enableBlending();
+	// batch.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+	//
+	// // if (bgImage != null) {
+	// // bgImage.setPosition(viewWidth / 2 - bgImage.getWidth() / 2,
+	// // viewHeight / 2 - bgImage.getHeight() / 2);
+	// // bgImage.draw(batch);
+	// // }
+	//
+	// // particleEffect.setPosition(HALF_WIDTH + 300, HALF_HEIGHT);
+	//
+	// // particleEffect.start();
+	// boolean complete = true;
+	// for (final ParticleEmitter emitter : particleEffect.getEmitters()) {
+	// if (emitter.getSprite() != null) {
+	// emitter.draw(batch, delta);
+	// }
+	// activeCount += emitter.getActiveCount();
+	// if (emitter.isContinuous()) {
+	// complete = false;
+	// }
+	// if (!emitter.isComplete()) {
+	// complete = false;
+	// }
+	// }
+	// if (complete) {
+	// particleEffect.start();
+	// }
+	// // particleEffect.start();
+	//
+	// // activeCount = 0;
+	// // final boolean complete = true;
+	// // for (final ParticleEmitter emitter : particleEffect.getEmitters()) {
+	// // // if (emitter.getSprite() == null && emitter.getImagePath() !=
+	// // // null) {
+	// // // loadImage(emitter);
+	// // // }
+	// // // final boolean enabled = isEnabled(emitter);
+	// // final boolean enabled = true;
+	// // if (enabled) {
+	// // if (emitter.getSprite() != null) {
+	// // emitter.draw(batch, delta);
+	// // }
+	// // activeCount += emitter.getActiveCount();
+	// // // if (emitter.isContinuous()) {
+	// // // complete = false;
+	// // // }
+	// // // if (!emitter.isComplete()) {
+	// // // complete = false;
+	// // // }
+	// // }
+	// // }
+	// // if (complete) {
+	// // effect.start();
+	// // }
+	//
+	// // maxActive = Math.max(maxActive, activeCount);
+	// // maxActiveTimer += delta;
+	// // if (maxActiveTimer > 3) {
+	// // maxActiveTimer = 0;
+	// // lastMaxActive = maxActive;
+	// // maxActive = 0;
+	// // }
+	//
+	// // particleEffect.draw(batch, delta);
+	//
+	// // Gdx.gl.glDepthMask(true);
+	//
+	// // font = new BitmapFont(Gdx.files.getFileHandle("default.fnt",
+	// // FileType.Internal), Gdx.files.getFileHandle("default.png",
+	// // FileType.Internal), true);
+	// // font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 5, 15);
+	// // font.draw(batch, "Count: " + activeCount, 5, 35);
+	// // font.draw(batch, "Max: " + lastMaxActive, 5, 55);
+	// // font.draw(batch, (int) (getEmitter().getPercentComplete() *
+	// // 100) + "%", 5, 75);
+	//
+	// batch.end();
+	//
+	// }
+
+	private float maxActiveTimer;
+	private int maxActive, lastMaxActive;
+	private boolean mouseDown;
+	private int activeCount;
+	private int mouseX, mouseY;
+	private BitmapFont font;
+	private SpriteBatch spriteBatch;
+	private Sprite bgImage; // BOZO - Add setting background image to UI.
+	ParticleEffect effect = new ParticleEffect();
+	final HashMap<ParticleEmitter, ParticleData> particleData = new HashMap();
+
+	static class ParticleData {
+		public ImageIcon icon;
+		public String imagePath;
+		public boolean enabled = true;
+	}
+
+	@Override
+	public void create() {
+		if (spriteBatch != null) {
+			return;
+		}
+
+		Texture.setEnforcePotImages(false);
+
+		spriteBatch = new SpriteBatch();
+
+		font = new BitmapFont(Gdx.files.getFileHandle("default.fnt", FileType.Internal), Gdx.files.getFileHandle("default.png",
+				FileType.Internal), true);
+		final ParticleEmitter emmiter2 = newEmitter("Untitled", true); // TODO
+																		// ohoh
+
+		effect.getEmitters().add(emmiter2);
+
+		// Gdx.input.setInputProcessor(this);
+	}
+
+	public ParticleEmitter newEmitter(final String name, final boolean select) {
+		final ParticleEmitter emitter = new ParticleEmitter();
+
+		emitter.getDuration().setLow(3000, 3000);
+
+		emitter.getEmission().setHigh(10, 10);
+
+		emitter.getLife().setHigh(1000, 1000);
+
+		emitter.getScale().setHigh(32, 32);
+
+		emitter.getRotation().setLow(1, 360);
+		emitter.getRotation().setHigh(180, 180);
+		emitter.getRotation().setTimeline(new float[] { 0, 1 });
+		emitter.getRotation().setScaling(new float[] { 0, 1 });
+		emitter.getRotation().setRelative(true);
+
+		emitter.getAngle().setHigh(1, 360);
+		emitter.getAngle().setActive(true);
+
+		emitter.getVelocity().setHigh(80, 80);
+		emitter.getVelocity().setActive(true);
+
+		emitter.getTransparency().setHigh(1, 1);
+		emitter.getTransparency().setTimeline(new float[] { 0, 0.2f, 0.8f, 1 });
+		emitter.getTransparency().setScaling(new float[] { 0, 1, 1, 0 });
+
+		emitter.setFlip(false, true);
+		emitter.setMaxParticleCount(15);
+		emitter.setImagePath("particle.png");
+
+		// Array<ParticleEmitter> emitters = editor.effect.getEmitters();
+		// if (emitters.size == 0)
+		emitter.setPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+		// else {
+		// ParticleEmitter p = emitters.get(0);
+		// emitter.setPosition(p.getX(), p.getY());
+		// }
+		// emitters.add(emitter);
+		//
+		// emitterTableModel.addRow(new Object[] {name, true});
+		// if (select) {
+		// editor.reloadRows();
+		// int row = emitterTableModel.getRowCount() - 1;
+		// emitterTable.getSelectionModel().setSelectionInterval(row, row);
+		// }
+		return emitter;
+	}
+
+	@Override
+	public void resize(final int width, final int height) {
+		Gdx.gl.glViewport(0, 0, width, height);
+		spriteBatch.getProjectionMatrix().setToOrtho(0, width, height, 0, 0, 1);
+
+		effect.setPosition(width / 2, height / 2);
+	}
+
 	@Override
 	public void render() {
+		final int viewWidth = Gdx.graphics.getWidth();
+		final int viewHeight = Gdx.graphics.getHeight();
+
+		final float delta = Gdx.graphics.getDeltaTime();
+
+		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+
+		spriteBatch.begin();
+		spriteBatch.enableBlending();
+		spriteBatch.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+
+		if (bgImage != null) {
+			bgImage.setPosition(viewWidth / 2 - bgImage.getWidth() / 2, viewHeight / 2 - bgImage.getHeight() / 2);
+			bgImage.draw(spriteBatch);
+		}
+
+		activeCount = 0;
+		boolean complete = true;
+		for (final ParticleEmitter emitter : effect.getEmitters()) {
+			if (emitter.getSprite() == null && emitter.getImagePath() != null) {
+				loadImage(emitter);
+			}
+			final boolean enabled = isEnabled(emitter);
+			if (enabled) {
+				if (emitter.getSprite() != null) {
+					emitter.draw(spriteBatch, delta);
+				}
+				activeCount += emitter.getActiveCount();
+				if (emitter.isContinuous()) {
+					complete = false;
+				}
+				if (!emitter.isComplete()) {
+					complete = false;
+				}
+			}
+		}
+		if (complete) {
+			effect.start();
+		}
+
+		maxActive = Math.max(maxActive, activeCount);
+		maxActiveTimer += delta;
+		if (maxActiveTimer > 3) {
+			maxActiveTimer = 0;
+			lastMaxActive = maxActive;
+			maxActive = 0;
+		}
+
+		if (mouseDown) {
+			// gl.drawLine(mouseX - 6, mouseY, mouseX + 5, mouseY);
+			// gl.drawLine(mouseX, mouseY - 5, mouseX, mouseY + 6);
+		}
+
+		font.draw(spriteBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 5, 15);
+		font.draw(spriteBatch, "Count: " + activeCount, 5, 35);
+		font.draw(spriteBatch, "Max: " + lastMaxActive, 5, 55);
+		font.draw(spriteBatch, (int) (getEmitter().getPercentComplete() * 100) + "%", 5, 75);
+
+		spriteBatch.end();
+
+		// gl.drawLine((int)(viewWidth *
+		// getCurrentParticles().getPercentComplete()), viewHeight - 1,
+		// viewWidth, viewHeight -
+		// 1);
+	}
+
+	public boolean isEnabled(final ParticleEmitter emitter) {
+		final ParticleData data = particleData.get(emitter);
+		if (data == null) {
+			return true;
+		}
+		return data.enabled;
+	}
+
+	public ParticleEmitter getEmitter() {
+		return effect.getEmitters().get(0);
+	}
+
+	private void loadImage(final ParticleEmitter emitter) {
+		final String imagePath = emitter.getImagePath();
+		final String imageName = new File(imagePath.replace('\\', '/')).getName();
+		try {
+			FileHandle file;
+			if (imagePath.equals("particle.png")) {
+				file = Gdx.files.classpath(imagePath);
+			} else {
+				file = Gdx.files.absolute(imagePath);
+			}
+			emitter.setSprite(new Sprite(new Texture(file)));
+		} catch (final GdxRuntimeException ex) {
+			ex.printStackTrace();
+			EventQueue.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					System.err.println("error");
+				}
+			});
+			emitter.setImagePath(null);
+		}
+	}
+
+	public void render2() {
 
 		handleInput();
 		// verse.update(Gdx.graphics.getDeltaTime());
@@ -277,9 +564,34 @@ public class Game implements ApplicationListener, IEventListener {
 		// cam.update();
 		// cam.apply(gl);
 
-		Gdx.gl.glClearColor(1.f, 1.f, 1.f, 0.f);
+		// if (dawn) {
+		// bg -= 0.00001f;
+		// } else {
+		// bg += 0.00001f;
+		// }
+		// if (bg < 0.0f) {
+		// bg = 0.0f;
+		// dawn = !dawn;
+		// }
+		// if (bg > 1.0f) {
+		// bg = 1.0f;
+		// dawn = !dawn;
+		// }
+
+		Gdx.gl.glClearColor(bg, bg, bg, 0.f);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		Gdx.gl.glEnable(GL10.GL_BLEND);
+		// Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_DST_ALPHA); // TODO ??
+		// Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+
+		// Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
+		// Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+
+		// Gdx.gl.glEnable(GL10.GL_DEPTH_TEST);
+		// Gdx.gl.glEnable(GL10.GL_ALPHA_TEST);
+		//
+		// Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
+		// Gdx.gl10.glAlphaFunc(GL10.GL_GREATER, 0);
 
 		batch.begin();
 		{
@@ -290,6 +602,10 @@ public class Game implements ApplicationListener, IEventListener {
 
 			player.update(deltaTime);
 			drawPlayer(player, HALF_WIDTH, HALF_HEIGHT);
+
+			// particleEffect.setPosition(HALF_WIDTH + 300, HALF_HEIGHT);
+			// // emmiter.get(0).getAngle().setLow(value)
+			// particleEffect.draw(batch, deltaTime);
 
 			// draw drone
 			// debugDrone.update(Gdx.graphics.getDeltaTime());
@@ -323,7 +639,8 @@ public class Game implements ApplicationListener, IEventListener {
 			}
 
 			// batch.setColor(0.f, 0.f, 0.f, 0.5f);
-			// mesh.render(GL10.GL_TRIANGLES, 0, 3);
+			Gdx.gl.glClearColor(1.0f, 1.0f, 1.0f, 0.f);
+			mesh.render(GL10.GL_TRIANGLES, 0, 3);
 
 		}
 		batch.end();
@@ -438,11 +755,22 @@ public class Game implements ApplicationListener, IEventListener {
 		if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
 			Gdx.app.exit();
 		}
+		if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+			particleEffect.start();
+		}
 	}
 
-	@Override
-	public void resize(final int width, final int height) {
-	}
+	// @Override
+	// public void resize(final int width, final int height) {
+	// }
+
+	// @Override
+	// public void resize(final int width, final int height) {
+	// Gdx.gl.glViewport(0, 0, width, height);
+	// batch.getProjectionMatrix().setToOrtho(0, width, 0, height, 0, 1);
+	//
+	// particleEffect.setPosition(width / 2, height / 2);
+	// }
 
 	@Override
 	public void resume() {
@@ -604,14 +932,14 @@ public class Game implements ApplicationListener, IEventListener {
 				ISFSObject resObj = new SFSObject();
 				resObj = (ISFSObject) event.getArguments().get("params");
 
-				visibleActors.add(ActorFactory.createActor(resObj));
+				visibleActors.add(Interpreter.createActor(resObj));
 			}
 
 			if ("player".equals(cmd)) {
 				ISFSObject resObj = new SFSObject();
 				resObj = (ISFSObject) event.getArguments().get("params");
 
-				final VerseActor actor = ActorFactory.createActor(resObj);
+				final VerseActor actor = Interpreter.createActor(resObj);
 
 				visiblePlayers.add(actor);
 

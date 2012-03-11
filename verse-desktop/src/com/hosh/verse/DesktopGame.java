@@ -29,9 +29,9 @@ public class DesktopGame {
 		} else {
 			// config.width = Game.WIDTH;
 			// config.height = Game.HEIGHT;
-			config.width = 1500;
+			config.width = 500;
 			config.height = 500;
-			config.vSyncEnabled = false;
+			config.vSyncEnabled = true;
 		}
 		new LwjglApplication(new Game(), config);
 

@@ -13,7 +13,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.badlogic.gdx.math.Vector2;
-import com.hosh.verse.common.ActorFactory;
+import com.hosh.verse.common.Interpreter;
 import com.hosh.verse.common.CollisionChecker;
 import com.hosh.verse.common.VerseActor;
 import com.hosh.verse.quadtree.AbstractQuadNodeElement;
@@ -42,7 +42,7 @@ public class QuadtreeCollisionSystemTest {
 
 		actorList = new ArrayList<VerseActor>();
 		for (int i = 0; i < objects; ++i) {
-			final VerseActor actor = ActorFactory.createActor(rand.nextInt(width), rand.nextInt(height), 5.f);
+			final VerseActor actor = Interpreter.createActor(rand.nextInt(width), rand.nextInt(height), 5.f);
 			// printActor(actor);
 			actorList.add(actor);
 		}
@@ -83,7 +83,7 @@ public class QuadtreeCollisionSystemTest {
 	public boolean testCollisionSystem() {
 		actorPosX = rand.nextInt(width);
 		actorPosY = rand.nextInt(height);
-		player = ActorFactory.createActor(actorPosX, actorPosY, actorRadius);
+		player = Interpreter.createActor(actorPosX, actorPosY, actorRadius);
 
 		final ArrayList<VerseActor> allCollisionsList = new ArrayList<VerseActor>();
 		for (final VerseActor a : actorList) {

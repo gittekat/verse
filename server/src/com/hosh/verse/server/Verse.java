@@ -9,7 +9,7 @@ import java.util.Set;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.hosh.verse.common.ActorFactory;
+import com.hosh.verse.common.Interpreter;
 import com.hosh.verse.common.VerseActor;
 import com.hosh.verse.quadtree.PointQuadTree;
 
@@ -30,7 +30,7 @@ public class Verse {
 
 		actorList = new ArrayList<VerseActor>();
 		for (int i = 0; i < 10; ++i) {
-			final VerseActor actor = ActorFactory.createActor(MathUtils.random(dimensionX), MathUtils.random(dimensionX), 5.f);
+			final VerseActor actor = Interpreter.createActor(MathUtils.random(dimensionX), MathUtils.random(dimensionX), 5.f);
 			actorList.add(actor);
 		}
 

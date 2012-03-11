@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import com.hosh.verse.common.ActorFactory;
+import com.hosh.verse.common.Interpreter;
 import com.hosh.verse.common.VerseActor;
 import com.hosh.verse.server.eventhandler.LoginEventHandler;
 import com.hosh.verse.server.eventhandler.LogoutEventHandler;
@@ -90,7 +90,7 @@ public class VerseExtension extends SFSExtension {
 
 					if (runningCycles % 100 == 0) {
 						for (final VerseActor others : verse.getVisibleActors(actor)) {
-							send("actor", ActorFactory.createSFSObject(others), user, false);
+							send("actor", Interpreter.createSFSObject(others), user, false);
 						}
 
 						for (final VerseActor player : verse.getPlayerMap().values()) {
@@ -98,7 +98,7 @@ public class VerseExtension extends SFSExtension {
 								continue;
 							}
 
-							final ISFSObject playerObj = ActorFactory.createSFSObject(player);
+							final ISFSObject playerObj = Interpreter.createSFSObject(player);
 							if (playerObj.getFloat(VerseActor.TARGET_POS_X) != player.getTargetPos().x) {
 								trace("WTF!");
 							}

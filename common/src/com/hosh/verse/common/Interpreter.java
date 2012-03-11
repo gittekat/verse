@@ -6,7 +6,7 @@ import java.util.Map;
 import com.smartfoxserver.v2.entities.data.ISFSObject;
 import com.smartfoxserver.v2.entities.data.SFSObject;
 
-public class ActorFactory {
+public class Interpreter {
 	private static Integer idCounter = 1;
 	public static Map<Integer, VerseActor> actorList = new HashMap<Integer, VerseActor>();
 
