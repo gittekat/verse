@@ -42,6 +42,7 @@ import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.ParticleEmitter;
+import com.badlogic.gdx.graphics.g2d.ParticleEmitter.GradientColorValue;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -180,7 +181,7 @@ public class Game implements ApplicationListener, IEventListener {
 		// laserPEmitters = new Array(laserPurple.getEmitters());
 
 		particleEffect = new ParticleEffect();
-		particleEffect.load(Gdx.files.internal("engine_effect04.p"), Gdx.files.internal(""));
+		particleEffect.load(Gdx.files.internal("engine_effect05.p"), Gdx.files.internal(""));
 		emmiter = particleEffect.getEmitters();
 	}
 
@@ -209,155 +210,152 @@ public class Game implements ApplicationListener, IEventListener {
 		}
 	}
 
-	// @Override
-	// public void create() {
-	// if (batch != null) {
-	// return;
-	// }
-	//
-	// Texture.setEnforcePotImages(false);
-	//
-	// batch = new SpriteBatch();
-	//
-	// particleEffect = new ParticleEffect();
-	// particleEffect.load(Gdx.files.internal("engine_effect04.p"),
-	// Gdx.files.internal(""));
-	// // emmiter = particleEffect.getEmitters();
-	//
-	// // font = new BitmapFont(Gdx.files.getFileHandle("default.fnt",
-	// // FileType.Internal), Gdx.files.getFileHandle("default.png",
-	// // FileType.Internal), true);
-	// // effectPanel.newEmitter("Untitled", true);
-	// // // if (resources.openFile("/editor-bg.png") != null) bgImage = new
-	// // // Image(gl, "/editor-bg.png");
-	// // Gdx.input.setInputProcessor(this);
-	// }
-	//
-	// @Override
-	// public void render() {
-	// // Gdx.gl.glEnable(GL10.GL_BLEND);
-	//
-	// Gdx.gl.glClearColor(0.f, 0.f, 0.f, 0.f);
-	// Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-	// // Gdx.gl.glEnable(GL10.GL_BLEND);
-	// // Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_DST_ALPHA); // TODO ??
-	// // Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-	//
-	// // Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
-	// // Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-	//
-	// // Gdx.gl.glEnable(GL10.GL_DEPTH_TEST);
-	// // Gdx.gl.glEnable(GL10.GL_ALPHA_TEST);
-	// //
-	// // Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
-	// // Gdx.gl10.glAlphaFunc(GL10.GL_GREATER, 0);
-	//
-	// // batch.begin();
-	// // // batch.enableBlending();
-	// // // batch.setBlendFunction(GL10.GL_SRC_ALPHA,
-	// // // GL10.GL_ONE_MINUS_SRC_ALPHA);
-	// // // batch.setBlendFunction(GL10.GL_ONE_MINUS_DST_COLOR, GL10.GL_ONE);
-	// // // batch.setBlendFunction(GL10.GL_SRC_COLOR,
-	// // // GL10.GL_ONE_MINUS_SRC_COLOR);
-	// // {
-	// // particleEffect.setPosition(HALF_WIDTH + 300, HALF_HEIGHT);
-	// // // emmiter.get(0).getAngle().setLow(value)
-	// // particleEffect.draw(batch, Gdx.graphics.getDeltaTime() * 2);
-	// // }
-	// // batch.end();
-	//
-	// final int viewWidth = Gdx.graphics.getWidth();
-	// final int viewHeight = Gdx.graphics.getHeight();
-	//
-	// // Texture.setEnforcePotImages(false);
-	//
-	// final float delta = Gdx.graphics.getDeltaTime();
-	//
-	// Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-	//
-	// // Gdx.gl.glDepthMask(false);
-	//
-	// batch.begin();
-	// batch.enableBlending();
-	// batch.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-	//
-	// // if (bgImage != null) {
-	// // bgImage.setPosition(viewWidth / 2 - bgImage.getWidth() / 2,
-	// // viewHeight / 2 - bgImage.getHeight() / 2);
-	// // bgImage.draw(batch);
-	// // }
-	//
-	// // particleEffect.setPosition(HALF_WIDTH + 300, HALF_HEIGHT);
-	//
-	// // particleEffect.start();
-	// boolean complete = true;
-	// for (final ParticleEmitter emitter : particleEffect.getEmitters()) {
-	// if (emitter.getSprite() != null) {
-	// emitter.draw(batch, delta);
-	// }
-	// activeCount += emitter.getActiveCount();
-	// if (emitter.isContinuous()) {
-	// complete = false;
-	// }
-	// if (!emitter.isComplete()) {
-	// complete = false;
-	// }
-	// }
-	// if (complete) {
-	// particleEffect.start();
-	// }
-	// // particleEffect.start();
-	//
-	// // activeCount = 0;
-	// // final boolean complete = true;
-	// // for (final ParticleEmitter emitter : particleEffect.getEmitters()) {
-	// // // if (emitter.getSprite() == null && emitter.getImagePath() !=
-	// // // null) {
-	// // // loadImage(emitter);
-	// // // }
-	// // // final boolean enabled = isEnabled(emitter);
-	// // final boolean enabled = true;
-	// // if (enabled) {
-	// // if (emitter.getSprite() != null) {
-	// // emitter.draw(batch, delta);
-	// // }
-	// // activeCount += emitter.getActiveCount();
-	// // // if (emitter.isContinuous()) {
-	// // // complete = false;
-	// // // }
-	// // // if (!emitter.isComplete()) {
-	// // // complete = false;
-	// // // }
-	// // }
-	// // }
-	// // if (complete) {
-	// // effect.start();
-	// // }
-	//
-	// // maxActive = Math.max(maxActive, activeCount);
-	// // maxActiveTimer += delta;
-	// // if (maxActiveTimer > 3) {
-	// // maxActiveTimer = 0;
-	// // lastMaxActive = maxActive;
-	// // maxActive = 0;
-	// // }
-	//
-	// // particleEffect.draw(batch, delta);
-	//
-	// // Gdx.gl.glDepthMask(true);
-	//
-	// // font = new BitmapFont(Gdx.files.getFileHandle("default.fnt",
-	// // FileType.Internal), Gdx.files.getFileHandle("default.png",
-	// // FileType.Internal), true);
-	// // font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 5, 15);
-	// // font.draw(batch, "Count: " + activeCount, 5, 35);
-	// // font.draw(batch, "Max: " + lastMaxActive, 5, 55);
-	// // font.draw(batch, (int) (getEmitter().getPercentComplete() *
-	// // 100) + "%", 5, 75);
-	//
-	// batch.end();
-	//
-	// }
+	public void create3() {
+		if (batch != null) {
+			return;
+		}
+
+		Texture.setEnforcePotImages(false);
+
+		batch = new SpriteBatch();
+
+		particleEffect = new ParticleEffect();
+		particleEffect.load(Gdx.files.internal("engine_effect05.p"), Gdx.files.internal(""));
+		// emmiter = particleEffect.getEmitters();
+
+		// font = new BitmapFont(Gdx.files.getFileHandle("default.fnt",
+		// FileType.Internal), Gdx.files.getFileHandle("default.png",
+		// FileType.Internal), true);
+		// effectPanel.newEmitter("Untitled", true);
+		// // if (resources.openFile("/editor-bg.png") != null) bgImage = new
+		// // Image(gl, "/editor-bg.png");
+		// Gdx.input.setInputProcessor(this);
+	}
+
+	public void render3() {
+		// Gdx.gl.glEnable(GL10.GL_BLEND);
+
+		Gdx.gl.glClearColor(0.f, 0.f, 0.f, 0.f);
+		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		// Gdx.gl.glEnable(GL10.GL_BLEND);
+		// Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_DST_ALPHA); // TODO ??
+		// Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+
+		// Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
+		// Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+
+		// Gdx.gl.glEnable(GL10.GL_DEPTH_TEST);
+		// Gdx.gl.glEnable(GL10.GL_ALPHA_TEST);
+		//
+		// Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
+		// Gdx.gl10.glAlphaFunc(GL10.GL_GREATER, 0);
+
+		// batch.begin();
+		// // batch.enableBlending();
+		// // batch.setBlendFunction(GL10.GL_SRC_ALPHA,
+		// // GL10.GL_ONE_MINUS_SRC_ALPHA);
+		// // batch.setBlendFunction(GL10.GL_ONE_MINUS_DST_COLOR, GL10.GL_ONE);
+		// // batch.setBlendFunction(GL10.GL_SRC_COLOR,
+		// // GL10.GL_ONE_MINUS_SRC_COLOR);
+		// {
+		// particleEffect.setPosition(HALF_WIDTH + 300, HALF_HEIGHT);
+		// // emmiter.get(0).getAngle().setLow(value)
+		// particleEffect.draw(batch, Gdx.graphics.getDeltaTime() * 2);
+		// }
+		// batch.end();
+
+		final int viewWidth = Gdx.graphics.getWidth();
+		final int viewHeight = Gdx.graphics.getHeight();
+
+		// Texture.setEnforcePotImages(false);
+
+		final float delta = Gdx.graphics.getDeltaTime();
+
+		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+
+		// Gdx.gl.glDepthMask(false);
+
+		batch.begin();
+		batch.enableBlending();
+		batch.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+
+		// if (bgImage != null) {
+		// bgImage.setPosition(viewWidth / 2 - bgImage.getWidth() / 2,
+		// viewHeight / 2 - bgImage.getHeight() / 2);
+		// bgImage.draw(batch);
+		// }
+
+		// particleEffect.setPosition(HALF_WIDTH + 300, HALF_HEIGHT);
+
+		// particleEffect.start();
+		boolean complete = true;
+		for (final ParticleEmitter emitter : particleEffect.getEmitters()) {
+			if (emitter.getSprite() != null) {
+				emitter.draw(batch, delta);
+			}
+			activeCount += emitter.getActiveCount();
+			if (emitter.isContinuous()) {
+				complete = false;
+			}
+			if (!emitter.isComplete()) {
+				complete = false;
+			}
+		}
+		if (complete) {
+			particleEffect.start();
+		}
+		// particleEffect.start();
+
+		// activeCount = 0;
+		// final boolean complete = true;
+		// for (final ParticleEmitter emitter : particleEffect.getEmitters()) {
+		// // if (emitter.getSprite() == null && emitter.getImagePath() !=
+		// // null) {
+		// // loadImage(emitter);
+		// // }
+		// // final boolean enabled = isEnabled(emitter);
+		// final boolean enabled = true;
+		// if (enabled) {
+		// if (emitter.getSprite() != null) {
+		// emitter.draw(batch, delta);
+		// }
+		// activeCount += emitter.getActiveCount();
+		// // if (emitter.isContinuous()) {
+		// // complete = false;
+		// // }
+		// // if (!emitter.isComplete()) {
+		// // complete = false;
+		// // }
+		// }
+		// }
+		// if (complete) {
+		// effect.start();
+		// }
+
+		// maxActive = Math.max(maxActive, activeCount);
+		// maxActiveTimer += delta;
+		// if (maxActiveTimer > 3) {
+		// maxActiveTimer = 0;
+		// lastMaxActive = maxActive;
+		// maxActive = 0;
+		// }
+
+		// particleEffect.draw(batch, delta);
+
+		// Gdx.gl.glDepthMask(true);
+
+		// font = new BitmapFont(Gdx.files.getFileHandle("default.fnt",
+		// FileType.Internal), Gdx.files.getFileHandle("default.png",
+		// FileType.Internal), true);
+		// font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 5, 15);
+		// font.draw(batch, "Count: " + activeCount, 5, 35);
+		// font.draw(batch, "Max: " + lastMaxActive, 5, 55);
+		// font.draw(batch, (int) (getEmitter().getPercentComplete() *
+		// 100) + "%", 5, 75);
+
+		batch.end();
+
+	}
 
 	private float maxActiveTimer;
 	private int maxActive, lastMaxActive;
@@ -388,12 +386,11 @@ public class Game implements ApplicationListener, IEventListener {
 
 		font = new BitmapFont(Gdx.files.getFileHandle("default.fnt", FileType.Internal), Gdx.files.getFileHandle("default.png",
 				FileType.Internal), true);
-		final ParticleEmitter emmiter2 = newEmitter("Untitled", true); // TODO
-																		// ohoh
-
+		final ParticleEmitter emmiter2 = newEmitter("Untitled", true);
 		effect.getEmitters().add(emmiter2);
 
-		// Gdx.input.setInputProcessor(this);
+		particleEffect = new ParticleEffect();
+		particleEffect.load(Gdx.files.internal("engine_effect05.p"), Gdx.files.internal(""));
 	}
 
 	public ParticleEmitter newEmitter(final String name, final boolean select) {
@@ -413,7 +410,8 @@ public class Game implements ApplicationListener, IEventListener {
 		emitter.getRotation().setScaling(new float[] { 0, 1 });
 		emitter.getRotation().setRelative(true);
 
-		emitter.getAngle().setHigh(1, 360);
+		emitter.getAngle().setHigh(10, 1);
+		emitter.getAngle().setLow(-10);
 		emitter.getAngle().setActive(true);
 
 		emitter.getVelocity().setHigh(80, 80);
@@ -426,6 +424,15 @@ public class Game implements ApplicationListener, IEventListener {
 		emitter.setFlip(false, true);
 		emitter.setMaxParticleCount(15);
 		emitter.setImagePath("particle.png");
+
+		final GradientColorValue tint = emitter.getTint();
+		// colorsCount: 3
+		// colors0:
+		tint.setColors(new float[] { 0.43529412f, 0.9490196f, 0.16470589f });
+		tint.setTimeline(new float[] { 0.f });
+
+		emitter.setContinuous(true);
+		// emitter.setAligned(true);
 
 		// Array<ParticleEmitter> emitters = editor.effect.getEmitters();
 		// if (emitters.size == 0)
@@ -494,6 +501,9 @@ public class Game implements ApplicationListener, IEventListener {
 		if (complete) {
 			effect.start();
 		}
+
+		particleEffect.setPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 200);
+		particleEffect.draw(spriteBatch, delta);
 
 		maxActive = Math.max(maxActive, activeCount);
 		maxActiveTimer += delta;
