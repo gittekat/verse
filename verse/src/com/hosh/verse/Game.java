@@ -31,6 +31,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
+import com.badlogic.gdx.graphics.g2d.ParticleEmitter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -42,6 +43,7 @@ import com.smartfoxserver.v2.entities.data.SFSObject;
 import com.smartfoxserver.v2.exceptions.SFSException;
 
 public class Game implements ApplicationListener, IEventListener {
+	private static final String PARTICLE_EFFECT = "engine_effect14.p";
 	private int WIDTH;
 	private int HEIGHT;
 	private int HALF_WIDTH;
@@ -143,7 +145,7 @@ public class Game implements ApplicationListener, IEventListener {
 		connectToServer("127.0.0.1", 9933); // TODO use sfs-config.xml
 
 		particleEffect = new ParticleEffect();
-		particleEffect.load(Gdx.files.internal("engine_effect07.p"), Gdx.files.internal(""));
+		particleEffect.load(Gdx.files.internal(PARTICLE_EFFECT), Gdx.files.internal(""));
 	}
 
 	private void readConfig() {
@@ -182,13 +184,15 @@ public class Game implements ApplicationListener, IEventListener {
 
 		// dayNightCycle();
 
-		bg = 1.f;
+		bg = 0.99f;
 
-		Gdx.gl.glClearColor(bg, bg, bg, 0.f);
+		Gdx.gl.glClearColor(bg, bg, bg, 1.f);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		Gdx.gl.glEnable(GL10.GL_BLEND);
 
 		batch.enableBlending();
+		// batch.setColor(1, 1, 1, 0);
+		// System.out.println(batch.getColor());
 		batch.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 		batch.begin();
 		{
@@ -198,7 +202,7 @@ public class Game implements ApplicationListener, IEventListener {
 			drawHUD();
 
 			player.update(deltaTime);
-			drawPlayer(player, HALF_WIDTH, HALF_HEIGHT);
+			drawPlayer(player, HALF_WIDTH, HALF_HEIGHT, deltaTime);
 
 			// draw drone
 			// debugDrone.update(Gdx.graphics.getDeltaTime());
@@ -228,11 +232,23 @@ public class Game implements ApplicationListener, IEventListener {
 			for (final VerseActor p : visiblePlayerMap.values()) {
 				p.update(deltaTime);
 				final Vector2 pos = getScreenCoordinates(p.getPos());
-				drawPlayer(p, pos.x, pos.y);
+				drawPlayer(p, pos.x, pos.y, deltaTime);
 			}
 
-			particleEffect.setPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 200);
-			particleEffect.draw(batch, deltaTime);
+			particleEffect.setPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+			// particleEffect.getEmitters().get(0).getAngle().setHigh(90, 80);
+			// particleEffect.getEmitters().get(0).getAngle().setLow(-90, -80);
+			// particleEffect.getEmitters().get(1).getAngle().setHigh(90, 80);
+			// particleEffect.getEmitters().get(1).getAngle().setLow(-90, -80);
+
+			final float angle = player.getRotationAngle() + 270;
+			for (final ParticleEmitter emitter : particleEffect.getEmitters()) {
+				emitter.getAngle().setHigh(angle);
+			}
+			// particleEffect.getEmitters().get(0).getAngle().setHigh(angle);
+			// particleEffect.getEmitters().get(1).getAngle().setHigh(angle);
+
+			// particleEffect.draw(batch, deltaTime);
 
 		}
 		batch.end();
@@ -264,10 +280,11 @@ public class Game implements ApplicationListener, IEventListener {
 		return pos;
 	}
 
-	private void drawPlayer(final VerseActor p, final float x, final float y) {
+	private void drawPlayer(final VerseActor p, final float x, final float y, final float deltaTime) {
 		// Gdx.gl.glEnable(GL10.GL_DITHER);
 		batch.setColor(0.f, 0.f, 0.f, p.getShieldStrength());
 		batch.draw(shieldRegion, x - 16, y - 16, 16, 16, 32, 32, 0.95f, 0.95f, 0.f);
+		particleEffect.draw(batch, deltaTime);
 		batch.setColor(1.f, 1.f, 1.f, 1.f);
 		batch.draw(shipRegion, x - 16, y - 16, 16, 16, 32, 32, 0.95f, 0.95f, p.getRotationAngle());
 	}
@@ -364,7 +381,7 @@ public class Game implements ApplicationListener, IEventListener {
 			Gdx.app.exit();
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-			particleEffect.load(Gdx.files.internal("engine_effect07.p"), Gdx.files.internal(""));
+			particleEffect.load(Gdx.files.internal(PARTICLE_EFFECT), Gdx.files.internal(""));
 			particleEffect.start();
 		}
 	}
