@@ -92,7 +92,9 @@ public class Verse {
 			final Float orientationY, final Float speed) {
 		final VerseActor player = playerMap.get(charId);
 		player.setTargetPos(new Vector2(targetPosX, targetPosY));
-		player.setCurOrientation(new Vector2(orientationX, orientationY));
+		// player.setCurOrientationVector(new Vector2(orientationX,
+		// orientationY));
+		player.setTargetOrientationVector(new Vector2(orientationX, orientationY)); // XXX
 		player.setCurSpeed(speed);
 	}
 }

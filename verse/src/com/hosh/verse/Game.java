@@ -20,6 +20,7 @@ import sfs2x.client.requests.ExtensionRequest;
 import sfs2x.client.requests.JoinRoomRequest;
 import sfs2x.client.requests.LoginRequest;
 import sfs2x.client.requests.LogoutRequest;
+import sfs2x.client.requests.PublicMessageRequest;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -119,7 +120,7 @@ public class Game implements ApplicationListener, IEventListener {
 		cam.position.set(HALF_WIDTH, HALF_HEIGHT, 0);
 
 		// ship = new Texture(Gdx.files.internal("triangle_32.png"));
-		ship = new Texture(Gdx.files.internal("avatar_32.png"));
+		ship = new Texture(Gdx.files.internal("ship01.png"));
 		ship.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 		shipRegion = new TextureRegion(ship);
 
@@ -139,7 +140,7 @@ public class Game implements ApplicationListener, IEventListener {
 		touchPoint = new Vector3();
 
 		player = new VerseActor(0, 100, 100, 5);
-		debugDrone = new VerseActor(1, 130, 100, 5);
+		debugDrone = new VerseActor(-1, 130, 100, 5);
 
 		initSmartFox();
 		connectToServer("127.0.0.1", 9933); // TODO use sfs-config.xml
@@ -329,27 +330,23 @@ public class Game implements ApplicationListener, IEventListener {
 
 			final Vector2 targetPos = new Vector2(posX + touchPoint.x, posY + touchPoint.y);
 
-			final ISFSObject sfso = new SFSObject();
-			sfso.putFloat(VerseActor.TARGET_POS_X, targetPos.x);
-			sfso.putFloat(VerseActor.TARGET_POS_Y, targetPos.y);
-			// sfso.putIntArray("pos", ImmutableList.of(250, 190));
-
 			serverMessage = "" + (int) targetPos.x + " x " + (int) targetPos.y;
 
 			touchPoint = touchPoint.nor();
 			final Vector2 orientation = new Vector2(touchPoint.x, touchPoint.y);
-			player.setCurOrientation(orientation);
+
+			player.setTargetPos(targetPos);
+			// player.setCurOrientationVector(orientation); // XXX
+			player.setTargetOrientationVector(orientation);
+			player.setCurSpeed(player.getMaxSpeed()); // TODO send to server
+
+			final ISFSObject sfso = new SFSObject();
+			sfso.putFloat(VerseActor.TARGET_POS_X, targetPos.x);
+			sfso.putFloat(VerseActor.TARGET_POS_Y, targetPos.y);
 			sfso.putFloat(VerseActor.ORIENTATION_X, orientation.x);
 			sfso.putFloat(VerseActor.ORIENTATION_Y, orientation.y);
 			sfso.putFloat(VerseActor.SPEED, player.getMaxSpeed());
 			sfsClient.send(new ExtensionRequest("move", sfso));
-
-			player.setCurSpeed(player.getMaxSpeed()); // TODO send to server
-			player.setTargetPos(targetPos);
-			player.setTargetOrientation(orientation);
-
-			// sfsClient.send(new PublicMessageRequest("player: " + touchPoint.x
-			// + " X " + touchPoint.y));
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
 			cam.zoom += 0.02;
@@ -383,6 +380,9 @@ public class Game implements ApplicationListener, IEventListener {
 		if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
 			particleEffect.load(Gdx.files.internal(PARTICLE_EFFECT), Gdx.files.internal(""));
 			particleEffect.start();
+		}
+		if (Gdx.input.isKeyPressed(Input.Keys.C)) {
+			sfsClient.send(new PublicMessageRequest("hulu"));
 		}
 	}
 

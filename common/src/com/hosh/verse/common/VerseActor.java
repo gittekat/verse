@@ -1,8 +1,8 @@
 package com.hosh.verse.common;
 
 import com.badlogic.gdx.math.Circle;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.hosh.verse.common.utils.VerseUtils;
 
 public class VerseActor {
 	public static final String CHAR_ID = "charId";
@@ -37,12 +37,14 @@ public class VerseActor {
 	private float squaredRadius;
 
 	// TODO slow rotation to designated rotation angle
-	private Vector2 curOrientation;
-	private Vector2 targetOrientation;
+	private Vector2 curOrientationVector;
+	private Vector2 targetOrientationVector;
 	private float rotationAngle;
+	private float targetRotationAngle;
 	private float rotationSpeed;
 
 	private final float MAX_SPEED = 20.f;
+	private final float ROTATION_SPEED = 500.f;
 
 	/** default constructor */
 	public VerseActor(final int id, final float posX, final float posY, final float radius) {
@@ -53,9 +55,10 @@ public class VerseActor {
 		bounds = new Circle(curPos, radius);
 		squaredRadius = radius * radius;
 
-		setCurOrientation(new Vector2(1, 0));
+		setCurOrientationVector(new Vector2(1, 0));
+		setTargetOrientationVector(getCurOrientationVector());
 		rotationAngle = 0.f;
-		setRotationSpeed(0.f);
+		setRotationSpeed(ROTATION_SPEED);
 
 		setMaxSpeed(MAX_SPEED);
 		setCurSpeed(0);
@@ -68,7 +71,9 @@ public class VerseActor {
 		this(id, posX, posY, radius);
 		targetPos = new Vector2(targetPosX, targetPosY);
 		setCurSpeed(speed);
-		setCurOrientation(new Vector2(oriX, oriY));
+		setCurOrientationVector(new Vector2(oriX, oriY));
+		// setTargetOrientationVector(new Vector2(oriX, oriY));
+		setTargetOrientationVector(getCurOrientationVector());
 	}
 
 	/** player constructor */
@@ -87,9 +92,11 @@ public class VerseActor {
 		bounds = new Circle(curPos, radius);
 		squaredRadius = radius * radius;
 
-		setCurOrientation(new Vector2(0, heading));
+		setCurOrientationVector(new Vector2(0, heading));
+		// setTargetOrientationVector(new Vector2(0, heading));
+		setTargetOrientationVector(getCurOrientationVector());
 		rotationAngle = 0.f;
-		setRotationSpeed(0.f);
+		setRotationSpeed(ROTATION_SPEED);
 
 		setMaxSpeed(MAX_SPEED);
 		setCurSpeed(0);
@@ -98,9 +105,39 @@ public class VerseActor {
 	}
 
 	public void update(final float deltaTime) {
+		// orientation
+		setCurOrientationVector(getTargetOrientationVector());
+
+		// if (charId < 10) {
+		// final int stopHere = 109;
+		// }
+		//
+		// final double rotAngle =
+		// VerseUtils.vector2angle(getCurOrientationVector());
+		// final double targetAngle =
+		// VerseUtils.vector2angle(getTargetOrientationVector());
+		// final double rotDiff = rotAngle - targetAngle;
+		// final double rotSpeed = deltaTime * getRotationSpeed() *
+		// MathUtils.degreesToRadians;
+		// if (Math.abs(rotDiff) >= 1.0f) {
+		// final double x = getCurOrientationVector().x;
+		// final double y = getCurOrientationVector().y;
+		// final double x_new = x * Math.cos(rotSpeed) - y * Math.sin(rotSpeed);
+		// final double y_new = x * Math.sin(rotSpeed) + y * Math.cos(rotSpeed);
+		// setCurOrientationVector(new Vector2((float) x_new, (float)
+		// y_new).nor()); // TODO
+		// // nor??
+		// System.err.println("test:" + curPos);
+		// return;
+		// } else {
+		// // System.err.println("test:" + curPos);
+		// setCurOrientationVector(getTargetOrientationVector());
+		// }
+
+		// position
 		if (curPos.cpy().sub(targetPos).len() > 1.f) {
 			final float deltaMovement = deltaTime * curSpeed;
-			curPos.add(curOrientation.cpy().mul(deltaMovement));
+			curPos.add(curOrientationVector.cpy().mul(deltaMovement));
 		} else {
 			curPos = targetPos;
 			setCurSpeed(getMaxSpeed());
@@ -164,23 +201,32 @@ public class VerseActor {
 		this.curSpeed = curSpeed;
 	}
 
-	public Vector2 getCurOrientation() {
-		return curOrientation;
+	public Vector2 getCurOrientationVector() {
+		return curOrientationVector;
 	}
 
-	public void setCurOrientation(final Vector2 orientation) {
-		curOrientation = orientation;
-		double theta = Math.atan2(orientation.x, orientation.y);
-		theta = 360 - MathUtils.radiansToDegrees * theta;
-		setRotationAngle((float) theta);
+	/**
+	 * Sets orientation vector and computes the rotation angle.
+	 * 
+	 * @param orientationVector
+	 */
+	public void setCurOrientationVector(final Vector2 orientation) {
+		curOrientationVector = orientation;
+		setRotationAngle((float) VerseUtils.vector2angle(orientation));
 	}
 
-	public Vector2 getTargetOrientation() {
-		return targetOrientation;
+	public Vector2 getTargetOrientationVector() {
+		return targetOrientationVector;
 	}
 
-	public void setTargetOrientation(final Vector2 targetOrientation) {
-		this.targetOrientation = targetOrientation;
+	/**
+	 * Sets target orientation vector and computes the target rotation angle.
+	 * 
+	 * @param orientation
+	 */
+	public void setTargetOrientationVector(final Vector2 targetOrientation) {
+		targetOrientationVector = targetOrientation;
+		setTargetRotationAngle((float) VerseUtils.vector2angle(targetOrientation));
 	}
 
 	public float getRotationAngle() {
@@ -189,6 +235,14 @@ public class VerseActor {
 
 	public void setRotationAngle(final float rotationAngle) {
 		this.rotationAngle = rotationAngle;
+	}
+
+	public float getTargetRotationAngle() {
+		return targetRotationAngle;
+	}
+
+	public void setTargetRotationAngle(final float targetRotationAngle) {
+		this.targetRotationAngle = targetRotationAngle;
 	}
 
 	public float getRotationSpeed() {

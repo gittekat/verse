@@ -7,7 +7,7 @@ import com.smartfoxserver.v2.entities.data.ISFSObject;
 import com.smartfoxserver.v2.entities.data.SFSObject;
 
 public class Interpreter {
-	private static Integer idCounter = 1;
+	private static Integer idCounter = 1000;
 	public static Map<Integer, VerseActor> actorList = new HashMap<Integer, VerseActor>();
 
 	public static VerseActor createActor(final float posX, final float posY, final float radius) {
@@ -40,8 +40,8 @@ public class Interpreter {
 		actorData.putFloat(VerseActor.POS_Y, actor.getPos().y);
 		actorData.putFloat(VerseActor.TARGET_POS_X, actor.getTargetPos().x);
 		actorData.putFloat(VerseActor.TARGET_POS_Y, actor.getTargetPos().y);
-		actorData.putFloat(VerseActor.ORIENTATION_X, actor.getCurOrientation().x);
-		actorData.putFloat(VerseActor.ORIENTATION_Y, actor.getCurOrientation().y);
+		actorData.putFloat(VerseActor.ORIENTATION_X, actor.getCurOrientationVector().x);
+		actorData.putFloat(VerseActor.ORIENTATION_Y, actor.getCurOrientationVector().y);
 		actorData.putFloat(VerseActor.RADIUS, actor.getRadius());
 		actorData.putFloat(VerseActor.SPEED, actor.getCurSpeed());
 
