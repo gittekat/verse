@@ -44,7 +44,7 @@ public class VerseActor {
 	private float rotationSpeed;
 
 	private final float MAX_SPEED = 20.f;
-	private final float ROTATION_SPEED = 500.f;
+	private final float ROTATION_SPEED = 5.f;
 
 	/** default constructor */
 	public VerseActor(final int id, final float posX, final float posY, final float radius) {
@@ -90,7 +90,7 @@ public class VerseActor {
 		bounds = new Circle(curPos, radius);
 		squaredRadius = radius * radius;
 
-		setCurOrientationVector(new Vector2(0, heading));
+		setCurOrientationVector(new Vector2(0, 1)); // TODO heading!
 		setTargetOrientationVector(new Vector2(getCurOrientationVector()));
 		setRotationSpeed(ROTATION_SPEED);
 
@@ -101,43 +101,6 @@ public class VerseActor {
 	}
 
 	public void update(final float deltaTime) {
-		// orientation
-		// setCurOrientationVector(getTargetOrientationVector());
-
-		// if (charId < 10) {
-		// final int stopHere = 109;
-		// }
-		//
-
-		// final double rotAngle =
-		// VerseUtils.vector2angle(getCurOrientationVector());
-		// final double targetAngle =
-		// VerseUtils.vector2angle(getTargetOrientationVector());
-
-		// final Vector2 targetOri = targetVector.nor();
-		// final double rotAngle =
-		// VerseUtils.vector2angle(getCurOrientationVector());
-		// final double targetAngle = VerseUtils.vector2angle(targetOri);
-		//
-		// final double rotDiff = rotAngle - targetAngle;
-		// final double rotSpeed = deltaTime * getRotationSpeed() *
-		// MathUtils.degreesToRadians;
-		// if (Math.abs(rotDiff) >= 1.0f) {
-		// final double x = getCurOrientationVector().x;
-		// final double y = getCurOrientationVector().y;
-		// final double x_new = x * Math.cos(rotSpeed) - y * Math.sin(rotSpeed);
-		// final double y_new = x * Math.sin(rotSpeed) + y * Math.cos(rotSpeed);
-		// setCurOrientationVector(new Vector2((float) x_new, (float)
-		// y_new).nor()); // TODO
-		// // nor??
-		// // System.err.println("test:" + curPos);
-		// return;
-		// } else {
-		// // System.err.println("test:" + curPos);
-		// // setCurOrientationVector(getTargetOrientationVector());
-		// setCurOrientationVector(targetOri);
-		// }
-
 		// position
 		final Vector2 targetVector = curPos.cpy().sub(targetPos);
 		if (targetVector.len() > 1.f) {
@@ -145,7 +108,7 @@ public class VerseActor {
 			rotate(targetVector, deltaTime);
 
 			final float deltaMovement = deltaTime * curSpeed;
-			curPos.add(curOrientationVector.cpy().mul(deltaMovement));
+			curPos.add(getCurOrientationVector().cpy().mul(deltaMovement));
 		} else {
 			curPos = targetPos;
 			setCurSpeed(getMaxSpeed());
@@ -153,21 +116,29 @@ public class VerseActor {
 	}
 
 	private void rotate(final Vector2 targetVector, final float deltaTime) {
-		final Vector2 targetOri = targetVector.nor();
-		final float len = targetOri.len();
-		targetOri.mul(-1);
+		final Vector2 targetOri = targetVector.nor().mul(-1);
 		final double rotAngle = VerseUtils.vector2angle(getCurOrientationVector());
 		final double targetAngle = VerseUtils.vector2angle(targetOri);
 
-		final double rotDiff = rotAngle - targetAngle;
-		final float rotDiffAngle = deltaTime * getRotationSpeed();
-
-		if (Math.abs(rotDiff) >= 1.0f) {
-			final Vector2 newOri = getCurOrientationVector().rotate(rotDiffAngle);
-			setCurOrientationVector(newOri);
-		} else {
-			setCurOrientationVector(targetOri);
+		double rotDiff = rotAngle - targetAngle;
+		if (rotDiff > 180) {
+			rotDiff -= 360;
+		} else if (rotDiff < -180) {
+			rotDiff += 360;
 		}
+
+		if (Math.abs(rotDiff) < 1.0f) {
+			setCurOrientationVector(targetOri);
+			return;
+		}
+
+		final float rotDiffAngle = deltaTime * getRotationSpeed();
+		if (rotDiff > 0.0f) {
+			setCurOrientationVector(getCurOrientationVector().rotate(-rotDiffAngle));
+		} else {
+			setCurOrientationVector(getCurOrientationVector().rotate(rotDiffAngle));
+		}
+
 	}
 
 	public Vector2 getPos() {

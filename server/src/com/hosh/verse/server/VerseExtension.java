@@ -85,6 +85,8 @@ public class VerseExtension extends SFSExtension {
 						playerData.putFloat("x", actor.getPos().x);
 						playerData.putFloat("y", actor.getPos().y);
 
+						System.out.println(actor.getPos().x + " " + actor.getPos().y);
+
 						send("playerData", playerData, user, false);
 					}
 

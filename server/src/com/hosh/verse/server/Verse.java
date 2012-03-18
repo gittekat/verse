@@ -94,7 +94,8 @@ public class Verse {
 		player.setTargetPos(new Vector2(targetPosX, targetPosY));
 		// player.setCurOrientationVector(new Vector2(orientationX,
 		// orientationY));
-		player.setTargetOrientationVector(new Vector2(orientationX, orientationY)); // XXX
+		// player.setTargetOrientationVector(new Vector2(orientationX,
+		// orientationY)); // XXX
 		player.setCurSpeed(speed);
 	}
 }

@@ -335,7 +335,7 @@ public class Game implements ApplicationListener, IEventListener {
 
 			player.setTargetPos(targetPos);
 			// player.setCurOrientationVector(orientation); // XXX
-			player.setTargetOrientationVector(orientation);
+			// player.setTargetOrientationVector(orientation);
 			player.setCurSpeed(player.getMaxSpeed()); // TODO send to server
 
 			final ISFSObject sfso = new SFSObject();
