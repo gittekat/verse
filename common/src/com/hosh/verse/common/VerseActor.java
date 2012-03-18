@@ -160,32 +160,12 @@ public class VerseActor {
 		final double targetAngle = VerseUtils.vector2angle(targetOri);
 
 		final double rotDiff = rotAngle - targetAngle;
-		// final double rotDiffAngle = deltaTime * getRotationSpeed() *
-		// MathUtils.degreesToRadians;
-		final float rotDiffAngle = -deltaTime * getRotationSpeed();
-		// if (rotDiff < 0.0) {
-		// rotDiffAngle = -deltaTime * getRotationSpeed();
-		// } else {
-		// rotDiffAngle = deltaTime * getRotationSpeed();
-		// }
-		if (Math.abs(rotDiff) >= 1.0f) {
-			System.out.println(rotDiff);
-			System.out.println("---");
-			final double x = getCurOrientationVector().x;
-			final double y = getCurOrientationVector().y;
-			// final double x_new = x * Math.cos(rotDiffAngle) - y *
-			// Math.sin(rotDiffAngle);
-			// final double y_new = x * Math.sin(rotDiffAngle) + y *
-			// Math.cos(rotDiffAngle);
-			// final Vector2 newOri = new Vector2((float) x_new, (float) y_new);
-			final Vector2 newOri = getCurOrientationVector().rotate(rotDiffAngle);
-			final double newAngle = VerseUtils.vector2angle(newOri);
-			setCurOrientationVector(newOri);
+		final float rotDiffAngle = deltaTime * getRotationSpeed();
 
-			// System.err.println("test:" + curPos);
+		if (Math.abs(rotDiff) >= 1.0f) {
+			final Vector2 newOri = getCurOrientationVector().rotate(rotDiffAngle);
+			setCurOrientationVector(newOri);
 		} else {
-			// System.err.println("test:" + curPos);
-			// setCurOrientationVector(getTargetOrientationVector());
 			setCurOrientationVector(targetOri);
 		}
 	}

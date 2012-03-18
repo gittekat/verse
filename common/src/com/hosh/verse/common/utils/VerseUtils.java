@@ -8,6 +8,9 @@ public class VerseUtils {
 	public static double vector2angle(final Vector2 orientation) {
 		double theta = Math.atan2(orientation.x, orientation.y);
 		theta = 360 - MathUtils.radiansToDegrees * theta;
+		while (theta > 360) {
+			theta -= 360;
+		}
 		return theta;
 	}
 
