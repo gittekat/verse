@@ -65,7 +65,6 @@ public class Game implements ApplicationListener, IEventListener {
 	Vector3 touchPoint;
 
 	private VerseActor player;
-	private VerseActor debugDrone;
 	private Set<VerseActor> visiblePlayers;
 	private Map<Integer, VerseActor> visiblePlayerMap;
 	private Set<VerseActor> visibleActors;
@@ -140,7 +139,6 @@ public class Game implements ApplicationListener, IEventListener {
 		touchPoint = new Vector3();
 
 		player = new VerseActor(0, 100, 100, 5);
-		debugDrone = new VerseActor(-1, 130, 100, 5);
 
 		initSmartFox();
 		connectToServer("127.0.0.1", 9933); // TODO use sfs-config.xml
