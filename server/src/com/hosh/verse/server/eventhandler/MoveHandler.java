@@ -14,28 +14,15 @@ public class MoveHandler extends BaseClientRequestHandler {
 
 	@Override
 	public void handleClientRequest(final User user, final ISFSObject params) {
-		// Check params
-		// if (!params.containsKey(VerseActor.POS_X) ||
-		// !params.containsKey(VerseActor.POS_Y)) {
-		// throw new
-		// SFSRuntimeException("Invalid request, one mandatory param is missing. Required 'x' and 'y'");
-		// }
-		// if (!params.containsKey(VerseActor.ORIENTATION_X) ||
-		// !params.containsKey(VerseActor.POS_Y)) {
-		// return;
-		// }
-
 		final VerseExtension verseExt = (VerseExtension) getParentExtension();
 		final Verse verse = verseExt.getVerse();
 
 		final Float targetX = params.getFloat(VerseActor.TARGET_POS_X);
 		final Float targetY = params.getFloat(VerseActor.TARGET_POS_Y);
-		final Float orientationX = params.getFloat(VerseActor.ORIENTATION_X);
-		final Float orientationY = params.getFloat(VerseActor.ORIENTATION_Y);
 		final Float speed = params.getFloat(VerseActor.SPEED);
 
 		final Integer charId = verseExt.getCharId(user);
-		verse.movePlayer(charId, targetX, targetY, orientationX, orientationY, speed);
+		verse.movePlayer(charId, targetX, targetY, speed);
 		trace("target pos set to (" + charId + "): " + targetX + " x " + targetY);
 
 	}

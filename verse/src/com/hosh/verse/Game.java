@@ -138,7 +138,7 @@ public class Game implements ApplicationListener, IEventListener {
 
 		touchPoint = new Vector3();
 
-		player = new VerseActor(0, 100, 100, 5);
+		player = new VerseActor(0, 100, 100, 5); // TODO should be removed!
 
 		initSmartFox();
 		connectToServer("127.0.0.1", 9933); // TODO use sfs-config.xml
@@ -301,9 +301,11 @@ public class Game implements ApplicationListener, IEventListener {
 	}
 
 	private void drawDebugInfo() {
-		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 20, 20);
-		font.draw(batch, "Pos: " + player.getPos().x + " x " + player.getPos().y, 20, 40);
-		font.draw(batch, "Status: " + serverStatus + " - " + serverMessage, 20, 80);
+		if (player != null) {
+			font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 20, 20);
+			font.draw(batch, "Pos: " + player.getPos().x + " x " + player.getPos().y, 20, 40);
+			font.draw(batch, "Status: " + serverStatus + " - " + serverMessage, 20, 80);
+		}
 	}
 
 	@SuppressWarnings("unused")
@@ -341,8 +343,6 @@ public class Game implements ApplicationListener, IEventListener {
 			final ISFSObject sfso = new SFSObject();
 			sfso.putFloat(VerseActor.TARGET_POS_X, targetPos.x);
 			sfso.putFloat(VerseActor.TARGET_POS_Y, targetPos.y);
-			sfso.putFloat(VerseActor.ORIENTATION_X, orientation.x);
-			sfso.putFloat(VerseActor.ORIENTATION_Y, orientation.y);
 			sfso.putFloat(VerseActor.SPEED, player.getMaxSpeed());
 			sfsClient.send(new ExtensionRequest("move", sfso));
 		}
@@ -523,13 +523,16 @@ public class Game implements ApplicationListener, IEventListener {
 				resObj = (ISFSObject) event.getArguments().get("params");
 
 				final int charId = resObj.getInt(VerseActor.CHAR_ID);
-				final Float x = resObj.getFloat("x");
-				final Float y = resObj.getFloat("y");
+				final Float posX = resObj.getFloat(VerseActor.POS_X);
+				final Float posY = resObj.getFloat(VerseActor.POS_Y);
+				final String name = resObj.getUtfString(VerseActor.NAME);
+				final int exp = resObj.getInt(VerseActor.EXP);
+				final int level = resObj.getInt(VerseActor.LEVEL);
+				final float maxHp = resObj.getFloat(VerseActor.MAX_HP);
+				final float curHp = resObj.getFloat(VerseActor.CUR_HP);
+				final float radius = resObj.getFloat(VerseActor.RADIUS);
 
-				player.setCharId(charId);
-				final Vector2 posVector = new Vector2(x, y);
-				player.setPos(posVector);
-				player.setTargetPos(posVector);
+				player = new VerseActor(charId, name, exp, level, maxHp, curHp, posX, posY, 0.0f, radius);
 			}
 
 			if ("playerData".equals(cmd)) {

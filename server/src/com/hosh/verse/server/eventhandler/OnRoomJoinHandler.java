@@ -88,8 +88,14 @@ public class OnRoomJoinHandler extends BaseServerEventHandler {
 
 			final ISFSObject playerData = new SFSObject();
 			playerData.putInt(VerseActor.CHAR_ID, actor.getCharId());
-			playerData.putFloat("x", actor.getPos().x);
-			playerData.putFloat("y", actor.getPos().y);
+			playerData.putFloat(VerseActor.POS_X, actor.getPos().x);
+			playerData.putFloat(VerseActor.POS_Y, actor.getPos().y);
+			playerData.putUtfString(VerseActor.NAME, actor.getName());
+			playerData.putInt(VerseActor.EXP, actor.getExp());
+			playerData.putInt(VerseActor.LEVEL, actor.getLevel());
+			playerData.putFloat(VerseActor.MAX_HP, actor.getMaxHp());
+			playerData.putFloat(VerseActor.CUR_HP, actor.getCurHp());
+			playerData.putFloat(VerseActor.RADIUS, actor.getRadius());
 
 			send("initialPlayerData", playerData, user, false);
 

@@ -6,6 +6,13 @@ import com.hosh.verse.common.utils.VerseUtils;
 
 public class VerseActor {
 	public static final String CHAR_ID = "charId";
+	public static final String NAME = "name";
+	public static final String EXP = "exp";
+	public static final String LEVEL = "level";
+	public static final String MAX_HP = "maxHp";
+	public static final String CUR_HP = "curHp";
+	public static final String SHIELD_sTRENGTH = "shieldStrength";
+
 	public static final String RADIUS = "radius";
 	public static final String POS_X = "x";
 	public static final String POS_Y = "y";
@@ -38,13 +45,12 @@ public class VerseActor {
 
 	// TODO slow rotation to designated rotation angle
 	private Vector2 curOrientationVector;
-	private Vector2 targetOrientationVector;
 	private float rotationAngle;
 	private float targetRotationAngle;
 	private float rotationSpeed;
 
 	private final float MAX_SPEED = 20.f;
-	private final float ROTATION_SPEED = 5.f;
+	private final float ROTATION_SPEED = 50.f;
 
 	/** default constructor */
 	public VerseActor(final int id, final float posX, final float posY, final float radius) {
@@ -56,7 +62,6 @@ public class VerseActor {
 		squaredRadius = radius * radius;
 
 		setCurOrientationVector(new Vector2(1, 0));
-		setTargetOrientationVector(new Vector2(getCurOrientationVector()));
 		setRotationSpeed(ROTATION_SPEED);
 
 		setMaxSpeed(MAX_SPEED);
@@ -66,16 +71,15 @@ public class VerseActor {
 	}
 
 	public VerseActor(final int id, final float posX, final float posY, final float targetPosX, final float targetPosY, final float radius,
-			final float speed, final float oriX, final float oriY) {
+			final float speed) {
 		this(id, posX, posY, radius);
 		targetPos = new Vector2(targetPosX, targetPosY);
 		setCurSpeed(speed);
-		setCurOrientationVector(new Vector2(oriX, oriY));
-		setTargetOrientationVector(new Vector2(getCurOrientationVector()));
+		setCurOrientationVector(new Vector2(1, 0));
 	}
 
 	/** player constructor */
-	public VerseActor(final int charId, final String name, final int exp, final int level, final int maxHp, final int curHp,
+	public VerseActor(final int charId, final String name, final int exp, final int level, final float maxHp, final float curHp,
 			final float posX, final float posY, final float heading, final float radius) {
 		this.setCharId(charId);
 		this.setName(name);
@@ -91,7 +95,6 @@ public class VerseActor {
 		squaredRadius = radius * radius;
 
 		setCurOrientationVector(new Vector2(0, 1)); // TODO heading!
-		setTargetOrientationVector(new Vector2(getCurOrientationVector()));
 		setRotationSpeed(ROTATION_SPEED);
 
 		setMaxSpeed(MAX_SPEED);
@@ -207,20 +210,6 @@ public class VerseActor {
 	public void setCurOrientationVector(final Vector2 orientation) {
 		curOrientationVector = orientation;
 		setRotationAngle((float) VerseUtils.vector2angle(orientation));
-	}
-
-	public Vector2 getTargetOrientationVector() {
-		return targetOrientationVector;
-	}
-
-	/**
-	 * Sets target orientation vector and computes the target rotation angle.
-	 * 
-	 * @param orientation
-	 */
-	public void setTargetOrientationVector(final Vector2 targetOrientation) {
-		targetOrientationVector = targetOrientation;
-		setTargetRotationAngle((float) VerseUtils.vector2angle(targetOrientation));
 	}
 
 	public float getRotationAngle() {
