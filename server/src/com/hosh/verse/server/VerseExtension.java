@@ -63,13 +63,17 @@ public class VerseExtension extends SFSExtension {
 
 	private class TaskRunner implements Runnable {
 		private int runningCycles = 0;
+		private long lastTime = 0;
 
 		@Override
 		public void run() {
 			runningCycles++;
 			// trace("Inside the running task. Cycle:  " + runningCycles);
 
-			verse.update(seconds);
+			final long time = System.nanoTime();
+			final long deltaTime = time - lastTime;
+			lastTime = time;
+			verse.update(deltaTime);
 
 			final Map<Integer, VerseActor> playerMap = verse.getPlayerMap();
 			if (runningCycles % 200 == 0) {
