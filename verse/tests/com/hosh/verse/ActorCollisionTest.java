@@ -51,8 +51,8 @@ public class ActorCollisionTest {
 
 	@Test
 	public void testTwoActors() {
-		Assert.assertEquals("Result", true, CollisionChecker.collistionActors(a1, a2));
-		Assert.assertEquals("Result", false, CollisionChecker.collistionActors(a1, a3));
+		Assert.assertEquals("Result", true, CollisionChecker.collistionActorActor(a1, a2));
+		Assert.assertEquals("Result", false, CollisionChecker.collistionActorActor(a1, a3));
 	}
 
 	@Test
@@ -62,7 +62,7 @@ public class ActorCollisionTest {
 
 		int cnt = 0;
 		for (final VerseActor a : actorList) {
-			if (CollisionChecker.collistionActors(a4, a)) {
+			if (CollisionChecker.collistionActorActor(a4, a)) {
 				cnt++;
 			}
 		}
@@ -113,7 +113,7 @@ public class ActorCollisionTest {
 
 		int cnt = 0;
 		for (final VerseActor a : collisionCandidates) {
-			if (CollisionChecker.collistionActors(a4, a)) {
+			if (CollisionChecker.collistionActorActor(a4, a)) {
 				cnt++;
 			}
 		}

@@ -5,9 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.ini4j.Wini;
 
@@ -37,6 +35,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.hosh.verse.common.CollisionChecker;
 import com.hosh.verse.common.Interpreter;
 import com.hosh.verse.common.VerseActor;
 import com.smartfoxserver.v2.entities.data.ISFSObject;
@@ -65,9 +64,11 @@ public class Game implements ApplicationListener, IEventListener {
 	Vector3 touchPoint;
 
 	private VerseActor player;
-	private Set<VerseActor> visiblePlayers;
 	private Map<Integer, VerseActor> visiblePlayerMap;
-	private Set<VerseActor> visibleActors;
+	// private Set<VerseActor> visibleActors;
+	private Map<Integer, VerseActor> visibleActorMap;
+
+	private VerseActor target;
 
 	// smartfox
 	SmartFox sfsClient;
@@ -103,9 +104,9 @@ public class Game implements ApplicationListener, IEventListener {
 
 		// verse = new Verse(1000, 1000);
 		// player = verse.getPlayer();
-		visibleActors = new CopyOnWriteArraySet<VerseActor>();
-		visiblePlayers = new CopyOnWriteArraySet<VerseActor>();
+		// visibleActors = new CopyOnWriteArraySet<VerseActor>();
 		visiblePlayerMap = new ConcurrentHashMap<Integer, VerseActor>();
+		visibleActorMap = new ConcurrentHashMap<Integer, VerseActor>();
 
 		font = new BitmapFont();
 		font.setColor(Color.RED);
@@ -197,7 +198,7 @@ public class Game implements ApplicationListener, IEventListener {
 		{
 			final float deltaTime = Gdx.graphics.getDeltaTime();
 
-			font.draw(batch, "visible: " + visibleActors.size(), 20, 60);
+			// font.draw(batch, "visible: " + visibleActors.size(), 20, 60);
 			drawHUD();
 
 			player.update(deltaTime);
@@ -209,7 +210,7 @@ public class Game implements ApplicationListener, IEventListener {
 			// getScreenCoordinates(debugDrone.getPos());
 			// drawPlayer(dronePos.x, dronePos.y);
 
-			for (final VerseActor a : visibleActors) {
+			for (final VerseActor a : visibleActorMap.values()) {
 
 				final Vector2 pos = getScreenCoordinates(a.getPos());
 
@@ -327,8 +328,20 @@ public class Game implements ApplicationListener, IEventListener {
 
 			final float posX = player.getPos().x;
 			final float posY = player.getPos().y;
-
 			final Vector2 targetPos = new Vector2(posX + touchPoint.x, posY + touchPoint.y);
+
+			for (final VerseActor actor : visibleActorMap.values()) {
+				if (CollisionChecker.collisionPointActor(targetPos.x, targetPos.y, actor)) {
+					System.out.println("picked actor: " + actor.getCharId());
+					if (target != actor) {
+						target = actor;
+						return;
+					}
+					target = actor;
+				}
+			}
+
+			target = null;
 
 			serverMessage = "" + (int) targetPos.x + " x " + (int) targetPos.y;
 
@@ -555,7 +568,10 @@ public class Game implements ApplicationListener, IEventListener {
 				ISFSObject resObj = new SFSObject();
 				resObj = (ISFSObject) event.getArguments().get("params");
 
-				visibleActors.add(Interpreter.createActor(resObj));
+				// visibleActors.add(Interpreter.createActor(resObj));
+
+				final VerseActor actor = Interpreter.createActor(resObj);
+				visibleActorMap.put(actor.getCharId(), actor);
 			}
 
 			if ("player".equals(cmd)) {
@@ -563,8 +579,6 @@ public class Game implements ApplicationListener, IEventListener {
 				resObj = (ISFSObject) event.getArguments().get("params");
 
 				final VerseActor actor = Interpreter.createActor(resObj);
-
-				visiblePlayers.add(actor);
 
 				visiblePlayerMap.put(actor.getCharId(), actor);
 

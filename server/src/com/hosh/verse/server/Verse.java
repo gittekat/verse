@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.hosh.verse.common.CollisionChecker;
 import com.hosh.verse.common.Interpreter;
 import com.hosh.verse.common.VerseActor;
 import com.hosh.verse.quadtree.PointQuadTree;
@@ -47,20 +48,21 @@ public class Verse {
 	public void update(final float deltaTime) {
 		for (final VerseActor player : playerMap.values()) {
 			player.update(deltaTime);
+
+			final ArrayList<VerseActor> collidedList = new ArrayList<VerseActor>();
+			for (final VerseActor a : playerMap.values()) {
+				if (!a.equals(player) && CollisionChecker.collistionActorActor(player, a)) {
+					// TODO resolve collision
+					collidedList.add(a);
+					System.out.println("collision!!!");
+				}
+			}
 		}
 
 		for (final VerseActor a : actorList) {
 			a.update(deltaTime);
 		}
 
-		// final ArrayList<VerseActor> collidedList = new
-		// ArrayList<VerseActor>();
-		// for (final VerseActor a : playerList) {
-		// if (CollisionChecker.collistionActors(player, a)) {
-		// // TODO resolve collision
-		// collidedList.add(a);
-		// }
-		// }
 	}
 
 	public List<VerseActor> getActorList() {

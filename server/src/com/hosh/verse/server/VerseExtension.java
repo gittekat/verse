@@ -63,16 +63,18 @@ public class VerseExtension extends SFSExtension {
 
 	private class TaskRunner implements Runnable {
 		private int runningCycles = 0;
-		private long lastTime = 0;
+		private long lastTime = System.nanoTime();
 
 		@Override
 		public void run() {
 			runningCycles++;
 			// trace("Inside the running task. Cycle:  " + runningCycles);
 
+			// delta time calculated like in LwjglGraphics
 			final long time = System.nanoTime();
-			final long deltaTime = time - lastTime;
+			final float deltaTime = (time - lastTime) / 1000000000.0f;
 			lastTime = time;
+
 			verse.update(deltaTime);
 
 			final Map<Integer, VerseActor> playerMap = verse.getPlayerMap();

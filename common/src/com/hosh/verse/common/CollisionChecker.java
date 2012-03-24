@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 public class CollisionChecker {
-	public static boolean collistionActors(final VerseActor a1, final VerseActor a2) {
+	public static boolean collistionActorActor(final VerseActor a1, final VerseActor a2) {
 		// final float squaredDistanceThreshold = a1.getSquaredRadius() +
 		// a2.getSquaredRadius();
 		float squaredDistanceThreshold = a1.getBounds().radius + a2.getBounds().radius;
@@ -13,6 +13,16 @@ public class CollisionChecker {
 		// final double sqRoot = Math.sqrt(squaredDistance(a1, a2));
 
 		return squaredDistance(a1, a2) <= squaredDistanceThreshold;
+	}
+
+	public static boolean collisionPointActor(final float x, final float y, final VerseActor actor) {
+		final Vector2 pos = new Vector2(x, y);
+
+		return squaredDistance(pos, actor.getPos()) <= actor.getSquaredRadius();
+	}
+
+	public static float squaredDistance(final Vector2 v1, final Vector2 v2) {
+		return v1.dst2(v2);
 	}
 
 	public static float squaredDistance(final VerseActor a1, final VerseActor a2) {
