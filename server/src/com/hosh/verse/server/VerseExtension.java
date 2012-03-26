@@ -14,6 +14,7 @@ import com.hosh.verse.server.eventhandler.LoginEventHandler;
 import com.hosh.verse.server.eventhandler.LogoutEventHandler;
 import com.hosh.verse.server.eventhandler.MoveHandler;
 import com.hosh.verse.server.eventhandler.OnRoomJoinHandler;
+import com.hosh.verse.server.eventhandler.TestHandler;
 import com.smartfoxserver.v2.SmartFoxServer;
 import com.smartfoxserver.v2.core.SFSEventType;
 import com.smartfoxserver.v2.db.IDBManager;
@@ -58,7 +59,11 @@ public class VerseExtension extends SFSExtension {
 		addEventHandler(SFSEventType.USER_JOIN_ROOM, OnRoomJoinHandler.class);
 		addEventHandler(SFSEventType.USER_LOGOUT, LogoutEventHandler.class);
 		addEventHandler(SFSEventType.USER_DISCONNECT, LogoutEventHandler.class);
+
 		addRequestHandler("move", MoveHandler.class);
+
+		// testing
+		addRequestHandler("test", TestHandler.class);
 	}
 
 	private class TaskRunner implements Runnable {

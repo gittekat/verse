@@ -124,7 +124,7 @@ public class Game implements ApplicationListener, IEventListener {
 		shield.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 		shieldRegion = new TextureRegion(shield);
 
-		cloud = new Texture(Gdx.files.internal("cloud.png"));
+		cloud = new Texture(Gdx.files.internal("planet01.png"));
 		cloud.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 		cloudRegion = new TextureRegion(cloud);
 
@@ -139,7 +139,7 @@ public class Game implements ApplicationListener, IEventListener {
 		debugDrone = new VerseActor(0, 100, 130, 5); // TODO should be removed!
 
 		initSmartFox();
-		connectToServer("192.168.178.37", 9933); // TODO use sfs-config.xml
+		connectToServer("192.168.178.35", 9933); // TODO use sfs-config.xml
 
 		particleEffect = new ParticleEffect();
 		particleEffect.load(Gdx.files.internal(PARTICLE_EFFECT), Gdx.files.internal(""));
@@ -478,9 +478,9 @@ public class Game implements ApplicationListener, IEventListener {
 		new Thread() {
 			@Override
 			public void run() {
-				sfs.loadConfig();
-				sfs.connect();
-				// sfs.connect(ip, port);
+				// sfs.loadConfig();
+				// sfs.connect();
+				sfs.connect(ip, port);
 			}
 		}.start();
 	}
