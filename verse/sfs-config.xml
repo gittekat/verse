@@ -15,9 +15,9 @@
 	<zone>VerseZone</zone>
 	<!-- End Mandatory Settings -->
 	
-	<debug>true</debug>
+	<debug>false</debug>
 	
-	<httpPort>8080</httpPort>
+	<httpPort>80</httpPort>
 	<useBlueBox>true</useBlueBox>
 	<blueBoxPollingRate>500</blueBoxPollingRate>
 	
