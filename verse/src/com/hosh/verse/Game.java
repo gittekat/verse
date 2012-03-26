@@ -64,6 +64,7 @@ public class Game implements ApplicationListener, IEventListener {
 	Vector3 touchPoint;
 
 	private VerseActor player;
+	private VerseActor debugDrone;
 	private Map<Integer, VerseActor> visiblePlayerMap;
 	// private Set<VerseActor> visibleActors;
 	private Map<Integer, VerseActor> visibleActorMap;
@@ -92,7 +93,6 @@ public class Game implements ApplicationListener, IEventListener {
 			// System.setOut(out);
 			System.setErr(out);
 		} catch (final FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -102,9 +102,6 @@ public class Game implements ApplicationListener, IEventListener {
 		HALF_WIDTH = WIDTH / 2;
 		HALF_HEIGHT = HEIGHT / 2;
 
-		// verse = new Verse(1000, 1000);
-		// player = verse.getPlayer();
-		// visibleActors = new CopyOnWriteArraySet<VerseActor>();
 		visiblePlayerMap = new ConcurrentHashMap<Integer, VerseActor>();
 		visibleActorMap = new ConcurrentHashMap<Integer, VerseActor>();
 
@@ -119,7 +116,6 @@ public class Game implements ApplicationListener, IEventListener {
 		cam = new OrthographicCamera(WIDTH, HEIGHT);
 		cam.position.set(HALF_WIDTH, HALF_HEIGHT, 0);
 
-		// ship = new Texture(Gdx.files.internal("triangle_32.png"));
 		ship = new Texture(Gdx.files.internal("ship01.png"));
 		ship.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 		shipRegion = new TextureRegion(ship);
@@ -140,9 +136,10 @@ public class Game implements ApplicationListener, IEventListener {
 		touchPoint = new Vector3();
 
 		player = new VerseActor(0, 100, 100, 5); // TODO should be removed!
+		debugDrone = new VerseActor(0, 100, 130, 5); // TODO should be removed!
 
 		initSmartFox();
-		connectToServer("127.0.0.1", 9933); // TODO use sfs-config.xml
+		connectToServer("192.168.178.37", 9933); // TODO use sfs-config.xml
 
 		particleEffect = new ParticleEffect();
 		particleEffect.load(Gdx.files.internal(PARTICLE_EFFECT), Gdx.files.internal(""));
@@ -177,7 +174,6 @@ public class Game implements ApplicationListener, IEventListener {
 	public void render() {
 
 		handleInput();
-		// verse.update(Gdx.graphics.getDeltaTime());
 
 		// cam.update();
 		// cam.apply(gl);
@@ -191,8 +187,6 @@ public class Game implements ApplicationListener, IEventListener {
 		Gdx.gl.glEnable(GL10.GL_BLEND);
 
 		batch.enableBlending();
-		// batch.setColor(1, 1, 1, 0);
-		// System.out.println(batch.getColor());
 		batch.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 		batch.begin();
 		{
@@ -208,7 +202,7 @@ public class Game implements ApplicationListener, IEventListener {
 			// debugDrone.update(Gdx.graphics.getDeltaTime());
 			// final Vector2 dronePos =
 			// getScreenCoordinates(debugDrone.getPos());
-			// drawPlayer(dronePos.x, dronePos.y);
+			// drawPlayer(debugDrone, dronePos.x, dronePos.y, deltaTime);
 
 			for (final VerseActor a : visibleActorMap.values()) {
 
@@ -284,16 +278,19 @@ public class Game implements ApplicationListener, IEventListener {
 		// Gdx.gl.glEnable(GL10.GL_DITHER);
 		batch.setColor(0.f, 0.f, 0.f, p.getShieldStrength());
 		batch.draw(shieldRegion, x - 16, y - 16, 16, 16, 32, 32, 0.95f, 0.95f, 0.f);
-		particleEffect.draw(batch, deltaTime);
+		if (p.getCurSpeed() > 0) {
+			particleEffect.draw(batch, deltaTime);
+		}
 		batch.setColor(1.f, 1.f, 1.f, 1.f);
 		batch.draw(shipRegion, x - 16, y - 16, 16, 16, 32, 32, 0.95f, 0.95f, p.getRotationAngle());
 	}
 
 	private void drawObject(final TextureRegion textureRegion, final float x, final float y) {
-		batch.setColor(0.5f, 0.5f, 0.5f, 0.5f);
+		batch.setColor(0.9f, 0.5f, 0.0f, 0.9f);
 		batch.draw(textureRegion, x - 64, y - 64, 64, 64, 128, 128, 0.95f, 0.95f, 0.0f);
-		batch.setColor(0.9f, 0.9f, 0.9f, 0.9f);
-		batch.draw(textureRegion, x - 64, y - 64, 64, 64, 128, 128, 0.15f, 0.15f, 0.0f);
+		// batch.setColor(0.9f, 0.9f, 0.9f, 0.9f);
+		// batch.draw(textureRegion, x - 64, y - 64, 64, 64, 128, 128, 0.15f,
+		// 0.15f, 0.0f);
 	}
 
 	private void drawHUD() {
@@ -481,8 +478,9 @@ public class Game implements ApplicationListener, IEventListener {
 		new Thread() {
 			@Override
 			public void run() {
-				// sfs.loadConfig();
-				sfs.connect(ip, port);
+				sfs.loadConfig();
+				sfs.connect();
+				// sfs.connect(ip, port);
 			}
 		}.start();
 	}
@@ -508,9 +506,6 @@ public class Game implements ApplicationListener, IEventListener {
 		} else if (event.getType().equalsIgnoreCase(SFSEvent.LOGIN)) {
 			sfsClient.send(new JoinRoomRequest("VerseRoom"));
 			serverStatus = "entered VerseRoom";
-			// } else if
-			// (event.getType().equalsIgnoreCase(SFSEvent.LOGIN_ERROR)) {
-			// System.out.println(event.getArguments().get("error").toString());
 		} else if (event.getType().equalsIgnoreCase(SFSEvent.ROOM_JOIN)) {
 			System.out.println("sfs: " + sfsClient.getLastJoinedRoom().getName());
 		} else if (event.getType().equalsIgnoreCase(SFSEvent.ROOM_JOIN_ERROR)) {
@@ -552,23 +547,15 @@ public class Game implements ApplicationListener, IEventListener {
 				ISFSObject resObj = new SFSObject();
 				resObj = (ISFSObject) event.getArguments().get("params");
 
-				// final int charId = resObj.getInt(VerseActor.CHAR_ID);
 				final Float x = resObj.getFloat("x");
 				final Float y = resObj.getFloat("y");
-
-				// player.setCharId(charId);
 				final Vector2 posVector = new Vector2(x, y);
 				player.setPos(posVector);
-				// player.setTargetPos(posVector);
-
-				// System.out.println("recv. posData: " + x + " X " + y);
 			}
 
 			if ("actor".equals(cmd)) {
 				ISFSObject resObj = new SFSObject();
 				resObj = (ISFSObject) event.getArguments().get("params");
-
-				// visibleActors.add(Interpreter.createActor(resObj));
 
 				final VerseActor actor = Interpreter.createActor(resObj);
 				visibleActorMap.put(actor.getCharId(), actor);

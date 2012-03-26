@@ -114,7 +114,7 @@ public class VerseActor {
 			curPos.add(getCurOrientationVector().cpy().mul(deltaMovement));
 		} else {
 			curPos = targetPos;
-			setCurSpeed(getMaxSpeed());
+			setCurSpeed(0);
 		}
 	}
 
