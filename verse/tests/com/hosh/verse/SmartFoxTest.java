@@ -34,8 +34,8 @@ public class SmartFoxTest {
 	@Before
 	public void setUp() throws Exception {
 		initSmartFox();
-		// sfsClient.loadConfig(true);
-		connectToServer("192.168.178.35", 9933);
+		// connectToServer("192.168.178.35", 8080);
+		sfsClient.loadConfig(true);
 
 		while (!setup) {
 			System.out.println("waiting...");
@@ -60,7 +60,7 @@ public class SmartFoxTest {
 
 	@Test
 	public void test2() throws InterruptedException {
-		for (int i = 0; i < 100; ++i) {
+		for (int i = 100; i < 10000; ++i) {
 			final ISFSObject sfso = new SFSObject();
 			sfso.putInt("posX", i);
 			sfso.putInt("posY", i);
@@ -97,9 +97,6 @@ public class SmartFoxTest {
 			public void dispatch(final BaseEvent event) throws SFSException {
 				if (event.getArguments().get("success").equals(true)) {
 					sfsClient.send(new LoginRequest("hosh", "109", "VerseZone"));
-					System.out.println("sfs: connecting...");
-				} else {
-					System.out.println("sfs: connection error");
 				}
 			}
 		});
@@ -107,7 +104,6 @@ public class SmartFoxTest {
 			@Override
 			public void dispatch(final BaseEvent event) throws SFSException {
 				shutdownSmartFox();
-				System.out.println("sfs: connection lost");
 			}
 		});
 		sfsClient.addEventListener(SFSEvent.LOGIN, new IEventListener() {
@@ -115,34 +111,6 @@ public class SmartFoxTest {
 			public void dispatch(final BaseEvent arg0) throws SFSException {
 				sfsClient.send(new JoinRoomRequest("VerseRoom"));
 				setup = true;
-			}
-		});
-
-		sfsClient.addEventListener(SFSEvent.LOGIN_ERROR, new IEventListener() {
-			@Override
-			public void dispatch(final BaseEvent arg0) throws SFSException {
-				System.out.println("LOGIN_ERROR");
-			}
-		});
-
-		sfsClient.addEventListener(SFSEvent.LOGOUT, new IEventListener() {
-			@Override
-			public void dispatch(final BaseEvent event) throws SFSException {
-				System.out.println("logout");
-			}
-		});
-
-		sfsClient.addEventListener(SFSEvent.CONFIG_LOAD_FAILURE, new IEventListener() {
-			@Override
-			public void dispatch(final BaseEvent arg0) throws SFSException {
-				System.out.println("config loading failure!");
-			}
-		});
-
-		sfsClient.addEventListener(SFSEvent.CONFIG_LOAD_SUCCESS, new IEventListener() {
-			@Override
-			public void dispatch(final BaseEvent arg0) throws SFSException {
-				System.out.println("config loaded successfully!");
 			}
 		});
 	}

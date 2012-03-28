@@ -3,6 +3,7 @@ package com.hosh.verse;
 import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
+import com.hosh.verse.input.VersePlayerInputProcessor;
 
 public class AndroidGame extends AndroidApplication {
 	/** Called when the activity is first created. */
@@ -13,6 +14,7 @@ public class AndroidGame extends AndroidApplication {
 		// AndroidApplicationConfiguration();
 		// config.numSamples = 2;
 		// initialize(new Game(), config);
-		initialize(new Game(), false);
+
+		initialize(new VerseGame(new VersePlayerInputProcessor()), false);
 	}
 }

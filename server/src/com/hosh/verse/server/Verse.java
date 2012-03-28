@@ -31,7 +31,7 @@ public class Verse {
 
 		actorList = new ArrayList<VerseActor>();
 		for (int i = 0; i < 10; ++i) {
-			final VerseActor actor = Interpreter.createActor(MathUtils.random(dimensionX), MathUtils.random(dimensionX), 5.f);
+			final VerseActor actor = Interpreter.createActor(MathUtils.random(dimensionX), MathUtils.random(dimensionX), 64.f * 0.95f);
 			actorList.add(actor);
 		}
 
@@ -51,7 +51,7 @@ public class Verse {
 
 			final ArrayList<VerseActor> collidedList = new ArrayList<VerseActor>();
 			for (final VerseActor a : playerMap.values()) {
-				if (!a.equals(player) && CollisionChecker.collistionActorActor(player, a)) {
+				if (!a.equals(player) && CollisionChecker.collisionActorActor(player, a)) {
 					// TODO resolve collision
 					collidedList.add(a);
 					System.out.println("collision!!!");

@@ -43,7 +43,7 @@ public class DatabaseAccessor {
 			final int maxHp = res.getInt(DBID_MAX_HP);
 			final int curHp = res.getInt(DBID_CUR_HP);
 
-			return new VerseActor(id, charName, exp, level, maxHp, curHp, x, y, heading, 5.0f);
+			return new VerseActor(id, charName, exp, level, maxHp, curHp, x, y, heading, 16.f * 0.95f);
 
 		} catch (final SQLException e) {
 			// TODO Auto-generated catch block

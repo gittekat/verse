@@ -38,11 +38,13 @@ import com.badlogic.gdx.math.Vector3;
 import com.hosh.verse.common.CollisionChecker;
 import com.hosh.verse.common.Interpreter;
 import com.hosh.verse.common.VerseActor;
+import com.hosh.verse.input.IVerseInputProcessor;
+import com.hosh.verse.input.VersePlayerInputProcessor;
 import com.smartfoxserver.v2.entities.data.ISFSObject;
 import com.smartfoxserver.v2.entities.data.SFSObject;
 import com.smartfoxserver.v2.exceptions.SFSException;
 
-public class Game implements ApplicationListener, IEventListener {
+public class VerseGame implements ApplicationListener, IEventListener {
 	private static final String PARTICLE_EFFECT = "engine_effect14.p";
 	private int WIDTH;
 	private int HEIGHT;
@@ -50,6 +52,7 @@ public class Game implements ApplicationListener, IEventListener {
 	private int HALF_HEIGHT;
 
 	private OrthographicCamera cam;
+	IVerseInputProcessor inputProcessor;
 
 	private BitmapFont font;
 	private SpriteBatch batch;
@@ -85,6 +88,11 @@ public class Game implements ApplicationListener, IEventListener {
 	private boolean dawn = true;
 	private ParticleEffect particleEffect;
 
+	public VerseGame(final IVerseInputProcessor inputProcessor) {
+		this.inputProcessor = inputProcessor;
+		this.inputProcessor.setGame(this);
+	}
+
 	@Override
 	public void create() {
 		PrintStream out;
@@ -101,6 +109,13 @@ public class Game implements ApplicationListener, IEventListener {
 		HEIGHT = Gdx.graphics.getHeight();
 		HALF_WIDTH = WIDTH / 2;
 		HALF_HEIGHT = HEIGHT / 2;
+
+		Gdx.input.setInputProcessor(inputProcessor);
+		if (Gdx.input.getInputProcessor() == null) {
+			final IVerseInputProcessor inputProcessor = new VersePlayerInputProcessor();
+			inputProcessor.setGame(this);
+			Gdx.input.setInputProcessor(inputProcessor);
+		}
 
 		visiblePlayerMap = new ConcurrentHashMap<Integer, VerseActor>();
 		visibleActorMap = new ConcurrentHashMap<Integer, VerseActor>();
@@ -173,7 +188,7 @@ public class Game implements ApplicationListener, IEventListener {
 	@Override
 	public void render() {
 
-		handleInput();
+		// handleInput();
 
 		// cam.update();
 		// cam.apply(gl);
@@ -276,8 +291,9 @@ public class Game implements ApplicationListener, IEventListener {
 
 	private void drawPlayer(final VerseActor p, final float x, final float y, final float deltaTime) {
 		// Gdx.gl.glEnable(GL10.GL_DITHER);
-		batch.setColor(0.f, 0.f, 0.f, p.getShieldStrength());
-		batch.draw(shieldRegion, x - 16, y - 16, 16, 16, 32, 32, 0.95f, 0.95f, 0.f);
+		// batch.setColor(0.f, 0.f, 0.f, p.getShieldStrength());
+		// batch.draw(shieldRegion, x - 16, y - 16, 16, 16, 32, 32, 0.95f,
+		// 0.95f, 0.f);
 		if (p.getCurSpeed() > 0) {
 			particleEffect.draw(batch, deltaTime);
 		}
@@ -356,6 +372,13 @@ public class Game implements ApplicationListener, IEventListener {
 			sfso.putFloat(VerseActor.SPEED, player.getMaxSpeed());
 			sfsClient.send(new ExtensionRequest("move", sfso));
 		}
+		if (Gdx.input.isKeyPressed(Input.Keys.F1)) {
+			if (target != null) {
+				System.out.println("Fire!");
+			} else {
+				System.out.println("No Target");
+			}
+		}
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
 			cam.zoom += 0.02;
 		}
@@ -408,11 +431,59 @@ public class Game implements ApplicationListener, IEventListener {
 
 	@Override
 	public void dispose() {
-		shutdownSmartFox();
+		shutdown();
 	}
 
 	@Override
 	public void pause() {
+	}
+
+	public void move(final int touchX, final int touchY) {
+		final Vector3 touchPoint = new Vector3(touchX, touchY, 0);
+		cam.unproject(touchPoint);
+		final Vector2 touchPos = new Vector2(touchPoint.x, touchPoint.y);
+		System.out.println(touchPoint.x + " x " + touchPoint.y);
+
+		final float posX = player.getPos().x;
+		final float posY = player.getPos().y;
+		final Vector2 targetPos = new Vector2(posX + touchPos.x, posY + touchPos.y);
+		serverMessage = "" + (int) targetPos.x + " x " + (int) targetPos.y;
+
+		VerseActor newTarget = null;
+		for (final VerseActor actor : visibleActorMap.values()) {
+			if (CollisionChecker.collisionPointActor(targetPos.x, targetPos.y, actor)) {
+				System.out.println("picked actor: " + actor.getCharId());
+				newTarget = actor;
+				continue;
+			}
+		}
+
+		if (newTarget == null) {
+			target = null;
+		} else if (!newTarget.equals(target)) {
+			target = newTarget; // don't move
+			serverMessage += " target: " + newTarget.getCharId();
+			return;
+		}
+
+		if (target != null) {
+			serverMessage += " target: " + target.getCharId();
+		}
+
+		touchPos.nor();
+		player.setTargetPos(targetPos);
+		player.setCurSpeed(player.getMaxSpeed());
+
+		final ISFSObject sfso = new SFSObject();
+		sfso.putFloat(VerseActor.TARGET_POS_X, targetPos.x);
+		sfso.putFloat(VerseActor.TARGET_POS_Y, targetPos.y);
+		sfso.putFloat(VerseActor.SPEED, player.getMaxSpeed());
+		sfsClient.send(new ExtensionRequest("move", sfso));
+	}
+
+	public void shutdown() {
+		shutdownSmartFox();
+		Gdx.app.exit();
 	}
 
 	private void initSmartFox() {

@@ -50,7 +50,7 @@ public class StarmapTest {
 		int collisionCnt = 0;
 		final VerseActor player = Interpreter.createActor(200.f, 200.f, 500.f);
 		for (final VerseActor a : actorList) {
-			if (CollisionChecker.collistionActorActor(player, a)) {
+			if (CollisionChecker.collisionActorActor(player, a)) {
 				// collisionList.add(a);
 				collisionCnt++;
 			}

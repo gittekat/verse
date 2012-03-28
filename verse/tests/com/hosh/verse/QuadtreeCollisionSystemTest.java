@@ -87,7 +87,7 @@ public class QuadtreeCollisionSystemTest {
 
 		final ArrayList<VerseActor> allCollisionsList = new ArrayList<VerseActor>();
 		for (final VerseActor a : actorList) {
-			if (CollisionChecker.collistionActorActor(player, a)) {
+			if (CollisionChecker.collisionActorActor(player, a)) {
 				allCollisionsList.add(a);
 				// printActor(a);
 			}
@@ -132,7 +132,7 @@ public class QuadtreeCollisionSystemTest {
 
 		final ArrayList<VerseActor> qtCollisionsList = new ArrayList<VerseActor>();
 		for (final VerseActor a : collisionCandidates) {
-			if (CollisionChecker.collistionActorActor(player, a)) {
+			if (CollisionChecker.collisionActorActor(player, a)) {
 				qtCollisionsList.add(a);
 			}
 		}

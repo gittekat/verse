@@ -4,6 +4,7 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.tools.imagepacker.TexturePacker;
 import com.badlogic.gdx.tools.imagepacker.TexturePacker.Settings;
+import com.hosh.verse.input.VersePlayerInputProcessor;
 
 public class DesktopGame {
 	public static void main(final String[] args) {
@@ -33,7 +34,8 @@ public class DesktopGame {
 			config.height = 500;
 			config.vSyncEnabled = false;
 		}
-		new LwjglApplication(new Game(), config);
+
+		new LwjglApplication(new VerseGame(new VersePlayerInputProcessor()), config);
 
 		// new LwjglApplication(new Gdx2DTest(), "Gdx2DTest", 800, 800, false);
 	}
