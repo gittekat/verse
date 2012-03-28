@@ -18,11 +18,9 @@ import sfs2x.client.requests.ExtensionRequest;
 import sfs2x.client.requests.JoinRoomRequest;
 import sfs2x.client.requests.LoginRequest;
 import sfs2x.client.requests.LogoutRequest;
-import sfs2x.client.requests.PublicMessageRequest;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -334,89 +332,6 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		batch.draw(pixmapTexture, x, y, size, size);
 	}
 
-	private void handleInput() {
-		if (Gdx.input.justTouched()) {
-			cam.unproject(touchPoint.set(Gdx.input.getX(), Gdx.input.getY(), 0));
-			System.out.println(touchPoint);
-
-			final float posX = player.getPos().x;
-			final float posY = player.getPos().y;
-			final Vector2 targetPos = new Vector2(posX + touchPoint.x, posY + touchPoint.y);
-
-			for (final VerseActor actor : visibleActorMap.values()) {
-				if (CollisionChecker.collisionPointActor(targetPos.x, targetPos.y, actor)) {
-					System.out.println("picked actor: " + actor.getCharId());
-					if (target != actor) {
-						target = actor;
-						return;
-					}
-					target = actor;
-				}
-			}
-
-			target = null;
-
-			serverMessage = "" + (int) targetPos.x + " x " + (int) targetPos.y;
-
-			touchPoint = touchPoint.nor();
-			final Vector2 orientation = new Vector2(touchPoint.x, touchPoint.y);
-
-			player.setTargetPos(targetPos);
-			// player.setCurOrientationVector(orientation); // XXX
-			// player.setTargetOrientationVector(orientation);
-			player.setCurSpeed(player.getMaxSpeed()); // TODO send to server
-
-			final ISFSObject sfso = new SFSObject();
-			sfso.putFloat(VerseActor.TARGET_POS_X, targetPos.x);
-			sfso.putFloat(VerseActor.TARGET_POS_Y, targetPos.y);
-			sfso.putFloat(VerseActor.SPEED, player.getMaxSpeed());
-			sfsClient.send(new ExtensionRequest("move", sfso));
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.F1)) {
-			if (target != null) {
-				System.out.println("Fire!");
-			} else {
-				System.out.println("No Target");
-			}
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-			cam.zoom += 0.02;
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-			cam.zoom -= 0.02;
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-			if (cam.position.x > 0) {
-				cam.translate(-3, 0, 0);
-			}
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-			if (cam.position.x < 1024) {
-				cam.translate(3, 0, 0);
-			}
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-			if (cam.position.y > 0) {
-				cam.translate(0, -3, 0);
-			}
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-			if (cam.position.y < 1024) {
-				cam.translate(0, 3, 0);
-			}
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-			Gdx.app.exit();
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-			particleEffect.load(Gdx.files.internal(PARTICLE_EFFECT), Gdx.files.internal(""));
-			particleEffect.start();
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.C)) {
-			sfsClient.send(new PublicMessageRequest("hulu"));
-		}
-	}
-
 	@Override
 	public void resize(final int width, final int height) {
 		Gdx.gl.glViewport(0, 0, width, height);
@@ -452,7 +367,6 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		VerseActor newTarget = null;
 		for (final VerseActor actor : visibleActorMap.values()) {
 			if (CollisionChecker.collisionPointActor(targetPos.x, targetPos.y, actor)) {
-				System.out.println("picked actor: " + actor.getCharId());
 				newTarget = actor;
 				continue;
 			}
