@@ -48,8 +48,10 @@ public class VerseExtension extends SFSExtension {
 			trace(ExtensionLogLevel.ERROR, "database connection failed!");
 		}
 
-		verse = new Verse(connection, 1000, 1000); // TODO don't use connection
-													// and please close it here!
+		verse = new Verse(connection, 1000, 1000); // TODO don't use
+													// connection
+													// and please close it
+													// here!
 
 		final SmartFoxServer sfs = SmartFoxServer.getInstance();
 		// Schedule the task to run every second, with no initial delay
@@ -91,17 +93,15 @@ public class VerseExtension extends SFSExtension {
 				final User user = userLookupTable.get(actor.getCharId());
 
 				if (user != null) {
-					if (runningCycles % 100 == 0) {
+					if (runningCycles % 5 == 0) {
 						final ISFSObject playerData = new SFSObject();
 						playerData.putFloat("x", actor.getPos().x);
 						playerData.putFloat("y", actor.getPos().y);
 
-						System.out.println(actor.getPos().x + " " + actor.getPos().y);
-
 						send("playerData", playerData, user, false);
 					}
 
-					if (runningCycles % 100 == 0) {
+					if (runningCycles % 6 == 0) {
 						for (final VerseActor others : verse.getVisibleActors(actor)) {
 							send("actor", Interpreter.createSFSObject(others), user, false);
 						}

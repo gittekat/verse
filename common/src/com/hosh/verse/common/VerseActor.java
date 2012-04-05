@@ -76,6 +76,10 @@ public class VerseActor {
 		targetPos = new Vector2(targetPosX, targetPosY);
 		setCurSpeed(speed);
 		setCurOrientationVector(new Vector2(1, 0));
+
+		// final Vector2 targetVector = curPos.cpy().sub(targetPos);
+		// final Vector2 targetOri = targetVector.nor().mul(-1);
+		// setCurOrientationVector(targetOri);
 	}
 
 	/** player constructor */
@@ -170,6 +174,10 @@ public class VerseActor {
 
 	public float getRadius() {
 		return radius;
+	}
+
+	public void setRadius(final float radius) {
+		this.radius = radius;
 	}
 
 	public float getMaxSpeed() {

@@ -3,6 +3,7 @@ package com.hosh.verse.common;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.badlogic.gdx.math.Vector2;
 import com.smartfoxserver.v2.entities.data.ISFSObject;
 import com.smartfoxserver.v2.entities.data.SFSObject;
 
@@ -29,6 +30,23 @@ public class Interpreter {
 		final float speed = actorObj.getFloat(VerseActor.SPEED);
 
 		return new VerseActor(charId, x, y, targetX, targetY, radius, speed);
+	}
+
+	public static void updateActor(final VerseActor actor, final ISFSObject actorObj) {
+		final int charId = actorObj.getInt(VerseActor.CHAR_ID);
+		// Preconditions.checkArgument(actor.getCharId() == charId);
+
+		final float x = actorObj.getFloat(VerseActor.POS_X);
+		final float y = actorObj.getFloat(VerseActor.POS_Y);
+		final float targetX = actorObj.getFloat(VerseActor.TARGET_POS_X);
+		final float targetY = actorObj.getFloat(VerseActor.TARGET_POS_Y);
+		final float radius = actorObj.getFloat(VerseActor.RADIUS);
+		final float speed = actorObj.getFloat(VerseActor.SPEED);
+
+		actor.setPos(new Vector2(x, y));
+		actor.setTargetPos(new Vector2(targetX, targetY));
+		actor.setRadius(radius);
+		actor.setCurSpeed(speed);
 	}
 
 	public static ISFSObject createSFSObject(final VerseActor actor) {

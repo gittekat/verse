@@ -30,8 +30,9 @@ public class Verse {
 		this.dimensionY = dimensionY;
 
 		actorList = new ArrayList<VerseActor>();
-		for (int i = 0; i < 10; ++i) {
-			final VerseActor actor = Interpreter.createActor(MathUtils.random(dimensionX), MathUtils.random(dimensionX), 64.f * 0.95f);
+		for (int i = 0; i < 3; ++i) {
+			final VerseActor actor = Interpreter.createActor(MathUtils.random(dimensionX), MathUtils.random(dimensionX), 64.f);
+			System.out.println(actor.getPos());
 			actorList.add(actor);
 		}
 

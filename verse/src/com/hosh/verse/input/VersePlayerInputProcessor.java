@@ -15,6 +15,9 @@ public class VersePlayerInputProcessor implements IVerseInputProcessor {
 	@Override
 	public boolean keyDown(final int keycode) {
 		switch (keycode) {
+		case Input.Keys.F1:
+			game.shoot();
+			break;
 		case Input.Keys.ESCAPE:
 			game.shutdown();
 			break;

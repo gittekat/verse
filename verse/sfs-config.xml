@@ -17,7 +17,7 @@
 	
 	<debug>false</debug>
 	
-	<httpPort>80</httpPort>
+	<httpPort>8080</httpPort>
 	<useBlueBox>true</useBlueBox>
 	<blueBoxPollingRate>500</blueBoxPollingRate>
 	
