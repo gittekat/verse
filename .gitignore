@@ -1,6 +1,7 @@
 /verse/bin
 /verse-desktop/bin
 /verse-android/bin
+/verse-test/bin
 /server/bin
 /common/bin
 /verse/assets
