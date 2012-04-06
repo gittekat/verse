@@ -2,18 +2,21 @@ package com.hosh.verse.test.database;
 
 import static org.junit.Assert.fail;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.hosh.verse.common.Stats;
+import com.hosh.verse.server.database.DatabaseAccessor;
 
 public class DatabaseTest {
 	private static Connection connection;
@@ -25,33 +28,7 @@ public class DatabaseTest {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection(dbUrl, "root", "ishus109");
-
-			final PreparedStatement psChars = connection.prepareStatement("SELECT charId, char_name FROM characters WHERE account_name=?");
-			psChars.setString(1, "hosh");
-
-			final ResultSet resChars = psChars.executeQuery();
-
-			if (!resChars.first()) {
-				// TODO create new character
-				return;
-			}
-
-			final Map<String, String> charMap = new HashMap<String, String>();
-			do {
-				final String charId = resChars.getString("charId");
-				final String char_name = resChars.getString("char_name");
-				charMap.put(charId, char_name);
-				System.out.println("[DEBUG:] room join: " + charId + " " + char_name);
-			} while (resChars.next());
-
-			// TODO character selection => for now just use the first char
-			String charId = "";
-			for (final Map.Entry<String, String> entry : charMap.entrySet()) {
-				charId = entry.getKey();
-			}
-
 		} catch (final SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -64,31 +41,39 @@ public class DatabaseTest {
 	@Test
 	public void testBaseTypeTable() {
 		try {
-			final String table = "base_type";
-			final int expectedColumnCount = 18;
 
-			final PreparedStatement statement = connection.prepareStatement("DESCRIBE " + table);
+			final int expectedColumnCount = 20;
+
+			final PreparedStatement statement = connection.prepareStatement("DESCRIBE " + Stats.TABLE_NAME);
 			final ResultSet resSet = statement.executeQuery();
 
 			if (!resSet.first()) {
-				fail("no columns found in " + table);
+				fail("no columns found in " + Stats.TABLE_NAME);
 			}
 
 			int rowCount = 0;
+			final Stats baseType = DatabaseAccessor.loadBaseType(connection, "1");
 			do {
-				System.out.println(resSet.getString("Field"));
+				System.out.print(resSet.getString("Field") + ": ");
+				Object value;
+				try {
+					value = PropertyUtils.getProperty(baseType, resSet.getString("Field"));
+					System.out.println(value);
+				} catch (final IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (final InvocationTargetException e) {
+					e.printStackTrace();
+				} catch (final NoSuchMethodException e) {
+					e.printStackTrace();
+				}
 				rowCount++;
 			} while (resSet.next());
 
 			System.out.println(rowCount);
 			Assert.assertTrue(rowCount == expectedColumnCount);
 
-			DatabaseAccessor.loadBaseType(connection, 0);
-
 		} catch (final SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-
 }

@@ -23,52 +23,12 @@ public class VerseActor {
 	public static final String ORIENTATION_Y = "oriY";
 	public static final String SPEED = "speed";
 
-	public static final String DBID_BASE_TYPE_ID = "id";
-	public static final String DBID_BASE_TYPE_NAME = "name";
-	public static final String DBID_BASE_TYPE_TPYE_ID = "type_id";
-	public static final String DBID_BASE_TYPE_MODEL_ID = "model_id";
-	public static final String DBID_BASE_TYPE_SOCIAL = "social";
-	public static final String DBID_BASE_TYPE_AGGRO = "aggro";
-	public static final String DBID_BASE_TYPE_COLOR_R = "color_r";
-	public static final String DBID_BASE_TYPE_COLOR_G = "color_g";
-	public static final String DBID_BASE_TYPE_COLOR_B = "color_b";
-	public static final String DBID_BASE_TYPE_COLOR_A = "color_a";
-	public static final String DBID_BASE_TYPE_COLLISION_RADIUS = "collision_radius";
-	public static final String DBID_BASE_TYPE_ATTACK_RANGE = "attack_range";
-	public static final String DBID_BASE_TYPE_BASE_HP = "base_hp";
-	public static final String DBID_BASE_TYPE_BASE_SHIELD = "base_shield";
-	public static final String DBID_BASE_TYPE_BASE_SPEED = "base_speed";
-	public static final String DBID_BASE_TYPE_BASE_ATTACK = "base_attack";
-	public static final String DBID_BASE_TYPE_BASE_DEFENSE = "base_defense";
-	public static final String DBID_BASE_TYPE_EXTENSION_SLOTS = "extension_slots";
-
-	private static final String VERSE_ACTOR = "VerseActor";
-	public static final String SFSID_ID = VERSE_ACTOR + DBID_BASE_TYPE_ID;
-	public static final String SFSID_NAME = VERSE_ACTOR + DBID_BASE_TYPE_NAME;
-	public static final String SFSID_TYPE_ID = VERSE_ACTOR + DBID_BASE_TYPE_TPYE_ID;
-	public static final String SFSID_MODEL_ID = VERSE_ACTOR + DBID_BASE_TYPE_MODEL_ID;
-	public static final String SFSID_SOCIAL_RANGE = VERSE_ACTOR + DBID_BASE_TYPE_SOCIAL;
-	public static final String SFSID_AGGRO_RANGE = VERSE_ACTOR + DBID_BASE_TYPE_AGGRO;
-	public static final String SFSID_COLOR_R = VERSE_ACTOR + DBID_BASE_TYPE_COLOR_R;
-	public static final String SFSID_COLOR_G = VERSE_ACTOR + DBID_BASE_TYPE_COLOR_G;
-	public static final String SFSID_COLOR_B = VERSE_ACTOR + DBID_BASE_TYPE_COLOR_B;
-	public static final String SFSID_COLOR_A = VERSE_ACTOR + DBID_BASE_TYPE_COLOR_A;
-	public static final String SFSID_COLLISION_RADIUS = VERSE_ACTOR + DBID_BASE_TYPE_COLLISION_RADIUS;
-	public static final String SFSID_ATTACK_RANGE = VERSE_ACTOR + DBID_BASE_TYPE_ATTACK_RANGE;
-	public static final String SFSID_BASE_HP = VERSE_ACTOR + DBID_BASE_TYPE_BASE_HP;
-	public static final String SFSID_BASE_SHIELD = VERSE_ACTOR + DBID_BASE_TYPE_BASE_SHIELD;
-	public static final String SFSID_BASE_SPEED = VERSE_ACTOR + DBID_BASE_TYPE_BASE_SPEED;
-	public static final String SFSID_BASE_ATTACK = VERSE_ACTOR + DBID_BASE_TYPE_BASE_ATTACK;
-	public static final String SFSID_BASE_DEFENSE = VERSE_ACTOR + DBID_BASE_TYPE_BASE_DEFENSE;
-	public static final String SFSID_EXTENSION_SLOTS = VERSE_ACTOR + DBID_BASE_TYPE_EXTENSION_SLOTS;
-
 	private int charId;
 	private String name;
 
 	private int exp;
 	private int level;
 
-	private float baseHp;
 	private float maxHp;
 	private float curHp;
 
@@ -117,13 +77,13 @@ public class VerseActor {
 	}
 
 	/** player constructor */
-	public VerseActor(final int charId, final String name, final int exp, final int level, final float baseHp, final float curHp,
+	public VerseActor(final int charId, final String name, final int exp, final int level, final float maxHp, final float curHp,
 			final float posX, final float posY, final float heading, final float radius) {
 		this.setCharId(charId);
 		this.setName(name);
 		this.setExp(exp);
 		this.setLevel(level);
-		this.setBaseHp(baseHp);
+		this.setMaxHp(maxHp);
 		this.setCurHp(curHp);
 
 		curPos = new Vector2(posX, posY);
@@ -139,16 +99,14 @@ public class VerseActor {
 		setCurSpeed(0);
 
 		setShieldStrength(0.4f);
-
-		calculateStats();
 	}
 
 	/** base type constructor */
-	public VerseActor(final int charId, final String name, final float baseHp, final float curHp, final float posX, final float posY,
+	public VerseActor(final int charId, final String name, final float maxHp, final float curHp, final float posX, final float posY,
 			final float heading, final float radius) {
 		this.setCharId(charId);
 		this.setName(name);
-		this.setBaseHp(baseHp);
+		this.setMaxHp(maxHp);
 		this.setCurHp(curHp);
 
 		curPos = new Vector2(posX, posY);
@@ -164,13 +122,6 @@ public class VerseActor {
 		setCurSpeed(0);
 
 		setShieldStrength(0.4f);
-
-		calculateStats();
-	}
-
-	private void calculateStats() {
-		// TODO calculate stats from base stats and extensions
-		maxHp = getBaseHp();
 	}
 
 	public void update(final float deltaTime) {
@@ -338,16 +289,12 @@ public class VerseActor {
 		return level;
 	}
 
-	public float getBaseHp() {
-		return baseHp;
-	}
-
-	public void setBaseHp(final float baseHp) {
-		this.baseHp = baseHp;
-	}
-
 	public float getMaxHp() {
 		return maxHp;
+	}
+
+	public void setMaxHp(final float maxHp) {
+		this.maxHp = maxHp;
 	}
 
 	public float getCurHp() {

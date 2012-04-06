@@ -408,7 +408,7 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		if (player != null) {
 			batch.setColor(0, 0, 0, 1);
 			font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 20, 20);
-			font.draw(batch, "Pos: " + player.getPos().x + " x " + player.getPos().y, 20, 40);
+			font.draw(batch, "Pos: " + (int) player.getPos().x + " x " + (int) player.getPos().y, 20, 40);
 			font.draw(batch, "Status: " + serverStatus + " msg: " + serverMessage, 20, 80);
 		}
 	}
