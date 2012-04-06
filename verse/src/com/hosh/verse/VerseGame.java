@@ -174,8 +174,8 @@ public class VerseGame implements ApplicationListener, IEventListener {
 
 		touchPoint = new Vector3();
 
-		player = new VerseActor(0, 100, 100, 5); // TODO should be removed!
-		debugDrone = new VerseActor(0, 130, 170, 5); // TODO should be removed!
+		player = new VerseActor(0, 100, 100, 100, 100, 5, 20.f);
+		debugDrone = new VerseActor(0, 130, 170, 130, 170, 5, 20.f);
 
 		initSmartFox();
 		connectToServer("192.168.178.35", 9933); // TODO use sfs-config.xml
@@ -649,7 +649,9 @@ public class VerseGame implements ApplicationListener, IEventListener {
 				final int charId = resObj.getInt(VerseActor.CHAR_ID);
 
 				if (!visibleActorMap.containsKey(charId)) {
-					final VerseActor actor = Interpreter.createActor(resObj);
+					// TODO wenn unbekannt, dann beim server details nachfrage,
+					// anstatt immer alles zu versenden!
+					final VerseActor actor = Interpreter.updateActor(null, resObj);
 					visibleActorMap.put(actor.getCharId(), actor);
 				} else {
 					Interpreter.updateActor(visibleActorMap.get(charId), resObj);
@@ -662,7 +664,9 @@ public class VerseGame implements ApplicationListener, IEventListener {
 				final int charId = resObj.getInt(VerseActor.CHAR_ID);
 
 				if (!visiblePlayerMap.containsKey(charId)) {
-					final VerseActor actor = Interpreter.createActor(resObj);
+					// TODO wenn unbekannt, dann beim server details nachfrage,
+					// anstatt immer alles zu versenden!
+					final VerseActor actor = Interpreter.updateActor(null, resObj);
 					visiblePlayerMap.put(actor.getCharId(), actor);
 				} else {
 					Interpreter.updateActor(visiblePlayerMap.get(charId), resObj);

@@ -1,4 +1,4 @@
-package com.hosh.verse.quadtree;
+package com.hosh.verse.common.quadtree;
 
 import com.badlogic.gdx.math.Vector2;
 

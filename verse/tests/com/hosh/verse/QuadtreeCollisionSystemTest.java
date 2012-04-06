@@ -13,11 +13,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.badlogic.gdx.math.Vector2;
-import com.hosh.verse.common.Interpreter;
 import com.hosh.verse.common.CollisionChecker;
+import com.hosh.verse.common.Interpreter;
 import com.hosh.verse.common.VerseActor;
-import com.hosh.verse.quadtree.AbstractQuadNodeElement;
-import com.hosh.verse.quadtree.PointQuadTree;
+import com.hosh.verse.common.quadtree.AbstractQuadNodeElement;
+import com.hosh.verse.common.quadtree.PointQuadTree;
 
 public class QuadtreeCollisionSystemTest {
 
@@ -42,7 +42,9 @@ public class QuadtreeCollisionSystemTest {
 
 		actorList = new ArrayList<VerseActor>();
 		for (int i = 0; i < objects; ++i) {
-			final VerseActor actor = Interpreter.createActor(rand.nextInt(width), rand.nextInt(height), 5.f);
+			final int x = rand.nextInt(width);
+			final int y = rand.nextInt(height);
+			final VerseActor actor = new VerseActor(0, x, y, x, y, 5.f, 0.f);
 			// printActor(actor);
 			actorList.add(actor);
 		}
@@ -83,7 +85,7 @@ public class QuadtreeCollisionSystemTest {
 	public boolean testCollisionSystem() {
 		actorPosX = rand.nextInt(width);
 		actorPosY = rand.nextInt(height);
-		player = Interpreter.createActor(actorPosX, actorPosY, actorRadius);
+		player = new VerseActor(0, actorPosX, actorPosY, actorPosX, actorPosY, actorRadius, 0.f);
 
 		final ArrayList<VerseActor> allCollisionsList = new ArrayList<VerseActor>();
 		for (final VerseActor a : actorList) {

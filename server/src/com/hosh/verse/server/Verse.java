@@ -7,12 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.hosh.verse.common.CollisionChecker;
-import com.hosh.verse.common.Interpreter;
 import com.hosh.verse.common.VerseActor;
-import com.hosh.verse.quadtree.PointQuadTree;
+import com.hosh.verse.common.quadtree.PointQuadTree;
 
 public class Verse {
 	Connection dbConnection;
@@ -30,11 +28,13 @@ public class Verse {
 		this.dimensionY = dimensionY;
 
 		actorList = new ArrayList<VerseActor>();
-		for (int i = 0; i < 3; ++i) {
-			final VerseActor actor = Interpreter.createActor(MathUtils.random(dimensionX), MathUtils.random(dimensionX), 64.f);
-			System.out.println(actor.getPos());
-			actorList.add(actor);
-		}
+		// for (int i = 0; i < 3; ++i) {
+		// final VerseActor actor =
+		// Interpreter.createActor(MathUtils.random(dimensionX),
+		// MathUtils.random(dimensionX), 64.f);
+		// System.out.println(actor.getPos());
+		// actorList.add(actor);
+		// }
 
 		final int depth = 5;
 		qtTree = new PointQuadTree<VerseActor>(new Vector2(0, 0), new Vector2(dimensionX, dimensionY), depth, 10);

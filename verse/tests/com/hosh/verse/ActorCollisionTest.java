@@ -13,11 +13,10 @@ import org.junit.Test;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.google.common.base.Stopwatch;
-import com.hosh.verse.common.Interpreter;
 import com.hosh.verse.common.CollisionChecker;
 import com.hosh.verse.common.VerseActor;
-import com.hosh.verse.quadtree.AbstractQuadNodeElement;
-import com.hosh.verse.quadtree.PointQuadTree;
+import com.hosh.verse.common.quadtree.AbstractQuadNodeElement;
+import com.hosh.verse.common.quadtree.PointQuadTree;
 
 public class ActorCollisionTest {
 
@@ -37,14 +36,16 @@ public class ActorCollisionTest {
 
 	@BeforeClass
 	public static void setUp() throws Exception {
-		a1 = Interpreter.createActor(100.f, 100.f, 5.f);
-		a2 = Interpreter.createActor(119.999f, 100.f, 15.f);
-		a3 = Interpreter.createActor(120.001f, 100.f, 15.f);
-		a4 = Interpreter.createActor(actorPosX, actorPosY, actorRadius);
+		a1 = new VerseActor(0, 100.f, 100.f, 100.f, 100.f, 5.f, 0.f);
+		a2 = new VerseActor(0, 119.999f, 100.f, 119.999f, 100.f, 15.f, 0.f);
+		a3 = new VerseActor(0, 120.001f, 100.f, 120.001f, 100.f, 15.f, 0.f);
+		a4 = new VerseActor(0, actorPosX, actorPosY, actorPosX, actorPosY, actorRadius, 0.f);
 
 		actorList = new ArrayList<VerseActor>();
 		for (int i = 0; i < 1000000; ++i) {
-			final VerseActor actor = Interpreter.createActor(MathUtils.random(width), MathUtils.random(height), 5.f);
+			final int w = MathUtils.random(width);
+			final int h = MathUtils.random(height);
+			final VerseActor actor = new VerseActor(0, w, h, w, h, 5.f, 0.f);
 			actorList.add(actor);
 		}
 	}

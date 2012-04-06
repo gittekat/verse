@@ -19,6 +19,7 @@ public class DesktopGame {
 
 		// new LwjglApplication(new Game(), "verse", Game.WIDTH, Game.HEIGHT,
 		// false);
+
 		final boolean fullscreen = false;
 		final LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		if (fullscreen) {
@@ -36,8 +37,6 @@ public class DesktopGame {
 		}
 
 		new LwjglApplication(new VerseGame(new VersePlayerInputProcessor()), config);
-
-		// new LwjglApplication(new Gdx2DTest(), "Gdx2DTest", 800, 800, false);
 	}
 
 }

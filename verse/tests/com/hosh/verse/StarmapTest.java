@@ -10,7 +10,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.google.common.base.Stopwatch;
-import com.hosh.verse.common.Interpreter;
 import com.hosh.verse.common.CollisionChecker;
 import com.hosh.verse.common.VerseActor;
 
@@ -29,7 +28,9 @@ public class StarmapTest {
 
 		final ArrayList<VerseActor> actorList = new ArrayList<VerseActor>();
 		for (int i = 0; i < 1000000; ++i) {
-			final VerseActor actor = Interpreter.createActor(MathUtils.random(worldDimX), MathUtils.random(worldDimY), 5.f);
+			final float x = MathUtils.random(worldDimX);
+			final float y = MathUtils.random(worldDimY);
+			final VerseActor actor = new VerseActor(0, x, y, x, y, 5.f, 0.f);
 			actorList.add(actor);
 		}
 
@@ -48,7 +49,7 @@ public class StarmapTest {
 		stopwatch = new Stopwatch().start();
 		final ArrayList<VerseActor> collisionList = new ArrayList<VerseActor>();
 		int collisionCnt = 0;
-		final VerseActor player = Interpreter.createActor(200.f, 200.f, 500.f);
+		final VerseActor player = new VerseActor(0, 200.f, 200.f, 200.f, 200.f, 500.f, 0.f);
 		for (final VerseActor a : actorList) {
 			if (CollisionChecker.collisionActorActor(player, a)) {
 				// collisionList.add(a);

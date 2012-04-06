@@ -1,4 +1,4 @@
-package com.hosh.verse.quadtree;
+package com.hosh.verse.common.quadtree;
 
 import java.util.HashMap;
 import java.util.Map;
