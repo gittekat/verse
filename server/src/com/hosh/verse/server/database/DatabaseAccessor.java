@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.hosh.verse.common.Actor;
 import com.hosh.verse.common.Stats;
 import com.hosh.verse.common.VerseActor;
 import com.hosh.verse.server.Verse;
@@ -12,6 +13,7 @@ import com.hosh.verse.server.VerseExtension;
 import com.smartfoxserver.v2.entities.User;
 
 public class DatabaseAccessor {
+	public static final String TABLE_OWNERS = "owners";
 
 	public static final String DBID_CHAR_ID = "charId";
 	public static final String DBID_CHAR_NAME = "char_name";
@@ -25,7 +27,7 @@ public class DatabaseAccessor {
 
 	private static final String LOAD_BASE_TYPE_QUERY = "SELECT * FROM " + Stats.TABLE_NAME + " WHERE id=?";
 
-	public static VerseActor loadActor(final Connection dbConnection, final String charId) {
+	public static VerseActor loadVerseActor(final Connection dbConnection, final String charId) {
 		PreparedStatement stmt;
 		try {
 			stmt = dbConnection.prepareStatement("SELECT * FROM characters WHERE charId=?");
@@ -56,47 +58,50 @@ public class DatabaseAccessor {
 		return null;
 	}
 
-	public static VerseActor loadHero(final Connection dbConnection, final String charId) {
+	public static Actor loadActor(final Connection dbConnection, final int actorId) {
 		PreparedStatement stmt;
 		try {
-			stmt = dbConnection.prepareStatement("SELECT * FROM heroes WHERE charId=?");
-			stmt.setString(1, charId);
+			stmt = dbConnection.prepareStatement("SELECT * FROM " + Actor.TABLE_NAME + " WHERE id=?");
+			stmt.setString(1, Integer.toString(actorId));
 
 			final ResultSet res = stmt.executeQuery();
 			if (!res.first()) {
-				return null;
+				throw new SQLException(Stats.TABLE_NAME + " not found");
 			}
 
-			final String charName = res.getString(DBID_CHAR_NAME);
-			final int id = res.getInt(DBID_CHAR_ID);
-			final int exp = res.getInt(DBID_EXP);
-			final int x = res.getInt(DBID_POS_X);
-			final int y = res.getInt(DBID_POS_Y);
-			final int heading = res.getInt(HEADING);
-			final int maxHp = res.getInt(DBID_MAX_HP);
-			final int curHp = res.getInt(DBID_CUR_HP);
-			final float collision_radius = res.getInt(DBID_COLLISION_RADIUS);
+			final String owner = res.getString(Actor.DBID_OWNER);
+			final int id = res.getInt(Actor.DBID_ID);
+			final int blueprint = res.getInt(Actor.DBID_BLUEPRINT);
+			final int hero = res.getInt(Actor.DBID_HERO);
+			final String name = res.getString(Actor.DBID_NAME);
+			final int exp = res.getInt(Actor.DBID_EXP);
+			final int x = res.getInt(Actor.DBID_X);
+			final int y = res.getInt(Actor.DBID_Y);
+			final int heading = res.getInt(Actor.DBID_HEADING);
+			final int kills = res.getInt(Actor.DBID_KILLS);
+			final int curHp = res.getInt(Actor.DBID_CURHP);
+			final int curShield = res.getInt(Actor.DBID_CURSHIELD);
 
-			// return new VerseActor(id, charName, exp, level, maxHp, curHp, x,
-			// y, heading, collision_radius);
+			final Stats blueprintStats = loadBlueprint(dbConnection, blueprint);
+
+			return new Actor(id, owner, blueprint, hero, blueprintStats, name, exp, x, y, heading, curHp, curShield, kills);
 
 		} catch (final SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		return null;
 	}
 
-	public static Stats loadBaseType(final Connection dbConnection, final String baseTypeId) {
+	public static Stats loadBlueprint(final Connection dbConnection, final int baseTypeId) {
 		PreparedStatement stmt;
 		try {
 			stmt = dbConnection.prepareStatement(LOAD_BASE_TYPE_QUERY);
-			stmt.setString(1, baseTypeId);
+			stmt.setString(1, Integer.toString(baseTypeId));
 
 			final ResultSet res = stmt.executeQuery();
 			if (!res.first()) {
-				throw new SQLException("base_type not found");
+				throw new SQLException(Stats.TABLE_NAME + " not found");
 			}
 
 			final int id = res.getInt(Stats.DBID_STATS_ID);
@@ -104,7 +109,6 @@ public class DatabaseAccessor {
 			final int type_id = res.getInt(Stats.DBID_STATS_TPYE_ID);
 			final int model_id = res.getInt(Stats.DBID_STATS_MODEL_ID);
 			final int scale = res.getInt(Stats.DBID_STATS_SCALE);
-			final int affiliation = res.getInt(Stats.DBID_STATS_AFFILIATION);
 			final int aggro = res.getInt(Stats.DBID_STATS_AGGRO);
 			final float color_r = res.getFloat(Stats.DBID_STATS_COLOR_R);
 			final float color_g = res.getFloat(Stats.DBID_STATS_COLOR_G);
@@ -119,12 +123,12 @@ public class DatabaseAccessor {
 			final int base_defense = res.getInt(Stats.DBID_STATS_DEFENSE);
 			final int extension_slots = res.getInt(Stats.DBID_STATS_EXTENSION_SLOTS);
 			final int fuel_tank = res.getInt(Stats.DBID_STATS_FUEL_TANK);
+			final int cargo_space = res.getInt(Stats.DBID_STATS_CARGO_SPACE);
 
-			return new Stats(id, type_name, type_id, model_id, scale, affiliation, aggro, color_r, color_g, color_b, color_a,
-					collision_radius, attack_range, base_hp, base_shield, base_speed, base_attack, base_defense, extension_slots, fuel_tank);
+			return new Stats(id, type_name, type_id, model_id, scale, aggro, color_r, color_g, color_b, color_a, collision_radius,
+					attack_range, base_hp, base_shield, base_speed, base_attack, base_defense, extension_slots, fuel_tank, cargo_space);
 
 		} catch (final SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -132,16 +136,12 @@ public class DatabaseAccessor {
 	}
 
 	public static void addPlayer(final VerseExtension verseExt, final Verse verse, final VerseActor player, final User user) {
-		// verseExt.getUserLookupTable().put(player.getCharId(), user);
 		verseExt.addPlayer(player.getCharId(), user);
 		user.getSession().setProperty(VerseExtension.CHAR_ID, player.getCharId());
 		verse.addPlayer(player);
 	}
 
 	public static void removePlayer(final VerseExtension verseExt, final Verse verse, final User user) {
-		// final Integer charId = (Integer)
-		// user.getSession().getProperty(VerseExtension.CHAR_ID);
-		// verseExt.getUserLookupTable().remove(charId);
 		final Integer charId = verseExt.removePlayer(user);
 		verse.removePlayer(charId);
 	}

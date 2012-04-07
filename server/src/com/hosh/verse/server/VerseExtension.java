@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.hosh.verse.common.Interpreter;
 import com.hosh.verse.common.VerseActor;
+import com.hosh.verse.server.database.DatabaseAccessor;
 import com.hosh.verse.server.eventhandler.LoginEventHandler;
 import com.hosh.verse.server.eventhandler.LogoutEventHandler;
 import com.hosh.verse.server.eventhandler.MoveHandler;
@@ -142,7 +143,7 @@ public class VerseExtension extends SFSExtension {
 			final Connection connection = dbManager.getConnection();
 
 			// Build a prepared statement
-			final PreparedStatement stmt = connection.prepareStatement("SELECT * FROM accounts");
+			final PreparedStatement stmt = connection.prepareStatement("SELECT * FROM " + DatabaseAccessor.TABLE_OWNERS);
 
 			// Execute query
 			final ResultSet res = stmt.executeQuery();
@@ -152,7 +153,6 @@ public class VerseExtension extends SFSExtension {
 				trace("noone in db found!");
 				return null;
 			} else {
-				trace("rows found in accounts: " + res.getRow());
 				return connection;
 			}
 		} catch (final Exception e) {

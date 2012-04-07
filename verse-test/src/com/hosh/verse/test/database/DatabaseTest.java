@@ -11,10 +11,10 @@ import java.sql.SQLException;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.hosh.verse.common.Actor;
 import com.hosh.verse.common.Stats;
 import com.hosh.verse.server.database.DatabaseAccessor;
 
@@ -29,6 +29,7 @@ public class DatabaseTest {
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection(dbUrl, "root", "ishus109");
 		} catch (final SQLException e) {
+			fail("SQLException");
 			e.printStackTrace();
 		}
 	}
@@ -39,25 +40,34 @@ public class DatabaseTest {
 	}
 
 	@Test
-	public void testBaseTypeTable() {
+	public void testBaseStatsTable() {
+		System.out.println("Stats test");
+		testTableClass(Stats.TABLE_NAME, DatabaseAccessor.loadBlueprint(connection, 1));
+		System.out.println();
+	}
+
+	@Test
+	public void testActorTable() {
+		System.out.println("Actor table test");
+		testTableClass(Actor.TABLE_NAME, DatabaseAccessor.loadActor(connection, 1));
+		System.out.println();
+	}
+
+	public void testTableClass(final String tableName, final Object sampleInstance) {
 		try {
-
-			final int expectedColumnCount = 20;
-
-			final PreparedStatement statement = connection.prepareStatement("DESCRIBE " + Stats.TABLE_NAME);
+			final PreparedStatement statement = connection.prepareStatement("DESCRIBE " + tableName);
 			final ResultSet resSet = statement.executeQuery();
 
 			if (!resSet.first()) {
-				fail("no columns found in " + Stats.TABLE_NAME);
+				fail("no columns found in " + tableName);
 			}
 
 			int rowCount = 0;
-			final Stats baseType = DatabaseAccessor.loadBaseType(connection, "1");
 			do {
 				System.out.print(resSet.getString("Field") + ": ");
 				Object value;
 				try {
-					value = PropertyUtils.getProperty(baseType, resSet.getString("Field"));
+					value = PropertyUtils.getProperty(sampleInstance, resSet.getString("Field"));
 					System.out.println(value);
 				} catch (final IllegalAccessException e) {
 					e.printStackTrace();
@@ -70,9 +80,9 @@ public class DatabaseTest {
 			} while (resSet.next());
 
 			System.out.println(rowCount);
-			Assert.assertTrue(rowCount == expectedColumnCount);
 
 		} catch (final SQLException e) {
+			fail("SQLException");
 			e.printStackTrace();
 		}
 	}

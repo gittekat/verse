@@ -80,7 +80,7 @@ public class OnRoomJoinHandler extends BaseServerEventHandler {
 				charId = entry.getKey();
 			}
 
-			final VerseActor actor = DatabaseAccessor.loadActor(connection, charId);
+			final VerseActor actor = DatabaseAccessor.loadVerseActor(connection, charId);
 			final VerseExtension verseExt = (VerseExtension) getParentExtension();
 			final Verse verse = verseExt.getVerse();
 

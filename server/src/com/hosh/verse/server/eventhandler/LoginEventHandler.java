@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.hosh.verse.server.VerseExtension;
+import com.hosh.verse.server.database.DatabaseAccessor;
 import com.smartfoxserver.bitswarm.sessions.ISession;
 import com.smartfoxserver.v2.annotations.Instantiation;
 import com.smartfoxserver.v2.annotations.Instantiation.InstantiationMode;
@@ -49,7 +50,8 @@ public class LoginEventHandler extends BaseServerEventHandler {
 			final Connection connection = dbManager.getConnection();
 
 			// Build a prepared statement
-			final PreparedStatement stmt = connection.prepareStatement("SELECT password FROM accounts WHERE login=?");
+			final PreparedStatement stmt = connection.prepareStatement("SELECT password FROM " + DatabaseAccessor.TABLE_OWNERS
+					+ " WHERE login=?");
 			stmt.setString(1, userName);
 
 			// Execute query
