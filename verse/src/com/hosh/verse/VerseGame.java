@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.ini4j.Wini;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import sfs2x.client.SmartFox;
 import sfs2x.client.core.BaseEvent;
@@ -107,6 +109,8 @@ public class VerseGame implements ApplicationListener, IEventListener {
 
 	@Override
 	public void create() {
+		final Logger logger = LoggerFactory.getLogger(VerseGame.class);
+		logger.info("Game creation phase");
 		PrintStream out;
 		try {
 			out = new PrintStream(new FileOutputStream("output.txt"));
@@ -459,7 +463,7 @@ public class VerseGame implements ApplicationListener, IEventListener {
 
 		VerseActor newTarget = null;
 		for (final VerseActor actor : visibleActorMap.values()) {
-			if (CollisionChecker.collisionPointActor(targetPos.x, targetPos.y, actor)) {
+			if (CollisionChecker.collisionPointVActor(targetPos.x, targetPos.y, actor)) {
 				newTarget = actor;
 				continue;
 			}

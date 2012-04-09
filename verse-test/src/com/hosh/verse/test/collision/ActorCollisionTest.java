@@ -1,5 +1,6 @@
-package com.hosh.verse;
+package com.hosh.verse.test.collision;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -13,39 +14,49 @@ import org.junit.Test;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.google.common.base.Stopwatch;
+import com.hosh.verse.common.Actor;
 import com.hosh.verse.common.CollisionChecker;
-import com.hosh.verse.common.VerseActor;
+import com.hosh.verse.common.Stats;
 import com.hosh.verse.common.quadtree.AbstractQuadNodeElement;
 import com.hosh.verse.common.quadtree.PointQuadTree;
+import com.hosh.verse.server.database.DatabaseAccessor;
+import com.hosh.verse.test.common.TestUtils;
 
 public class ActorCollisionTest {
 
-	private static VerseActor a1;
-	private static VerseActor a2;
-	private static VerseActor a3;
-	private static VerseActor a4;
-	private static List<VerseActor> actorList;
+	private static Actor a1;
+	private static Actor a2;
+	private static Actor a3;
+	private static Actor a4;
+	private static List<Actor> actorList;
 
-	private PointQuadTree<VerseActor> tree;
+	private PointQuadTree<Actor> tree;
 
 	private static int width = 1000;
 	private static int height = 1000;
 	private static float actorPosX = 251.f;
 	private static float actorPosY = 251.f;
-	private static float actorRadius = 5.f;
+	private static float actorRadius;
+
+	private static Connection connection;
 
 	@BeforeClass
 	public static void setUp() throws Exception {
-		a1 = new VerseActor(0, 100.f, 100.f, 100.f, 100.f, 5.f, 0.f);
-		a2 = new VerseActor(0, 119.999f, 100.f, 119.999f, 100.f, 15.f, 0.f);
-		a3 = new VerseActor(0, 120.001f, 100.f, 120.001f, 100.f, 15.f, 0.f);
-		a4 = new VerseActor(0, actorPosX, actorPosY, actorPosX, actorPosY, actorRadius, 0.f);
+		connection = TestUtils.getDBConnection();
 
-		actorList = new ArrayList<VerseActor>();
+		final Stats baseStats = DatabaseAccessor.loadBlueprint(connection, 1);
+		actorRadius = baseStats.getCollision_radius();
+
+		a1 = new Actor(2, "hosh", 0, baseStats, "a1", 0, 100, 100, 0, 10, 10, 0);
+		a2 = new Actor(3, "hosh", 0, baseStats, "a1", 0, 131.999f, 100, 0, 10, 10, 0);
+		a3 = new Actor(4, "hosh", 0, baseStats, "a1", 0, 132.001f, 100, 0, 10, 10, 0);
+		a4 = new Actor(5, "hosh", 0, baseStats, "a1", 0, actorPosX, actorPosY, 0, 10, 10, 0);
+
+		actorList = new ArrayList<Actor>();
 		for (int i = 0; i < 1000000; ++i) {
 			final int w = MathUtils.random(width);
 			final int h = MathUtils.random(height);
-			final VerseActor actor = new VerseActor(0, w, h, w, h, 5.f, 0.f);
+			final Actor actor = new Actor(6, "hosh", 0, baseStats, "a1", 0, w, h, 0, 10, 10, 0);
 			actorList.add(actor);
 		}
 	}
@@ -62,7 +73,7 @@ public class ActorCollisionTest {
 		final Stopwatch stopwatch = new Stopwatch().start();
 
 		int cnt = 0;
-		for (final VerseActor a : actorList) {
+		for (final Actor a : actorList) {
 			if (CollisionChecker.collisionActorActor(a4, a)) {
 				cnt++;
 			}
@@ -80,40 +91,40 @@ public class ActorCollisionTest {
 	public void testQuadTree() {
 
 		final int depth = 6;
-		tree = new PointQuadTree<VerseActor>(new Vector2(0, 0), new Vector2(width, height), depth, 40);
+		tree = new PointQuadTree<Actor>(new Vector2(0, 0), new Vector2(width, height), depth, 40);
 
-		for (final VerseActor a : actorList) {
-			tree.insert((int) a.getPos().x, (int) a.getPos().y, a);
+		for (final Actor a : actorList) {
+			tree.insert((int) a.getX(), (int) a.getY(), a);
 		}
 
 		final Stopwatch stopwatch = new Stopwatch().start();
 
 		final int playerRadius = (int) actorRadius * 2;
-		final Vector<AbstractQuadNodeElement<VerseActor>> e1 = (Vector<AbstractQuadNodeElement<VerseActor>>) tree.getElements(new Vector2(
+		final Vector<AbstractQuadNodeElement<Actor>> e1 = (Vector<AbstractQuadNodeElement<Actor>>) tree.getElements(new Vector2(
 				(int) actorPosX - playerRadius, (int) actorPosY - playerRadius));
-		final Vector<AbstractQuadNodeElement<VerseActor>> e2 = (Vector<AbstractQuadNodeElement<VerseActor>>) tree.getElements(new Vector2(
+		final Vector<AbstractQuadNodeElement<Actor>> e2 = (Vector<AbstractQuadNodeElement<Actor>>) tree.getElements(new Vector2(
 				(int) actorPosX - playerRadius, (int) actorPosY + playerRadius));
-		final Vector<AbstractQuadNodeElement<VerseActor>> e3 = (Vector<AbstractQuadNodeElement<VerseActor>>) tree.getElements(new Vector2(
+		final Vector<AbstractQuadNodeElement<Actor>> e3 = (Vector<AbstractQuadNodeElement<Actor>>) tree.getElements(new Vector2(
 				(int) actorPosX + playerRadius, (int) actorPosY - playerRadius));
-		final Vector<AbstractQuadNodeElement<VerseActor>> e4 = (Vector<AbstractQuadNodeElement<VerseActor>>) tree.getElements(new Vector2(
+		final Vector<AbstractQuadNodeElement<Actor>> e4 = (Vector<AbstractQuadNodeElement<Actor>>) tree.getElements(new Vector2(
 				(int) actorPosX + playerRadius, (int) actorPosY + playerRadius));
 
-		final Set<VerseActor> collisionCandidates = new HashSet<VerseActor>();
-		for (final AbstractQuadNodeElement<VerseActor> e : e1) {
+		final Set<Actor> collisionCandidates = new HashSet<Actor>();
+		for (final AbstractQuadNodeElement<Actor> e : e1) {
 			collisionCandidates.add(e.getElement());
 		}
-		for (final AbstractQuadNodeElement<VerseActor> e : e2) {
+		for (final AbstractQuadNodeElement<Actor> e : e2) {
 			collisionCandidates.add(e.getElement());
 		}
-		for (final AbstractQuadNodeElement<VerseActor> e : e3) {
+		for (final AbstractQuadNodeElement<Actor> e : e3) {
 			collisionCandidates.add(e.getElement());
 		}
-		for (final AbstractQuadNodeElement<VerseActor> e : e4) {
+		for (final AbstractQuadNodeElement<Actor> e : e4) {
 			collisionCandidates.add(e.getElement());
 		}
 
 		int cnt = 0;
-		for (final VerseActor a : collisionCandidates) {
+		for (final Actor a : collisionCandidates) {
 			if (CollisionChecker.collisionActorActor(a4, a)) {
 				cnt++;
 			}

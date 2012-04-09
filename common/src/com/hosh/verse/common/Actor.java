@@ -1,6 +1,11 @@
 package com.hosh.verse.common;
 
-public class Actor {
+import com.badlogic.gdx.math.Vector2;
+import com.google.common.base.Preconditions;
+import com.google.common.eventbus.EventBus;
+import com.hosh.verse.common.utils.VerseUtils;
+
+public class Actor implements IPositionable {
 	private static final String PREFIX = "Actor";
 	public static final String TABLE_NAME = "actors";
 
@@ -32,6 +37,130 @@ public class Actor {
 
 	private String owner;
 
+	private int hero;
+	private Integer id;
+	private final int blueprint;
+
+	private final String name;
+	private int exp;
+	private float heading;
+	private int curHp;
+	private int curShield;
+	private int kills;
+
+	private final Stats baseStats;
+	private Stats stats;
+	private boolean statsDirty = true;
+
+	private Vector2 curPos;
+	private Vector2 targetPos;
+
+	private float curSpeed;
+
+	private Vector2 curOrientationVector;
+	private float rotationAngle;
+
+	// TODO temp
+	private EventBus eventBus;
+
+	public Actor(final Integer id, final String owner, final int hero, final Stats baseStats, final String name, final int exp,
+			final float x, final float y, final float heading, final int curHp, final int curShield, final int kills) {
+		Preconditions.checkArgument(baseStats != null);
+		this.owner = owner;
+		this.hero = hero;
+		this.baseStats = baseStats;
+		this.blueprint = baseStats.getId();
+		this.id = id;
+		this.name = name;
+
+		this.exp = exp;
+		curPos = new Vector2(x, y);
+		targetPos = new Vector2(x, y);
+		this.heading = heading;
+
+		this.curHp = curHp;
+		this.curShield = curShield;
+		this.kills = kills;
+
+		// setCurOrientationVector(VerseUtils.angle2vector(heading));
+		setCurOrientationVector(new Vector2(0, 1));
+
+		// TODO calc stats
+		stats = baseStats;
+
+		setCurSpeed(0);
+	}
+
+	// TODO temp
+	public void setEventBus(final EventBus eventBus) {
+		this.eventBus = eventBus;
+	}
+
+	public void update(final float deltaTime) {
+		// position
+		final Vector2 targetVector = curPos.cpy().sub(targetPos);
+		if (targetVector.len() > 1.f) {
+
+			rotate(targetVector, deltaTime);
+
+			final float deltaMovement = deltaTime * curSpeed;
+			curPos.add(getCurOrientationVector().cpy().mul(deltaMovement));
+
+			eventBus.post(this);
+		} else {
+			curPos = targetPos;
+			setCurSpeed(0);
+		}
+	}
+
+	private void rotate(final Vector2 targetVector, final float deltaTime) {
+		final Vector2 targetOri = targetVector.nor().mul(-1);
+		final double rotAngle = VerseUtils.vector2angle(getCurOrientationVector());
+		final double targetAngle = VerseUtils.vector2angle(targetOri);
+
+		double rotDiff = rotAngle - targetAngle;
+		if (rotDiff > 180) {
+			rotDiff -= 360;
+		} else if (rotDiff < -180) {
+			rotDiff += 360;
+		}
+
+		if (Math.abs(rotDiff) < 1.0f) {
+			setCurOrientationVector(targetOri);
+			return;
+		}
+
+		final float rotDiffAngle = deltaTime * stats.getRotation_speed();
+		if (rotDiff > 0.0f) {
+			setCurOrientationVector(getCurOrientationVector().rotate(-rotDiffAngle));
+		} else {
+			setCurOrientationVector(getCurOrientationVector().rotate(rotDiffAngle));
+		}
+
+	}
+
+	public Vector2 getCurOrientationVector() {
+		return curOrientationVector;
+	}
+
+	/**
+	 * Sets orientation vector and computes the rotation angle.
+	 * 
+	 * @param orientationVector
+	 */
+	public void setCurOrientationVector(final Vector2 orientation) {
+		curOrientationVector = orientation;
+		setRotationAngle((float) VerseUtils.vector2angle(orientation));
+	}
+
+	public float getRotationAngle() {
+		return rotationAngle;
+	}
+
+	public void setRotationAngle(final float rotationAngle) {
+		this.rotationAngle = rotationAngle;
+	}
+
 	public String getOwner() {
 		return owner;
 	}
@@ -40,8 +169,13 @@ public class Actor {
 		return hero;
 	}
 
-	public int getId() {
+	@Override
+	public Integer getId() {
 		return id;
+	}
+
+	public void setId(final Integer id) {
+		this.id = id;
 	}
 
 	public int getBlueprint() {
@@ -56,12 +190,29 @@ public class Actor {
 		return exp;
 	}
 
+	@Override
+	public Vector2 getPos() {
+		return curPos;
+	}
+
 	public float getX() {
-		return x;
+		return curPos.x;
 	}
 
 	public float getY() {
-		return y;
+		return curPos.y;
+	}
+
+	public Vector2 getTargetPos() {
+		return targetPos;
+	}
+
+	// public void setCurPos(final Vector2 curPos) {
+	// this.curPos = curPos;
+	// }
+
+	public void setTargetPos(final Vector2 targetPos) {
+		this.targetPos = targetPos;
 	}
 
 	public float getHeading() {
@@ -116,37 +267,56 @@ public class Actor {
 		this.kills = kills;
 	}
 
-	private int hero;
-	private final int id;
-	private final int blueprint;
+	public float getCurSpeed() {
+		return curSpeed;
+	}
 
-	private final String name;
-	private int exp;
-	private float x;
-	private float y;
-	private float heading;
-	private int curHp;
-	private int curShield;
-	private int kills;
+	public void setCurSpeed(final float curSpeed) {
+		if (curSpeed < 0) {
+			this.curSpeed = 0;
+			return;
+		}
 
-	private final Stats baseStats;
-	private Stats stats;
-	private boolean statsDirty = true;
+		if (curSpeed > stats.getSpeed()) {
+			this.curSpeed = stats.getSpeed();
+			return;
+		}
 
-	public Actor(final int id, final String owner, final int blueprint, final int hero, final Stats baseStats, final String name,
-			final int exp, final float x, final float y, final float heading, final int curHp, final int curShield, final int kills) {
-		this.owner = owner;
-		this.hero = hero;
-		this.blueprint = blueprint;
-		this.baseStats = baseStats;
-		this.id = id;
-		this.name = name;
+		this.curSpeed = curSpeed;
+	}
 
-		this.curHp = curHp;
-		this.curShield = curShield;
-		this.kills = kills;
+	@Override
+	public String toString() {
+		return "Name:" + getName() + " Owner:" + getOwner() + " Pos:" + getPos() + " Hp:" + getCurHp() + " Shield:" + getCurShield();
+	}
 
-		// TODO calc stats
-		stats = baseStats;
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (id == null ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final Actor other = (Actor) obj;
+		if (id == null) {
+			if (other.id != null) {
+				return false;
+			}
+		} else if (!id.equals(other.id)) {
+			return false;
+		}
+		return true;
 	}
 }

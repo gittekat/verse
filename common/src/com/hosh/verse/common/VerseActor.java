@@ -44,7 +44,6 @@ public class VerseActor {
 	private float radius;
 	private float squaredRadius;
 
-	// TODO slow rotation to designated rotation angle
 	private Vector2 curOrientationVector;
 	private float rotationAngle;
 	private float targetRotationAngle;

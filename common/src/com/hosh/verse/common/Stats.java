@@ -20,6 +20,7 @@ public class Stats {
 	public static final String DBID_STATS_HP = "hp";
 	public static final String DBID_STATS_SHIELD = "shield";
 	public static final String DBID_STATS_SPEED = "speed";
+	public static final String DBID_STATS_ROTATION_SPEED = "rotation_speed";
 	public static final String DBID_STATS_ATTACK = "attack";
 	public static final String DBID_STATS_DEFENSE = "defense";
 	public static final String DBID_STATS_FUEL_TANK = "fuel_tank";
@@ -40,6 +41,7 @@ public class Stats {
 	public static final String SFSID_HP = PREFIX + DBID_STATS_HP;
 	public static final String SFSID_SHIELD = PREFIX + DBID_STATS_SHIELD;
 	public static final String SFSID_SPEED = PREFIX + DBID_STATS_SPEED;
+	public static final String SFSID_ROTATION_SPEED = PREFIX + DBID_STATS_ROTATION_SPEED;
 	public static final String SFSID_ATTACK = PREFIX + DBID_STATS_ATTACK;
 	public static final String SFSID_DEFENSE = PREFIX + DBID_STATS_DEFENSE;
 	public static final String SFSID_EXTENSION_SLOTS = PREFIX + DBID_STATS_EXTENSION_SLOTS;
@@ -63,13 +65,16 @@ public class Stats {
 	private final int cargo_space;
 	private final int shield;
 	private final int speed;
+	private final int rotation_speed;
 	private final int attack;
 	private final int defense;
 
+	private final float squaredCollisionRadius;
+
 	public Stats(final int id, final String name, final int type_id, final int model_id, final int scale, final int aggro,
 			final float color_r, final float color_g, final float color_b, final float color_a, final float collision_radius,
-			final float attack_range, final int hp, final int shield, final int speed, final int attack, final int defense,
-			final int extension_slots, final int fuel_tank, final int cargo_space) {
+			final float attack_range, final int hp, final int shield, final int speed, final int rotation_speed, final int attack,
+			final int defense, final int extension_slots, final int fuel_tank, final int cargo_space) {
 		this.id = id;
 		this.type_name = name;
 		this.type_id = type_id;
@@ -85,11 +90,14 @@ public class Stats {
 		this.hp = hp;
 		this.shield = shield;
 		this.speed = speed;
+		this.rotation_speed = rotation_speed;
 		this.attack = attack;
 		this.defense = defense;
 		this.extension_slots = extension_slots;
 		this.fuel_tank = fuel_tank;
 		this.cargo_space = cargo_space;
+
+		squaredCollisionRadius = collision_radius * collision_radius;
 	}
 
 	public int getId() {
@@ -164,11 +172,19 @@ public class Stats {
 		return speed;
 	}
 
+	public int getRotation_speed() {
+		return rotation_speed;
+	}
+
 	public int getAttack() {
 		return attack;
 	}
 
 	public int getDefense() {
 		return defense;
+	}
+
+	public float getSquaredCollisionRadius() {
+		return squaredCollisionRadius;
 	}
 }

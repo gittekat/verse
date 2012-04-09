@@ -14,8 +14,13 @@ public class VerseUtils {
 		return theta;
 	}
 
-	public static Vector2 angle2vector(final double rotationAngle) {
-		return null;
+	public static Vector2 angle2vector(final float rotationAngle) {
+		// TODO compute vector!!
+		// XXX now test it!
+
+		final float rad = MathUtils.degreesToRadians * rotationAngle;
+
+		return new Vector2(MathUtils.cos(rad), MathUtils.sin(rad));
 	}
 
 }

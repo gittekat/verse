@@ -21,6 +21,8 @@ public class Verse {
 	private Map<Integer, VerseActor> playerMap;
 	private PointQuadTree<VerseActor> qtTree;
 
+	private int gridSize = 1024;
+
 	public Verse(final Connection dbConnection, final int dimensionX, final int dimensionY) {
 		this.dbConnection = dbConnection;
 
@@ -52,7 +54,7 @@ public class Verse {
 
 			final ArrayList<VerseActor> collidedList = new ArrayList<VerseActor>();
 			for (final VerseActor a : playerMap.values()) {
-				if (!a.equals(player) && CollisionChecker.collisionActorActor(player, a)) {
+				if (!a.equals(player) && CollisionChecker.collisionVActorVActor(player, a)) {
 					// TODO resolve collision
 					collidedList.add(a);
 					System.out.println("collision!!!");

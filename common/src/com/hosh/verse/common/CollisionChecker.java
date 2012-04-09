@@ -4,24 +4,45 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 public class CollisionChecker {
-	public static boolean collisionActorActor(final VerseActor a1, final VerseActor a2) {
+
+	@Deprecated
+	public static boolean collisionVActorVActor(final VerseActor a1, final VerseActor a2) {
 		float squaredDistanceThreshold = a1.getBounds().radius + a2.getBounds().radius;
+		squaredDistanceThreshold *= squaredDistanceThreshold;
+
+		return squaredDistanceV(a1, a2) <= squaredDistanceThreshold;
+	}
+
+	public static boolean collisionActorActor(final Actor a1, final Actor a2) {
+		float squaredDistanceThreshold = a1.getStats().getCollision_radius() + a2.getStats().getCollision_radius();
 		squaredDistanceThreshold *= squaredDistanceThreshold;
 
 		return squaredDistance(a1, a2) <= squaredDistanceThreshold;
 	}
 
-	public static boolean collisionPointActor(final float x, final float y, final VerseActor actor) {
+	@Deprecated
+	public static boolean collisionPointVActor(final float x, final float y, final VerseActor actor) {
 		final Vector2 pos = new Vector2(x, y);
 
 		return squaredDistance(pos, actor.getPos()) <= actor.getSquaredRadius();
+	}
+
+	public static boolean collisionPointActor(final float x, final float y, final Actor actor) {
+		final Vector2 pos = new Vector2(x, y);
+
+		return squaredDistance(pos, actor.getPos()) <= actor.getStats().getSquaredCollisionRadius();
 	}
 
 	public static float squaredDistance(final Vector2 v1, final Vector2 v2) {
 		return v1.dst2(v2);
 	}
 
-	public static float squaredDistance(final VerseActor a1, final VerseActor a2) {
+	@Deprecated
+	public static float squaredDistanceV(final VerseActor a1, final VerseActor a2) {
+		return a1.getPos().dst2(a2.getPos());
+	}
+
+	public static float squaredDistance(final Actor a1, final Actor a2) {
 		return a1.getPos().dst2(a2.getPos());
 	}
 

@@ -51,12 +51,13 @@ public class StarmapTest {
 		int collisionCnt = 0;
 		final VerseActor player = new VerseActor(0, 200.f, 200.f, 200.f, 200.f, 500.f, 0.f);
 		for (final VerseActor a : actorList) {
-			if (CollisionChecker.collisionActorActor(player, a)) {
+			if (CollisionChecker.collisionVActorVActor(player, a)) {
 				// collisionList.add(a);
 				collisionCnt++;
 			}
 		}
 		final long durationCollisionTest = stopwatch.elapsedMillis();
 		System.out.println("durationCollisionTest: " + durationCollisionTest + " " + collisionCnt);
+
 	}
 }
