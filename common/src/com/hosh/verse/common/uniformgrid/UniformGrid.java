@@ -1,7 +1,8 @@
 package com.hosh.verse.common.uniformgrid;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,8 +58,28 @@ public class UniformGrid {
 		buckets = new HashMap<Integer, Map<Integer, IPositionable>>();
 	}
 
-	public void getEntities(final Rectangle rect) {
+	public List<IPositionable> getEntities(final Rectangle rect) {
+		int endX = (int) (rect.x + rect.width);
+		if (endX % gridSize != 0) {
+			endX += gridSize;
+		}
 
+		int endY = (int) (rect.y + rect.height);
+		if (endY % gridSize != 0) {
+			endY += gridSize;
+		}
+
+		final List<IPositionable> entities = new ArrayList<IPositionable>();
+		for (int i = (int) rect.x; i < endX; i += gridSize) {
+			for (int j = (int) rect.y; j < endY; j += gridSize) {
+				System.out.println(getMortonNumber(i, j));
+				final Map<Integer, IPositionable> bucket = buckets.get(getMortonNumber(i, j));
+				if (bucket != null) {
+					entities.addAll(bucket.values());
+				}
+			}
+		}
+		return entities;
 	}
 
 	public void addEntity(final IPositionable entity) {
@@ -125,7 +146,11 @@ public class UniformGrid {
 	}
 
 	public int getMortonNumber(final Vector2 pos) {
-		return CollisionChecker.mortonNumber((int) pos.x / gridSize, (int) pos.y / gridSize);
+		return getMortonNumber((int) pos.x, (int) pos.y);
+	}
+
+	public int getMortonNumber(final int x, final int y) {
+		return CollisionChecker.mortonNumber(x / gridSize, y / gridSize);
 	}
 
 	public boolean checkIntegrity() {
@@ -177,11 +202,7 @@ public class UniformGrid {
 		return true;
 	}
 
-	public Collection<IPositionable> getEntities() {
-		return idMapper.values();
-	}
-
-	public Set<IPositionable> getEntities2() {
+	public Set<IPositionable> getEntities() {
 		return mortonMapper.keySet();
 	}
 

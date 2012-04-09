@@ -1,8 +1,8 @@
 package com.hosh.verse.test;
 
 import java.sql.Connection;
-import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import junit.framework.Assert;
@@ -88,11 +88,9 @@ public class UniformGridTest {
 
 		Assert.assertTrue(grid.checkIntegrity());
 
-		final Collection<IPositionable> actors = grid.getEntities();
-		final Set<IPositionable> actors2 = grid.getEntities2();
+		final Set<IPositionable> actors = grid.getEntities();
 
 		Assert.assertEquals(actorCnt, actors.size());
-		Assert.assertEquals(actorCnt, actors2.size());
 	}
 
 	@Test
@@ -127,7 +125,22 @@ public class UniformGridTest {
 
 	@Test
 	public void testGetProximity() {
-		final Rectangle rect = new Rectangle(100.f, 100.f, 1000.f, 1000.f);
+		final UniformGrid grid = new UniformGrid(10240, 10240, 1024);
+		final Actor a1 = new Actor(0, "hosh", 0, baseStats, "a1", 0, 100, 100, 0, 10, 10, 0);
+		grid.addEntity(a1);
+
+		final Rectangle rect = new Rectangle(1000.f, 1000.f, 1500.f, 1500.f);
+		final List<IPositionable> entities = grid.getEntities(rect);
+		for (final IPositionable entity : entities) {
+			if (entity instanceof Actor) {
+				System.out.println("Actor");
+			}
+
+			System.out.println(entity.getPos());
+			final Actor actor = (Actor) entity;
+			System.out.println(actor.getName());
+			System.out.println(actor.getOwner());
+		}
 	}
 
 	private int printPossibleMortonNumbers(final UniformGrid grid) {
