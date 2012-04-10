@@ -20,6 +20,5 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="/verse-common/libs/slf4j-api-1.6.4.jar" sourcepath="/verse-common/libs/slf4j-api-1.6.4-sources.jar"/>
-	<classpathentry kind="lib" path="/verse-common/libs/slf4j-log4j12-1.6.4.jar" sourcepath="/verse-common/libs/slf4j-log4j12-1.6.4-sources.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
