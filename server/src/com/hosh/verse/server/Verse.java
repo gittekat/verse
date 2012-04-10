@@ -29,6 +29,10 @@ public class Verse {
 		this.dimensionX = dimensionX;
 		this.dimensionY = dimensionY;
 
+		// TODO load actors
+
+		// TODO insert into grid
+
 		actorList = new ArrayList<VerseActor>();
 		// for (int i = 0; i < 3; ++i) {
 		// final VerseActor actor =

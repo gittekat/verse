@@ -4,21 +4,21 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry kind="lib" path="libs/gdx-backend-android.jar" sourcepath="libs/gdx-backend-android-sources.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/verse"/>
-	<classpathentry kind="lib" path="/verse/libs/commons-lang-2.4.jar"/>
-	<classpathentry kind="lib" path="/verse/libs/jdom.jar"/>
-	<classpathentry kind="lib" path="/verse/libs/netty-3.2.2.Final.jar"/>
-	<classpathentry kind="lib" path="/verse/libs/SFS2X_API_Java.jar"/>
-	<classpathentry kind="lib" path="/verse/libs/sfs2x-client-core.jar"/>
-	<classpathentry kind="lib" path="/verse-common/libs/gdx.jar" sourcepath="/verse-common/libs/gdx-sources.jar"/>
-	<classpathentry kind="lib" path="/verse-common/libs/guava-11.0.1.jar" sourcepath="/verse-common/libs/guava-11.0.1-sources.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/verse-common"/>
-	<classpathentry kind="lib" path="/verse-common/libs/ini4j-0.5.2.jar" sourcepath="/verse-common/libs/ini4j-0.5.2-sources.jar">
+	<classpathentry exported="true" kind="lib" path="libs/gdx-backend-android.jar" sourcepath="libs/gdx-backend-android-sources.jar"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/verse"/>
+	<classpathentry exported="true" kind="lib" path="/verse/libs/commons-lang-2.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="/verse/libs/jdom.jar"/>
+	<classpathentry exported="true" kind="lib" path="/verse/libs/netty-3.2.2.Final.jar"/>
+	<classpathentry exported="true" kind="lib" path="/verse/libs/SFS2X_API_Java.jar"/>
+	<classpathentry exported="true" kind="lib" path="/verse/libs/sfs2x-client-core.jar"/>
+	<classpathentry exported="true" kind="lib" path="/verse-common/libs/gdx.jar" sourcepath="/verse-common/libs/gdx-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="/verse-common/libs/guava-11.0.1.jar" sourcepath="/verse-common/libs/guava-11.0.1-sources.jar"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/verse-common"/>
+	<classpathentry exported="true" kind="lib" path="/verse-common/libs/ini4j-0.5.2.jar" sourcepath="/verse-common/libs/ini4j-0.5.2-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/verse-common/libs/ini4j-0.5.2-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/verse-common/libs/slf4j-api-1.6.4.jar" sourcepath="/verse-common/libs/slf4j-api-1.6.4-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="/verse-common/libs/slf4j-api-1.6.4.jar" sourcepath="/verse-common/libs/slf4j-api-1.6.4-sources.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

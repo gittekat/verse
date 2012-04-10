@@ -4,10 +4,10 @@ import static org.junit.Assert.fail;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import junit.framework.Assert;
 
@@ -26,15 +26,6 @@ public class DatabaseTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		// final String dbUrl = "jdbc:mysql://127.0.0.1:3306/verse-db";
-		//
-		// try {
-		// Class.forName("com.mysql.jdbc.Driver");
-		// connection = DriverManager.getConnection(dbUrl, "root", "ishus109");
-		// } catch (final SQLException e) {
-		// fail("SQLException");
-		// e.printStackTrace();
-		// }
 		connection = TestUtils.getDBConnection();
 	}
 
@@ -85,7 +76,16 @@ public class DatabaseTest {
 		Assert.assertNull(deletedActor);
 	}
 
-	public void testTableClass(final String tableName, final Object sampleInstance) {
+	@Test
+	public void testLoadAllActors() {
+		final List<Actor> actors = DatabaseAccessor.loadActors(connection);
+
+		for (final Actor actor : actors) {
+			System.out.println(actor.getName());
+		}
+	}
+
+	private void testTableClass(final String tableName, final Object sampleInstance) {
 		try {
 			final PreparedStatement statement = connection.prepareStatement("DESCRIBE " + tableName);
 			final ResultSet resSet = statement.executeQuery();
