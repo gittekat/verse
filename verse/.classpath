@@ -9,5 +9,6 @@
 	<classpathentry exported="true" kind="lib" path="libs/netty-3.2.2.Final.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/SFS2X_API_Java.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/verse-common"/>
+	<classpathentry exported="true" kind="lib" path="libs/sfs2x-client-core.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
