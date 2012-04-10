@@ -10,7 +10,6 @@
 	<classpathentry exported="true" kind="lib" path="/verse/libs/jdom.jar"/>
 	<classpathentry exported="true" kind="lib" path="/verse/libs/netty-3.2.2.Final.jar"/>
 	<classpathentry exported="true" kind="lib" path="/verse/libs/SFS2X_API_Java.jar"/>
-	<classpathentry exported="true" kind="lib" path="/verse/libs/sfs2x-client-core.jar"/>
 	<classpathentry exported="true" kind="lib" path="/verse-common/libs/gdx.jar" sourcepath="/verse-common/libs/gdx-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="/verse-common/libs/guava-11.0.1.jar" sourcepath="/verse-common/libs/guava-11.0.1-sources.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/verse-common"/>
