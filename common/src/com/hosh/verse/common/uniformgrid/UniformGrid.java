@@ -9,7 +9,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.google.common.eventbus.Subscribe;
 import com.hosh.verse.common.CollisionChecker;
@@ -58,21 +57,20 @@ public class UniformGrid {
 		buckets = new HashMap<Integer, Map<Integer, IPositionable>>();
 	}
 
-	public List<IPositionable> getEntities(final Rectangle rect) {
-		int endX = (int) (rect.x + rect.width);
+	public List<IPositionable> getEntitiesFAST(final int x, final int y, final int width, final int height) {
+		int endX = x + width;
 		if (endX % gridSize != 0) {
 			endX += gridSize;
 		}
 
-		int endY = (int) (rect.y + rect.height);
+		int endY = y + height;
 		if (endY % gridSize != 0) {
 			endY += gridSize;
 		}
 
 		final List<IPositionable> entities = new ArrayList<IPositionable>();
-		for (int i = (int) rect.x; i < endX; i += gridSize) {
-			for (int j = (int) rect.y; j < endY; j += gridSize) {
-				System.out.println(getMortonNumber(i, j));
+		for (int i = x; i < endX; i += gridSize) {
+			for (int j = y; j < endY; j += gridSize) {
 				final Map<Integer, IPositionable> bucket = buckets.get(getMortonNumber(i, j));
 				if (bucket != null) {
 					entities.addAll(bucket.values());
@@ -80,6 +78,38 @@ public class UniformGrid {
 			}
 		}
 		return entities;
+	}
+
+	public List<IPositionable> getEntities(final int x, final int y, final int width, final int height) {
+		final List<IPositionable> possibleMatches = getEntitiesFAST(x, y, width, height);
+
+		final ArrayList<IPositionable> matches = new ArrayList<IPositionable>();
+		for (final IPositionable possibleMatch : possibleMatches) {
+			if (CollisionChecker.pointRect(possibleMatch.getPos().x, possibleMatch.getPos().y, x, y, width, height)) {
+				matches.add(possibleMatch);
+			}
+		}
+
+		return matches;
+	}
+
+	public List<IPositionable> getEntities(final int x, final int y, final int radius) {
+		// bounding box
+		final int boundingX = x - radius;
+		final int boundingY = y - radius;
+		final int boundingWidth = x + radius;
+		final int boundingHeight = y + radius;
+		final List<IPositionable> entities = getEntities(boundingX, boundingY, boundingWidth, boundingHeight);
+
+		final List<IPositionable> entitiesInRadius = new ArrayList<IPositionable>();
+		final float squaredMaxDistance = radius * radius;
+		for (final IPositionable entity : entities) {
+			if (CollisionChecker.squaredDistance(entity.getPos().x, entity.getPos().y, x, y) < squaredMaxDistance) {
+				entitiesInRadius.add(entity);
+			}
+		}
+
+		return entitiesInRadius;
 	}
 
 	public void addEntity(final IPositionable entity) {

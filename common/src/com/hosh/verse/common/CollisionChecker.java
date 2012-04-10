@@ -37,6 +37,13 @@ public class CollisionChecker {
 		return v1.dst2(v2);
 	}
 
+	public static float squaredDistance(final float x1, final float y1, final float x2, final float y2) {
+		final Vector2 v1 = new Vector2(x1, y1);
+		final Vector2 v2 = new Vector2(x2, y2);
+
+		return v1.dst2(v2);
+	}
+
 	@Deprecated
 	public static float squaredDistanceV(final VerseActor a1, final VerseActor a2) {
 		return a1.getPos().dst2(a2.getPos());
@@ -46,6 +53,7 @@ public class CollisionChecker {
 		return a1.getPos().dst2(a2.getPos());
 	}
 
+	@Deprecated
 	public static boolean pointAARect(final Vector2 point, final Rectangle rect) {
 		if (point.x < rect.x) {
 			return false;
@@ -57,6 +65,23 @@ public class CollisionChecker {
 			return false;
 		}
 		if (point.y >= rect.y + rect.height) {
+			return false;
+		}
+		return true;
+	}
+
+	public static boolean pointRect(final float x, final float y, final float rectX, final float rectY, final float width,
+			final float height) {
+		if (x < rectX) {
+			return false;
+		}
+		if (y < rectY) {
+			return false;
+		}
+		if (x >= rectX + width) {
+			return false;
+		}
+		if (y >= rectY + height) {
 			return false;
 		}
 		return true;

@@ -11,8 +11,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.google.common.base.Stopwatch;
 import com.google.common.eventbus.EventBus;
 import com.hosh.verse.common.Actor;
 import com.hosh.verse.common.CollisionChecker;
@@ -127,20 +127,75 @@ public class UniformGridTest {
 	public void testGetProximity() {
 		final UniformGrid grid = new UniformGrid(10240, 10240, 1024);
 		final Actor a1 = new Actor(0, "hosh", 0, baseStats, "a1", 0, 100, 100, 0, 10, 10, 0);
+		final Actor a2 = new Actor(1, "hosh", 0, baseStats, "a2", 0, 1000, 1000, 0, 10, 10, 0);
 		grid.addEntity(a1);
+		grid.addEntity(a2);
 
-		final Rectangle rect = new Rectangle(1000.f, 1000.f, 1500.f, 1500.f);
-		final List<IPositionable> entities = grid.getEntities(rect);
+		Assert.assertTrue(grid.size() == 2);
+
+		List<IPositionable> entities = grid.getEntitiesFAST(1000, 1000, 1500, 1500);
 		for (final IPositionable entity : entities) {
-			if (entity instanceof Actor) {
-				System.out.println("Actor");
-			}
-
-			System.out.println(entity.getPos());
 			final Actor actor = (Actor) entity;
-			System.out.println(actor.getName());
-			System.out.println(actor.getOwner());
+			System.out.println(actor.getName() + " @" + actor.getPos());
 		}
+		Assert.assertTrue(entities.size() == 2);
+
+		entities = grid.getEntities(1000, 1000, 1500, 1500);
+		for (final IPositionable entity : entities) {
+			final Actor actor = (Actor) entity;
+			System.out.println(actor.getName() + " @" + actor.getPos());
+		}
+		Assert.assertTrue(entities.size() == 1);
+	}
+
+	@Test
+	public void testProximitySpeed() {
+		final UniformGrid grid = new UniformGrid(10240, 10240, 1024);
+
+		final int actorCnt = 1000000;
+		for (int i = 0; i < actorCnt; ++i) {
+			final int w = MathUtils.random(grid.getDimensionX() - 1);
+			final int h = MathUtils.random(grid.getDimensionY() - 1);
+			final Actor actor = new Actor(i, "hosh", 0, baseStats, "a1", 0, w, h, 0, 10, 10, 0);
+			grid.addEntity(actor);
+		}
+
+		Assert.assertTrue(grid.checkIntegrity());
+
+		// warmup
+		grid.getEntities(5000, 5000, 2000, 2000);
+
+		final int x = 1000;
+		final int y = 1000;
+		final int w = 1500;
+		final int h = 1500;
+
+		// ----- rectFAST
+		final Stopwatch stopwatchRectFAST = new Stopwatch().start();
+
+		final List<IPositionable> fastEntities = grid.getEntitiesFAST(x, y, w, h);
+
+		final long durationRectFAST = stopwatchRectFAST.elapsedMillis();
+		stopwatchRectFAST.stop();
+		System.out.println("rectFAST time: " + durationRectFAST + " found: " + fastEntities.size());
+
+		// ----- rect
+		final Stopwatch stopwatchRect = new Stopwatch().start();
+
+		final List<IPositionable> entitiesRect = grid.getEntities(x, y, w, h);
+
+		final long durationRect = stopwatchRect.elapsedMillis();
+		stopwatchRect.stop();
+		System.out.println("rect     time: " + durationRect + " found: " + entitiesRect.size());
+
+		// ----- radius
+		final Stopwatch stopwatchRadius = new Stopwatch().start();
+
+		final List<IPositionable> entitiesRadius = grid.getEntities(x, y, w / 2);
+
+		final long durationRadius = stopwatchRadius.elapsedMillis();
+		stopwatchRadius.stop();
+		System.out.println("radius   time: " + durationRadius + " found: " + entitiesRadius.size());
 	}
 
 	private int printPossibleMortonNumbers(final UniformGrid grid) {
