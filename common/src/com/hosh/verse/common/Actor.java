@@ -4,8 +4,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.google.common.base.Preconditions;
 import com.google.common.eventbus.EventBus;
 import com.hosh.verse.common.utils.VerseUtils;
+import com.smartfoxserver.v2.protocol.serialization.SerializableSFSType;
 
-public class Actor implements IPositionable {
+public class Actor implements IPositionable, SerializableSFSType {
 	private static final String PREFIX = "Actor";
 	public static final String TABLE_NAME = "actors";
 
@@ -35,33 +36,47 @@ public class Actor implements IPositionable {
 	public static final String SFSID_CUR_HP = PREFIX + DBID_CURHP;
 	public static final String SFSID_CUR_SHIELD = PREFIX + DBID_CURSHIELD;
 
+	public static final String SFSID_TARGET_X = PREFIX + "targetX";
+	public static final String SFSID_TARGET_Y = PREFIX + "targetY";
+	public static final String SFSID_CUR_SPEED = PREFIX + "curSpeed";
+
 	private String owner;
 
 	private int hero;
 	private Integer id;
-	private final int blueprint;
+	private int blueprint;
 
-	private final String name;
+	private String name;
 	private int exp;
 	private float heading;
 	private int curHp;
 	private int curShield;
 	private int kills;
 
-	private final Stats baseStats;
+	private Stats baseStats;
 	private Stats stats;
-	private boolean statsDirty = true;
+	// private boolean statsDirty = true;
 
-	private Vector2 curPos;
-	private Vector2 targetPos;
+	private float x;
+	private float y;
+	private float targetX;
+	private float targetY;
 
 	private float curSpeed;
 
-	private Vector2 curOrientationVector;
-	private float rotationAngle;
+	private float directionalVectorX;
+	private float directionalVectorY;
 
 	// TODO temp
-	private EventBus eventBus;
+	private transient EventBus eventBus;
+
+	public EventBus getEventBus() {
+		return eventBus;
+	}
+
+	public Actor() {
+		// empty constructor needed for SmartfoxSerialization
+	}
 
 	public Actor(final Integer id, final String owner, final int hero, final Stats baseStats, final String name, final int exp,
 			final float x, final float y, final float heading, final int curHp, final int curShield, final int kills) {
@@ -74,19 +89,21 @@ public class Actor implements IPositionable {
 		this.name = name;
 
 		this.exp = exp;
-		curPos = new Vector2(x, y);
-		targetPos = new Vector2(x, y);
+		this.x = x;
+		this.y = y;
+		setPos(x, y);
+		setTargetPos(x, y);
+
 		this.heading = heading;
 
 		this.curHp = curHp;
 		this.curShield = curShield;
 		this.kills = kills;
 
-		// setCurOrientationVector(VerseUtils.angle2vector(heading));
-		setCurOrientationVector(new Vector2(0, 1));
+		// TODO real heading!!!
+		setDirectionalVector(1, 1);
 
-		// TODO calc stats
-		stats = baseStats;
+		updateStats();
 
 		setCurSpeed(0);
 	}
@@ -96,26 +113,39 @@ public class Actor implements IPositionable {
 		this.eventBus = eventBus;
 	}
 
+	private void updateStats() {
+		// TODO recalculate stats
+		stats = baseStats;
+	}
+
 	public void update(final float deltaTime) {
 		// position
-		final Vector2 targetVector = curPos.cpy().sub(targetPos);
+		final Vector2 pos = getPos();
+		final Vector2 targetVector = pos.cpy().sub(targetX, targetY);
 		if (targetVector.len() > 1.f) {
 
 			rotate(targetVector, deltaTime);
 
 			final float deltaMovement = deltaTime * curSpeed;
-			curPos.add(getCurOrientationVector().cpy().mul(deltaMovement));
+			pos.add(getDirectionalVector().mul(deltaMovement));
+			setX(pos.x);
+			setY(pos.y);
 
-			eventBus.post(this);
+			if (eventBus != null) {
+				eventBus.post(this);
+			}
 		} else {
-			curPos = targetPos;
+			// pos = targetPos;
+			setX(targetX);
+			setY(targetY);
 			setCurSpeed(0);
 		}
 	}
 
 	private void rotate(final Vector2 targetVector, final float deltaTime) {
 		final Vector2 targetOri = targetVector.nor().mul(-1);
-		final double rotAngle = VerseUtils.vector2angle(getCurOrientationVector());
+		final Vector2 directionalVector = getDirectionalVector();
+		final double rotAngle = VerseUtils.vector2angle(directionalVector);
 		final double targetAngle = VerseUtils.vector2angle(targetOri);
 
 		double rotDiff = rotAngle - targetAngle;
@@ -126,47 +156,51 @@ public class Actor implements IPositionable {
 		}
 
 		if (Math.abs(rotDiff) < 1.0f) {
-			setCurOrientationVector(targetOri);
+			setDirectionalVector(targetOri);
 			return;
 		}
 
 		final float rotDiffAngle = deltaTime * stats.getRotation_speed();
 		if (rotDiff > 0.0f) {
-			setCurOrientationVector(getCurOrientationVector().rotate(-rotDiffAngle));
+			setDirectionalVector(directionalVector.rotate(-rotDiffAngle));
 		} else {
-			setCurOrientationVector(getCurOrientationVector().rotate(rotDiffAngle));
+			setDirectionalVector(directionalVector.rotate(rotDiffAngle));
 		}
 
 	}
 
-	public Vector2 getCurOrientationVector() {
-		return curOrientationVector;
+	public float getDirectionalVectorX() {
+		return directionalVectorX;
 	}
 
-	/**
-	 * Sets orientation vector and computes the rotation angle.
-	 * 
-	 * @param orientationVector
-	 */
-	public void setCurOrientationVector(final Vector2 orientation) {
-		curOrientationVector = orientation;
-		setRotationAngle((float) VerseUtils.vector2angle(orientation));
+	public void setDirectionalVectorX(final float directionalVectorX) {
+		this.directionalVectorX = directionalVectorX;
+	}
+
+	public float getDirectionalVectorY() {
+		return directionalVectorY;
+	}
+
+	public void setDirectionalVectorY(final float directionalVectorY) {
+		this.directionalVectorY = directionalVectorY;
+	}
+
+	public Vector2 getDirectionalVector() {
+		return new Vector2(directionalVectorX, directionalVectorY);
+	}
+
+	public void setDirectionalVector(final float x, final float y) {
+		directionalVectorX = x;
+		directionalVectorY = y;
+	}
+
+	public void setDirectionalVector(final Vector2 direction) {
+		directionalVectorX = direction.x;
+		directionalVectorY = direction.y;
 	}
 
 	public float getRotationAngle() {
-		return rotationAngle;
-	}
-
-	public void setRotationAngle(final float rotationAngle) {
-		this.rotationAngle = rotationAngle;
-	}
-
-	public String getOwner() {
-		return owner;
-	}
-
-	public int getHero() {
-		return hero;
+		return (float) VerseUtils.vector2angle(directionalVectorX, directionalVectorY);
 	}
 
 	@Override
@@ -178,93 +212,145 @@ public class Actor implements IPositionable {
 		this.id = id;
 	}
 
-	public int getBlueprint() {
-		return blueprint;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public int getExp() {
-		return exp;
-	}
-
-	@Override
-	public Vector2 getPos() {
-		return curPos;
-	}
-
-	public float getX() {
-		return curPos.x;
-	}
-
-	public float getY() {
-		return curPos.y;
-	}
-
-	public Vector2 getTargetPos() {
-		return targetPos;
-	}
-
-	// public void setCurPos(final Vector2 curPos) {
-	// this.curPos = curPos;
-	// }
-
-	public void setTargetPos(final Vector2 targetPos) {
-		this.targetPos = targetPos;
-	}
-
-	public float getHeading() {
-		return heading;
-	}
-
-	public int getCurHp() {
-		return curHp;
-	}
-
-	public int getCurShield() {
-		return curShield;
-	}
-
-	public int getKills() {
-		return kills;
-	}
-
-	public Stats getBaseStats() {
-		return baseStats;
-	}
-
-	public Stats getStats() {
-		return stats;
+	public String getOwner() {
+		return owner;
 	}
 
 	public void setOwner(final String owner) {
 		this.owner = owner;
 	}
 
+	public int getHero() {
+		return hero;
+	}
+
 	public void setHero(final int hero) {
 		this.hero = hero;
+	}
+
+	public int getBlueprint() {
+		return blueprint;
+	}
+
+	public void setBlueprint(final int blueprint) {
+		this.blueprint = blueprint;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(final String name) {
+		this.name = name;
+	}
+
+	public int getExp() {
+		return exp;
 	}
 
 	public void setExp(final int exp) {
 		this.exp = exp;
 	}
 
+	public Vector2 getPos() {
+		return new Vector2(x, y);
+	}
+
+	public void setPos(final float x, final float y) {
+		this.x = x;
+		this.y = y;
+	}
+
+	@Override
+	public float getX() {
+		return x;
+	}
+
+	public void setX(final float x) {
+		this.x = x;
+	}
+
+	@Override
+	public float getY() {
+		return y;
+	}
+
+	public void setY(final float y) {
+		this.y = y;
+	}
+
+	public float getTargetX() {
+		return targetX;
+	}
+
+	public void setTargetX(final float targetX) {
+		this.targetX = targetX;
+	}
+
+	public float getTargetY() {
+		return targetY;
+	}
+
+	public void setTargetY(final float targetY) {
+		this.targetY = targetY;
+	}
+
+	public Vector2 getTargetPos() {
+		return new Vector2(targetX, targetY);
+	}
+
+	public void setTargetPos(final Vector2 targetPos) {
+		targetX = targetPos.x;
+		targetY = targetPos.y;
+	}
+
+	public void setTargetPos(final float x, final float y) {
+		setTargetPos(new Vector2(x, y));
+	}
+
+	public float getHeading() {
+		return heading;
+	}
+
 	public void setHeading(final float heading) {
 		this.heading = heading;
+	}
+
+	public int getCurHp() {
+		return curHp;
 	}
 
 	public void setCurHp(final int curHp) {
 		this.curHp = curHp;
 	}
 
+	public int getCurShield() {
+		return curShield;
+	}
+
 	public void setCurShield(final int curShield) {
 		this.curShield = curShield;
 	}
 
+	public int getKills() {
+		return kills;
+	}
+
 	public void setKills(final int kills) {
 		this.kills = kills;
+	}
+
+	public Stats getBaseStats() {
+		return baseStats;
+	}
+
+	public void setBaseStats(final Stats blueprint) {
+		baseStats = blueprint;
+		updateStats();
+	}
+
+	public Stats getStats() {
+		return stats;
 	}
 
 	public float getCurSpeed() {
@@ -272,7 +358,7 @@ public class Actor implements IPositionable {
 	}
 
 	public void setCurSpeed(final float curSpeed) {
-		if (curSpeed < 0) {
+		if (curSpeed < 0 || stats == null) {
 			this.curSpeed = 0;
 			return;
 		}
@@ -319,4 +405,5 @@ public class Actor implements IPositionable {
 		}
 		return true;
 	}
+
 }

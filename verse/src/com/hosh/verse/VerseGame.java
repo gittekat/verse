@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,12 +38,14 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.hosh.verse.common.Actor;
 import com.hosh.verse.common.CollisionChecker;
 import com.hosh.verse.common.Interpreter;
-import com.hosh.verse.common.VerseActor;
+import com.hosh.verse.common.Stats;
 import com.hosh.verse.common.utils.VerseUtils;
 import com.hosh.verse.input.IVerseInputProcessor;
 import com.hosh.verse.input.VersePlayerInputProcessor;
+import com.smartfoxserver.v2.entities.data.ISFSArray;
 import com.smartfoxserver.v2.entities.data.ISFSObject;
 import com.smartfoxserver.v2.entities.data.SFSObject;
 import com.smartfoxserver.v2.exceptions.SFSException;
@@ -76,12 +79,12 @@ public class VerseGame implements ApplicationListener, IEventListener {
 
 	Vector3 touchPoint;
 
-	private VerseActor player;
-	private VerseActor debugDrone;
-	private Map<Integer, VerseActor> visiblePlayerMap;
-	private Map<Integer, VerseActor> visibleActorMap;
+	private Actor player = new Actor();
+	// private Actor debugDrone;
+	private Map<Integer, Actor> visiblePlayerMap;
+	private Map<Integer, Actor> visibleActorMap;
 
-	private VerseActor target;
+	private Actor target;
 
 	// smartfox
 	SmartFox sfsClient;
@@ -100,7 +103,10 @@ public class VerseGame implements ApplicationListener, IEventListener {
 	private long shootingStart;
 	private long shootingEnd;
 	final long duration = 500000000l;
-	private VerseActor shootingTarget;
+	private Actor shootingTarget;
+
+	private Map<Integer, Stats> blueprintCache;
+	private boolean initialized = false;
 
 	public VerseGame(final IVerseInputProcessor inputProcessor) {
 		this.inputProcessor = inputProcessor;
@@ -115,7 +121,7 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		try {
 			out = new PrintStream(new FileOutputStream("output.txt"));
 			// System.setOut(out);
-			System.setErr(out);
+			// System.setErr(out);
 		} catch (final FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -139,8 +145,8 @@ public class VerseGame implements ApplicationListener, IEventListener {
 			Gdx.input.setInputProcessor(inputProcessor);
 		}
 
-		visiblePlayerMap = new ConcurrentHashMap<Integer, VerseActor>();
-		visibleActorMap = new ConcurrentHashMap<Integer, VerseActor>();
+		visiblePlayerMap = new ConcurrentHashMap<Integer, Actor>();
+		visibleActorMap = new ConcurrentHashMap<Integer, Actor>();
 
 		font = new BitmapFont(Gdx.files.getFileHandle("consolas_11b.fnt", FileType.Internal), Gdx.files.getFileHandle("consolas_11b.png",
 				FileType.Internal), false);
@@ -178,16 +184,25 @@ public class VerseGame implements ApplicationListener, IEventListener {
 
 		touchPoint = new Vector3();
 
-		player = new VerseActor(0, 100, 100, 100, 100, 5, 20.f);
-		debugDrone = new VerseActor(0, 130, 170, 130, 170, 5, 20.f);
-
-		initSmartFox();
-		connectToServer("192.168.178.35", 9933); // TODO use sfs-config.xml
+		// player = new VerseActor(0, 100, 100, 100, 100, 5, 20.f);
+		// debugDrone = new VerseActor(0, 130, 170, 130, 170, 5, 20.f);
 
 		particleEffect = new ParticleEffect();
 		particleEffect.load(Gdx.files.internal(PARTICLE_EFFECT), Gdx.files.internal(""));
 
 		shooting = false;
+
+		initSmartFox();
+		connectToServer("192.168.178.35", 9933); // TODO use sfs-config.xml
+
+		while (initialized == false) {
+			try {
+				Thread.sleep(500);
+			} catch (final InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 	private void readConfig() {
@@ -243,10 +258,11 @@ public class VerseGame implements ApplicationListener, IEventListener {
 			player.update(deltaTime);
 			drawPlayer(player, HALF_WIDTH, HALF_HEIGHT, deltaTime);
 
-			// draw drone
-			debugDrone.update(Gdx.graphics.getDeltaTime());
-			final Vector2 dronePos = getScreenCoordinates(debugDrone.getPos());
-			drawPlayer(debugDrone, dronePos.x, dronePos.y, deltaTime);
+			// // draw drone
+			// debugDrone.update(Gdx.graphics.getDeltaTime());
+			// final Vector2 dronePos =
+			// getScreenCoordinates(debugDrone.getPos());
+			// drawPlayer(debugDrone, dronePos.x, dronePos.y, deltaTime);
 
 			bg = dayNightCycle(bg, 0.0005f);
 			bg = 1;
@@ -279,7 +295,7 @@ public class VerseGame implements ApplicationListener, IEventListener {
 				}
 			}
 
-			for (final VerseActor a : visibleActorMap.values()) {
+			for (final Actor a : visibleActorMap.values()) {
 
 				final Vector2 pos = getScreenCoordinates(a.getPos());
 
@@ -300,9 +316,9 @@ public class VerseGame implements ApplicationListener, IEventListener {
 				drawActor(a);
 			}
 
-			for (final VerseActor p : visiblePlayerMap.values()) {
+			for (final Actor p : visiblePlayerMap.values()) {
 				// System.out.println("ohter player: " + p.getTargetPos());
-				if (p.getCharId() == 1) {
+				if (p.getId() == 1) {
 					System.out.println("stop2");
 				}
 				p.update(deltaTime);
@@ -356,7 +372,7 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		return pos;
 	}
 
-	private void drawPlayer(final VerseActor p, final float x, final float y, final float deltaTime) {
+	private void drawPlayer(final Actor p, final float x, final float y, final float deltaTime) {
 		// Gdx.gl.glEnable(GL10.GL_DITHER);
 		// batch.setColor(0.f, 0.f, 0.f, p.getShieldStrength());
 		// batch.draw(shieldRegion, x - 16, y - 16, 16, 16, 32, 32, 0.95f,
@@ -376,7 +392,7 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		// 0.15f, 0.0f);
 	}
 
-	private void drawActor(final VerseActor actor) {
+	private void drawActor(final Actor actor) {
 		final Vector2 pos = getScreenCoordinates(actor.getPos());
 		final float x = pos.x;
 		final float y = pos.y;
@@ -385,7 +401,8 @@ public class VerseGame implements ApplicationListener, IEventListener {
 
 		final TextureRegion textureRegion = planetRegion;
 
-		final float radius = actor.getRadius();
+		// final float radius = actor.getRadius();
+		final float radius = actor.getStats().getCollision_radius();
 		final float diameter = radius * 2.f;
 		batch.draw(textureRegion, x - radius, y - radius, radius, radius, diameter, diameter, 1, 1, 0.0f);
 	}
@@ -461,9 +478,9 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		final Vector2 targetPos = new Vector2(posX + touchPos.x, posY + touchPos.y);
 		serverMessage = "" + (int) targetPos.x + " x " + (int) targetPos.y;
 
-		VerseActor newTarget = null;
-		for (final VerseActor actor : visibleActorMap.values()) {
-			if (CollisionChecker.collisionPointVActor(targetPos.x, targetPos.y, actor)) {
+		Actor newTarget = null;
+		for (final Actor actor : visibleActorMap.values()) {
+			if (CollisionChecker.collisionPointActor(targetPos.x, targetPos.y, actor)) {
 				newTarget = actor;
 				continue;
 			}
@@ -473,22 +490,25 @@ public class VerseGame implements ApplicationListener, IEventListener {
 			target = null;
 		} else if (!newTarget.equals(target)) {
 			target = newTarget; // don't move
-			serverMessage += " target: " + newTarget.getCharId();
+			serverMessage += " target: " + newTarget.getId();
 			return;
 		}
 
 		if (target != null) {
-			serverMessage += " target: " + target.getCharId();
+			serverMessage += " target: " + target.getId();
 		}
 
 		touchPos.nor();
 		player.setTargetPos(targetPos);
-		player.setCurSpeed(player.getMaxSpeed());
+		final int maxSpeed = player.getStats().getSpeed();
+		player.setCurSpeed(maxSpeed);
 
-		final ISFSObject sfso = new SFSObject();
-		sfso.putFloat(VerseActor.TARGET_POS_X, targetPos.x);
-		sfso.putFloat(VerseActor.TARGET_POS_Y, targetPos.y);
-		sfso.putFloat(VerseActor.SPEED, player.getMaxSpeed());
+		// ISFSObject sfso = new SFSObject();
+		// sfso.putFloat(VerseActor.TARGET_POS_X, targetPos.x);
+		// sfso.putFloat(VerseActor.TARGET_POS_Y, targetPos.y);
+		// sfso.putFloat(VerseActor.SPEED, player.getMaxSpeed());
+		final ISFSObject sfso = Interpreter.packMoveData(targetPos.x, targetPos.y, maxSpeed);
+
 		sfsClient.send(new ExtensionRequest("move", sfso));
 	}
 
@@ -498,7 +518,7 @@ public class VerseGame implements ApplicationListener, IEventListener {
 			shootingEnd = shootingStart + duration;
 			System.out.println(shootingStart + " -> " + shootingEnd);
 			System.out.println(shootingEnd - shootingStart);
-			System.out.println(target.getCharId());
+			System.out.println(target.getId());
 			shooting = true;
 			shootingTarget = target;
 		}
@@ -584,6 +604,12 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		if (event.getType().equalsIgnoreCase(SFSEvent.CONNECTION)) {
 			if (event.getArguments().get("success").equals(true)) {
 				sfsClient.send(new LoginRequest(userName, password, "VerseZone"));
+
+				// ISFSObject params = new SFSObject();
+				// // TODO what ship should be used
+				// sfsClient.send(new LoginRequest(userName, password,
+				// "VerseZone", params));
+
 				System.out.println("sfs: connecting...");
 			}
 			// otherwise error message is shown
@@ -620,63 +646,64 @@ public class VerseGame implements ApplicationListener, IEventListener {
 
 			final String cmd = event.getArguments().get("cmd").toString();
 
-			if ("initialPlayerData".equals(cmd)) {
+			if (Interpreter.SFS_CMD_INIT_DATA.equals(cmd)) {
 				ISFSObject resObj = new SFSObject();
 				resObj = (ISFSObject) event.getArguments().get("params");
 
-				final int charId = resObj.getInt(VerseActor.CHAR_ID);
-				final Float posX = resObj.getFloat(VerseActor.POS_X);
-				final Float posY = resObj.getFloat(VerseActor.POS_Y);
-				final String name = resObj.getUtfString(VerseActor.NAME);
-				final int exp = resObj.getInt(VerseActor.EXP);
-				final int level = resObj.getInt(VerseActor.LEVEL);
-				final float maxHp = resObj.getFloat(VerseActor.MAX_HP);
-				final float curHp = resObj.getFloat(VerseActor.CUR_HP);
-				final float radius = resObj.getFloat(VerseActor.RADIUS);
-
-				player = new VerseActor(charId, name, exp, level, maxHp, curHp, posX, posY, 0.0f, radius);
-			}
-
-			if ("playerData".equals(cmd)) {
-				ISFSObject resObj = new SFSObject();
-				resObj = (ISFSObject) event.getArguments().get("params");
-
-				final Float x = resObj.getFloat("x");
-				final Float y = resObj.getFloat("y");
-				final Vector2 posVector = new Vector2(x, y);
-				player.setPos(posVector);
-			}
-
-			if ("actor".equals(cmd)) {
-				ISFSObject resObj = new SFSObject();
-				resObj = (ISFSObject) event.getArguments().get("params");
-				final int charId = resObj.getInt(VerseActor.CHAR_ID);
-
-				if (!visibleActorMap.containsKey(charId)) {
-					// TODO wenn unbekannt, dann beim server details nachfrage,
-					// anstatt immer alles zu versenden!
-					final VerseActor actor = Interpreter.updateActor(null, resObj);
-					visibleActorMap.put(actor.getCharId(), actor);
-				} else {
-					Interpreter.updateActor(visibleActorMap.get(charId), resObj);
-				}
-			}
-
-			if ("player".equals(cmd)) {
-				ISFSObject resObj = new SFSObject();
-				resObj = (ISFSObject) event.getArguments().get("params");
-				final int charId = resObj.getInt(VerseActor.CHAR_ID);
-
-				if (!visiblePlayerMap.containsKey(charId)) {
-					// TODO wenn unbekannt, dann beim server details nachfrage,
-					// anstatt immer alles zu versenden!
-					final VerseActor actor = Interpreter.updateActor(null, resObj);
-					visiblePlayerMap.put(actor.getCharId(), actor);
-				} else {
-					Interpreter.updateActor(visiblePlayerMap.get(charId), resObj);
+				// getBlueprints
+				final ISFSArray blueprintData = resObj.getSFSArray(Interpreter.SFS_OBJ_BLUEPRINTS);
+				blueprintCache = new HashMap<Integer, Stats>();
+				for (int i = 0; i < blueprintData.size(); ++i) {
+					final Stats blueprint = (Stats) blueprintData.getClass(i);
+					blueprintCache.put(blueprint.getId(), blueprint);
 				}
 
+				// getPlayerData
+				player = (Actor) resObj.getClass(Interpreter.SFS_OBJ_PLAYER_DATA);
+				player.setBaseStats(blueprintCache.get(player.getBlueprint()));
+				initialized = true;
 			}
+
+			// if ("playerData".equals(cmd)) {
+			// ISFSObject resObj = new SFSObject();
+			// resObj = (ISFSObject) event.getArguments().get("params");
+			//
+			// final Float x = resObj.getFloat("x");
+			// final Float y = resObj.getFloat("y");
+			// final Vector2 posVector = new Vector2(x, y);
+			// player.setPos(posVector);
+			// }
+			//
+			// if ("actor".equals(cmd)) {
+			// ISFSObject resObj = new SFSObject();
+			// resObj = (ISFSObject) event.getArguments().get("params");
+			// final int charId = resObj.getInt(VerseActor.CHAR_ID);
+			//
+			// if (!visibleActorMap.containsKey(charId)) {
+			// // TODO wenn unbekannt, dann beim server details nachfrage,
+			// // anstatt immer alles zu versenden!
+			// final VerseActor actor = Interpreter.updateActor(null, resObj);
+			// visibleActorMap.put(actor.getCharId(), actor);
+			// } else {
+			// Interpreter.updateActor(visibleActorMap.get(charId), resObj);
+			// }
+			// }
+			//
+			// if ("player".equals(cmd)) {
+			// ISFSObject resObj = new SFSObject();
+			// resObj = (ISFSObject) event.getArguments().get("params");
+			// final int charId = resObj.getInt(VerseActor.CHAR_ID);
+			//
+			// if (!visiblePlayerMap.containsKey(charId)) {
+			// // TODO wenn unbekannt, dann beim server details nachfrage,
+			// // anstatt immer alles zu versenden!
+			// final VerseActor actor = Interpreter.updateActor(null, resObj);
+			// visiblePlayerMap.put(actor.getCharId(), actor);
+			// } else {
+			// Interpreter.updateActor(visiblePlayerMap.get(charId), resObj);
+			// }
+			//
+			// }
 		}
 	}
 }

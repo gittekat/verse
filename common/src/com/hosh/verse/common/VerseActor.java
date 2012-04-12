@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 import com.hosh.verse.common.utils.VerseUtils;
 
+@Deprecated
 public class VerseActor {
 	public static final String CHAR_ID = "charId";
 	public static final String NAME = "name";

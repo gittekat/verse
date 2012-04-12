@@ -4,10 +4,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
 
-import com.hosh.verse.common.VerseActor;
+import com.hosh.verse.common.Actor;
+import com.hosh.verse.common.Interpreter;
+import com.hosh.verse.common.Stats;
 import com.hosh.verse.server.Verse;
 import com.hosh.verse.server.VerseExtension;
 import com.hosh.verse.server.database.DatabaseAccessor;
@@ -19,6 +20,7 @@ import com.smartfoxserver.v2.entities.Room;
 import com.smartfoxserver.v2.entities.User;
 import com.smartfoxserver.v2.entities.Zone;
 import com.smartfoxserver.v2.entities.data.ISFSObject;
+import com.smartfoxserver.v2.entities.data.SFSArray;
 import com.smartfoxserver.v2.entities.data.SFSObject;
 import com.smartfoxserver.v2.exceptions.SFSException;
 import com.smartfoxserver.v2.extensions.BaseServerEventHandler;
@@ -32,8 +34,6 @@ public class OnRoomJoinHandler extends BaseServerEventHandler {
 
 	@Override
 	public void handleServerEvent(final ISFSEvent event) throws SFSException {
-		// verseExt = (VerseExtension) getParentExtension();
-
 		trace("OnRoomJoinHandler invoked.");
 
 		user = (User) event.getParameter(SFSEventParam.USER);
@@ -55,53 +55,56 @@ public class OnRoomJoinHandler extends BaseServerEventHandler {
 		try {
 			connection = dbManager.getConnection();
 
-			final String accountName = (String) session.getProperty(VerseExtension.ACCOUNT_NAME);
-			final PreparedStatement psChars = connection.prepareStatement("SELECT charId, char_name FROM characters WHERE account_name=?");
-			psChars.setString(1, accountName);
+			final String owner = (String) session.getProperty(VerseExtension.OWNER);
+			final Integer lastActor = (Integer) session.getProperty(VerseExtension.LAST_ACTOR);
 
-			final ResultSet resChars = psChars.executeQuery();
+			final PreparedStatement psChars;
+			final String QUERY = "SELECT * FROM actors WHERE owner=?";
+			if (lastActor == 0) {
+				psChars = connection.prepareStatement(QUERY);
+				psChars.setString(1, owner);
+			} else {
+				psChars = connection.prepareStatement(QUERY + " AND id=?");
+				psChars.setString(1, owner);
+				psChars.setInt(2, lastActor);
+			}
 
-			if (!resChars.first()) {
+			final ResultSet res = psChars.executeQuery();
+
+			if (!res.first()) {
 				// TODO create new character
 				return;
 			}
 
-			final Map<String, String> charMap = new HashMap<String, String>();
-			do {
-				final String charId = resChars.getString("charId");
-				final String char_name = resChars.getString("char_name");
-				charMap.put(charId, char_name);
-				trace("[DEBUG:] room join: " + charId + " " + char_name);
-			} while (resChars.next());
-
-			// TODO character selection => for now just use the first char
-			String charId = "";
-			for (final Map.Entry<String, String> entry : charMap.entrySet()) {
-				charId = entry.getKey();
-			}
-
-			final VerseActor actor = DatabaseAccessor.loadVerseActor(connection, charId);
 			final VerseExtension verseExt = (VerseExtension) getParentExtension();
 			final Verse verse = verseExt.getVerse();
 
-			DatabaseAccessor.addPlayer(verseExt, verse, actor, user);
+			final Actor actor = DatabaseAccessor.loadActor(connection, res);
+			DatabaseAccessor.markAsPlayerControlled(verseExt, verse, actor, user);
 
-			final ISFSObject playerData = new SFSObject();
-			playerData.putInt(VerseActor.CHAR_ID, actor.getCharId());
-			playerData.putFloat(VerseActor.POS_X, actor.getPos().x);
-			playerData.putFloat(VerseActor.POS_Y, actor.getPos().y);
-			playerData.putUtfString(VerseActor.NAME, actor.getName());
-			playerData.putInt(VerseActor.EXP, actor.getExp());
-			playerData.putInt(VerseActor.LEVEL, actor.getLevel());
-			playerData.putFloat(VerseActor.MAX_HP, actor.getMaxHp());
-			playerData.putFloat(VerseActor.CUR_HP, actor.getCurHp());
-			playerData.putFloat(VerseActor.RADIUS, actor.getRadius());
+			final Map<Integer, Stats> blueprints = DatabaseAccessor.getBlueprintCache(connection);
+			final SFSArray blueprintArray = SFSArray.newInstance();
+			for (final Stats stats : blueprints.values()) {
+				blueprintArray.addClass(stats);
+			}
 
-			send("initialPlayerData", playerData, user, false);
+			// final ISFSObject actorData = Interpreter.actorToSFSObject(actor);
+			// send("initialPlayerData", actorData, user, false);
+
+			final ISFSObject initialData = new SFSObject();
+			initialData.putSFSArray(Interpreter.SFS_OBJ_BLUEPRINTS, blueprintArray);
+			initialData.putClass(Interpreter.SFS_OBJ_PLAYER_DATA, actor);
+			send(Interpreter.SFS_CMD_INIT_DATA, initialData, user, false);
+
+			final Actor temp = (Actor) initialData.getClass(Interpreter.SFS_OBJ_PLAYER_DATA);
+
+			// final ISFSObject playerData = new SFSObject();
+			// playerData.putFloat("x", actor.getPos().x);
+			// playerData.putFloat("y", actor.getPos().y);
+			// send(Interpreter.SFS_CMD_INIT_DATA, playerData, user, false);
 
 			connection.close();
 		} catch (final SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

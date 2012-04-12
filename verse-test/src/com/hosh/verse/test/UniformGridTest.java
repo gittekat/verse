@@ -52,7 +52,7 @@ public class UniformGridTest {
 		printPossibleMortonNumbers(grid);
 
 		Assert.assertEquals(CollisionChecker.mortonNumber(grid.getGridX() - 1, grid.getGridY() - 1),
-				grid.getMortonNumber(new Vector2(grid.getDimensionX() - 1, grid.getDimensionY() - 1)));
+				grid.getMortonNumber(grid.getDimensionX() - 1, grid.getDimensionY() - 1));
 	}
 
 	@Test
@@ -202,7 +202,7 @@ public class UniformGridTest {
 		final Set<Integer> mNums = new HashSet<Integer>();
 		for (int i = 0; i < grid.getDimensionX(); ++i) {
 			for (int j = 0; j < grid.getDimensionY(); ++j) {
-				mNums.add(grid.getMortonNumber(new Vector2(i, j)));
+				mNums.add(grid.getMortonNumber(i, j));
 			}
 		}
 

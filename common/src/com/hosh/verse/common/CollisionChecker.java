@@ -1,17 +1,18 @@
 package com.hosh.verse.common;
 
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 public class CollisionChecker {
 
-	@Deprecated
-	public static boolean collisionVActorVActor(final VerseActor a1, final VerseActor a2) {
-		float squaredDistanceThreshold = a1.getBounds().radius + a2.getBounds().radius;
-		squaredDistanceThreshold *= squaredDistanceThreshold;
-
-		return squaredDistanceV(a1, a2) <= squaredDistanceThreshold;
-	}
+	// @Deprecated
+	// public static boolean collisionVActorVActor(final VerseActor a1, final
+	// VerseActor a2) {
+	// float squaredDistanceThreshold = a1.getBounds().radius +
+	// a2.getBounds().radius;
+	// squaredDistanceThreshold *= squaredDistanceThreshold;
+	//
+	// return squaredDistanceV(a1, a2) <= squaredDistanceThreshold;
+	// }
 
 	public static boolean collisionActorActor(final Actor a1, final Actor a2) {
 		float squaredDistanceThreshold = a1.getStats().getCollision_radius() + a2.getStats().getCollision_radius();
@@ -20,12 +21,13 @@ public class CollisionChecker {
 		return squaredDistance(a1, a2) <= squaredDistanceThreshold;
 	}
 
-	@Deprecated
-	public static boolean collisionPointVActor(final float x, final float y, final VerseActor actor) {
-		final Vector2 pos = new Vector2(x, y);
-
-		return squaredDistance(pos, actor.getPos()) <= actor.getSquaredRadius();
-	}
+	// @Deprecated
+	// public static boolean collisionPointVActor(final float x, final float y,
+	// final VerseActor actor) {
+	// final Vector2 pos = new Vector2(x, y);
+	//
+	// return squaredDistance(pos, actor.getPos()) <= actor.getSquaredRadius();
+	// }
 
 	public static boolean collisionPointActor(final float x, final float y, final Actor actor) {
 		final Vector2 pos = new Vector2(x, y);
@@ -44,31 +46,33 @@ public class CollisionChecker {
 		return v1.dst2(v2);
 	}
 
-	@Deprecated
-	public static float squaredDistanceV(final VerseActor a1, final VerseActor a2) {
-		return a1.getPos().dst2(a2.getPos());
-	}
+	// @Deprecated
+	// public static float squaredDistanceV(final VerseActor a1, final
+	// VerseActor a2) {
+	// return a1.getPos().dst2(a2.getPos());
+	// }
 
 	public static float squaredDistance(final Actor a1, final Actor a2) {
 		return a1.getPos().dst2(a2.getPos());
 	}
 
-	@Deprecated
-	public static boolean pointAARect(final Vector2 point, final Rectangle rect) {
-		if (point.x < rect.x) {
-			return false;
-		}
-		if (point.y < rect.y) {
-			return false;
-		}
-		if (point.x >= rect.x + rect.width) {
-			return false;
-		}
-		if (point.y >= rect.y + rect.height) {
-			return false;
-		}
-		return true;
-	}
+	// @Deprecated
+	// public static boolean pointAARect(final Vector2 point, final Rectangle
+	// rect) {
+	// if (point.x < rect.x) {
+	// return false;
+	// }
+	// if (point.y < rect.y) {
+	// return false;
+	// }
+	// if (point.x >= rect.x + rect.width) {
+	// return false;
+	// }
+	// if (point.y >= rect.y + rect.height) {
+	// return false;
+	// }
+	// return true;
+	// }
 
 	public static boolean pointRect(final float x, final float y, final float rectX, final float rectY, final float width,
 			final float height) {

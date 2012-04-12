@@ -8,14 +8,13 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import com.hosh.verse.common.Interpreter;
-import com.hosh.verse.common.VerseActor;
+import com.hosh.verse.common.Actor;
+import com.hosh.verse.common.IPositionable;
 import com.hosh.verse.server.database.DatabaseAccessor;
 import com.hosh.verse.server.eventhandler.LoginEventHandler;
 import com.hosh.verse.server.eventhandler.LogoutEventHandler;
 import com.hosh.verse.server.eventhandler.MoveHandler;
 import com.hosh.verse.server.eventhandler.OnRoomJoinHandler;
-import com.hosh.verse.server.eventhandler.TestHandler;
 import com.smartfoxserver.v2.SmartFoxServer;
 import com.smartfoxserver.v2.core.SFSEventType;
 import com.smartfoxserver.v2.db.IDBManager;
@@ -28,8 +27,10 @@ import com.smartfoxserver.v2.extensions.SFSExtension;
 public class VerseExtension extends SFSExtension {
 	private final static String version = "0.0.2";
 	public static final String DATABASE_ID = "dbID";
-	public static final String ACCOUNT_NAME = "accountName";
+	public static final String OWNER = "owner";
 	public static final String CHAR_ID = "charId";
+	public static final String LAST_ACTOR = "lastActor";
+
 	private Verse verse;
 
 	private Map<Integer, User> userLookupTable = new HashMap<Integer, User>();
@@ -49,10 +50,7 @@ public class VerseExtension extends SFSExtension {
 			trace(ExtensionLogLevel.ERROR, "database connection failed!");
 		}
 
-		verse = new Verse(connection, 1000, 1000); // TODO don't use
-													// connection
-													// and please close it
-													// here!
+		verse = new Verse(connection, 1000, 1000);
 
 		final SmartFoxServer sfs = SmartFoxServer.getInstance();
 		// Schedule the task to run every second, with no initial delay
@@ -66,7 +64,9 @@ public class VerseExtension extends SFSExtension {
 		addRequestHandler("move", MoveHandler.class);
 
 		// testing
-		addRequestHandler("test", TestHandler.class);
+		// addRequestHandler("test", TestHandler.class);
+
+		DatabaseAccessor.loadAllBlueprints(connection);
 	}
 
 	private class TaskRunner implements Runnable {
@@ -85,13 +85,13 @@ public class VerseExtension extends SFSExtension {
 
 			verse.update(deltaTime);
 
-			final Map<Integer, VerseActor> playerMap = verse.getPlayerMap();
+			final Map<Integer, Actor> playerMap = verse.getPlayerControlledActors();
 			if (runningCycles % 200 == 0) {
 				trace("TaskRunner alive with player count: " + playerMap.size());
 			}
 
-			for (final VerseActor actor : playerMap.values()) {
-				final User user = userLookupTable.get(actor.getCharId());
+			for (final Actor actor : playerMap.values()) {
+				final User user = userLookupTable.get(actor.getId());
 
 				if (user != null) {
 					if (runningCycles % 5 == 0) {
@@ -99,33 +99,22 @@ public class VerseExtension extends SFSExtension {
 						playerData.putFloat("x", actor.getPos().x);
 						playerData.putFloat("y", actor.getPos().y);
 
-						send("playerData", playerData, user, false);
+						// send("playerData", playerData, user, false);
 					}
 
 					if (runningCycles % 6 == 0) {
-						for (final VerseActor others : verse.getVisibleActors(actor)) {
-							send("actor", Interpreter.createSFSObject(others), user, false);
-						}
-
-						for (final VerseActor player : verse.getPlayerMap().values()) {
-							if (actor.getCharId() == player.getCharId()) {
+						for (final IPositionable other : verse.getVisibleActors(actor)) {
+							if (((Actor) other).getId() == actor.getId()) {
 								continue;
 							}
-
-							final ISFSObject playerObj = Interpreter.createSFSObject(player);
-							if (playerObj.getFloat(VerseActor.TARGET_POS_X) != player.getTargetPos().x) {
-								trace("WTF!");
-							}
-							send("player", playerObj, user, false);
+							// TODO send others
+							// send("actor",
+							// Interpreter.createSFSObject(others), user,
+							// false);
 						}
 					}
 				}
 			}
-
-			// if (runningCycles >= 200) {
-			// trace("Time to stop the task!");
-			// taskHandle.cancel(true);
-			// }
 		}
 	}
 
@@ -170,12 +159,12 @@ public class VerseExtension extends SFSExtension {
 	// return userLookupTable;
 	// }
 
-	public void addPlayer(final int charId, final User user) {
+	public void addUser(final int charId, final User user) {
 		userLookupTable.put(charId, user);
 		charIdLookupTable.put(user, charId);
 	}
 
-	public Integer removePlayer(final User user) {
+	public Integer removeUser(final User user) {
 		final Integer charId = charIdLookupTable.get(user);
 		userLookupTable.remove(charId);
 		charIdLookupTable.remove(user);

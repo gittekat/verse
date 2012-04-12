@@ -6,7 +6,11 @@ import com.badlogic.gdx.math.Vector2;
 public class VerseUtils {
 
 	public static double vector2angle(final Vector2 orientation) {
-		double theta = Math.atan2(orientation.x, orientation.y);
+		return vector2angle(orientation.x, orientation.y);
+	}
+
+	public static double vector2angle(final float x, final float y) {
+		double theta = Math.atan2(x, y);
 		theta = 360 - MathUtils.radiansToDegrees * theta;
 		while (theta > 360) {
 			theta -= 360;

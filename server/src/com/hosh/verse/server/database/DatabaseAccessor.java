@@ -12,7 +12,6 @@ import java.util.Map;
 
 import com.hosh.verse.common.Actor;
 import com.hosh.verse.common.Stats;
-import com.hosh.verse.common.VerseActor;
 import com.hosh.verse.server.Verse;
 import com.hosh.verse.server.VerseExtension;
 import com.smartfoxserver.v2.entities.User;
@@ -31,6 +30,7 @@ public class DatabaseAccessor {
 	public static final String DBID_COLLISION_RADIUS = "collision_radius";
 
 	private static final String LOAD_BLUEPRINT_QUERY = "SELECT * FROM " + Stats.TABLE_NAME + " WHERE id=?";
+	private static final String LOAD_ALL_BLUEPRINTS_QUERY = "SELECT * FROM " + Stats.TABLE_NAME;
 	private static final String LOAD_ACTOR_QUERY = "SELECT * FROM " + Actor.TABLE_NAME + " WHERE id=?";
 	private static final String LOAD_ALL_ACTORS_QUERY = "SELECT * FROM " + Actor.TABLE_NAME;
 	private static final String ACTOR_INSERT_QUERY = "INSERT INTO " + Actor.TABLE_NAME
@@ -40,36 +40,41 @@ public class DatabaseAccessor {
 			+ " SET owner = ?, name = ?, blueprint = ?, hero = ?, exp = ?, x = ?, y = ?, heading = ?, curHp = ?, curShield = ?, kills = ? WHERE id = ?";
 
 	static Map<Integer, Stats> blueprintCache = new HashMap<Integer, Stats>();
+	private static boolean blueprintsLoaded = false;
 
-	public static VerseActor loadVerseActor(final Connection dbConnection, final String charId) {
-		PreparedStatement stmt;
-		try {
-			stmt = dbConnection.prepareStatement("SELECT * FROM characters WHERE charId=?");
-			stmt.setString(1, charId);
-
-			final ResultSet res = stmt.executeQuery();
-			if (!res.first()) {
-				return null;
-			}
-
-			final String charName = res.getString(DBID_CHAR_NAME);
-			final int id = res.getInt(DBID_CHAR_ID);
-			final int exp = res.getInt(DBID_EXP);
-			final int x = res.getInt(DBID_POS_X);
-			final int y = res.getInt(DBID_POS_Y);
-			final int heading = res.getInt(HEADING);
-			final int maxHp = res.getInt(DBID_MAX_HP);
-			final int curHp = res.getInt(DBID_CUR_HP);
-			final float collision_radius = res.getInt(DBID_COLLISION_RADIUS);
-
-			return new VerseActor(id, charName, exp, 0, maxHp, curHp, x, y, heading, collision_radius);
-
-		} catch (final SQLException e) {
-			e.printStackTrace();
-		}
-
-		return null;
-	}
+	// @Deprecated
+	// public static VerseActor loadVerseActor(final Connection dbConnection,
+	// final String charId) {
+	// PreparedStatement stmt;
+	// try {
+	// stmt =
+	// dbConnection.prepareStatement("SELECT * FROM characters WHERE charId=?");
+	// stmt.setString(1, charId);
+	//
+	// final ResultSet res = stmt.executeQuery();
+	// if (!res.first()) {
+	// return null;
+	// }
+	//
+	// final String charName = res.getString(DBID_CHAR_NAME);
+	// final int id = res.getInt(DBID_CHAR_ID);
+	// final int exp = res.getInt(DBID_EXP);
+	// final int x = res.getInt(DBID_POS_X);
+	// final int y = res.getInt(DBID_POS_Y);
+	// final int heading = res.getInt(HEADING);
+	// final int maxHp = res.getInt(DBID_MAX_HP);
+	// final int curHp = res.getInt(DBID_CUR_HP);
+	// final float collision_radius = res.getInt(DBID_COLLISION_RADIUS);
+	//
+	// return new VerseActor(id, charName, exp, 0, maxHp, curHp, x, y, heading,
+	// collision_radius);
+	//
+	// } catch (final SQLException e) {
+	// e.printStackTrace();
+	// }
+	//
+	// return null;
+	// }
 
 	public static Actor loadActor(final Connection dbConnection, final int actorId) {
 		PreparedStatement stmt;
@@ -208,17 +213,8 @@ public class DatabaseAccessor {
 		stmt.setInt(11, actor.getKills());
 	}
 
-	public static Stats loadBlueprint(final Connection dbConnection, final int baseTypeId) {
-		PreparedStatement stmt;
+	public static Stats loadBlueprint(final ResultSet res) {
 		try {
-			stmt = dbConnection.prepareStatement(LOAD_BLUEPRINT_QUERY);
-			stmt.setInt(1, baseTypeId);
-
-			final ResultSet res = stmt.executeQuery();
-			if (!res.first()) {
-				throw new SQLException(Stats.TABLE_NAME + " not found");
-			}
-
 			final int id = res.getInt(Stats.DBID_STATS_ID);
 			final String type_name = res.getString(Stats.DBID_STATS_NAME);
 			final int type_id = res.getInt(Stats.DBID_STATS_TPYE_ID);
@@ -245,7 +241,7 @@ public class DatabaseAccessor {
 					collision_radius, attack_range, hp, shield, speed, rotation_speed, attack, defense, extension_slots, fuel_tank,
 					cargo_space);
 
-			blueprintCache.put(baseTypeId, blueprintStats);
+			blueprintCache.put(id, blueprintStats);
 
 			return blueprintStats;
 
@@ -256,14 +252,68 @@ public class DatabaseAccessor {
 		return null;
 	}
 
-	public static void addPlayer(final VerseExtension verseExt, final Verse verse, final VerseActor player, final User user) {
-		verseExt.addPlayer(player.getCharId(), user);
-		user.getSession().setProperty(VerseExtension.CHAR_ID, player.getCharId());
-		verse.addPlayer(player);
+	public static Stats loadBlueprint(final Connection dbConnection, final int baseTypeId) {
+		PreparedStatement stmt;
+		try {
+			stmt = dbConnection.prepareStatement(LOAD_BLUEPRINT_QUERY);
+			stmt.setInt(1, baseTypeId);
+
+			final ResultSet res = stmt.executeQuery();
+			if (!res.first()) {
+				throw new SQLException(Stats.TABLE_NAME + " not found");
+			}
+
+			final Stats blueprintStats = loadBlueprint(res);
+
+			return blueprintStats;
+
+		} catch (final SQLException e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 
-	public static void removePlayer(final VerseExtension verseExt, final Verse verse, final User user) {
-		final Integer charId = verseExt.removePlayer(user);
-		verse.removePlayer(charId);
+	public static List<Stats> loadAllBlueprints(final Connection dbConnection) {
+		final List<Stats> blueprints = new ArrayList<Stats>();
+		PreparedStatement stmt;
+		try {
+			stmt = dbConnection.prepareStatement(LOAD_ALL_BLUEPRINTS_QUERY);
+
+			final ResultSet res = stmt.executeQuery();
+			if (!res.first()) {
+				throw new SQLException(Stats.TABLE_NAME + " not found");
+			}
+
+			do {
+				blueprints.add(loadBlueprint(res));
+			} while (res.next());
+
+		} catch (final SQLException e) {
+			e.printStackTrace();
+		}
+
+		blueprintsLoaded = true;
+		return blueprints;
+	}
+
+	public static Map<Integer, Stats> getBlueprintCache(final Connection dbConnection) {
+		if (!blueprintsLoaded) {
+			loadAllBlueprints(dbConnection);
+		}
+		return blueprintCache;
+	}
+
+	// TODO doesn't belong here
+	public static void markAsPlayerControlled(final VerseExtension verseExt, final Verse verse, final Actor player, final User user) {
+		verseExt.addUser(player.getId(), user);
+		user.getSession().setProperty(VerseExtension.CHAR_ID, player.getId());
+		verse.markAsPlayerControlled(player);
+	}
+
+	// TODO doesn't belong here
+	public static void unmarkAsPlayerControlled(final VerseExtension verseExt, final Verse verse, final User user) {
+		final Integer charId = verseExt.removeUser(user);
+		verse.unmarkAsPlayerControlled(charId);
 	}
 }

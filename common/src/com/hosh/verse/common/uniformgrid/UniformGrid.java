@@ -9,7 +9,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.badlogic.gdx.math.Vector2;
 import com.google.common.eventbus.Subscribe;
 import com.hosh.verse.common.CollisionChecker;
 import com.hosh.verse.common.IPositionable;
@@ -85,7 +84,7 @@ public class UniformGrid {
 
 		final ArrayList<IPositionable> matches = new ArrayList<IPositionable>();
 		for (final IPositionable possibleMatch : possibleMatches) {
-			if (CollisionChecker.pointRect(possibleMatch.getPos().x, possibleMatch.getPos().y, x, y, width, height)) {
+			if (CollisionChecker.pointRect(possibleMatch.getX(), possibleMatch.getY(), x, y, width, height)) {
 				matches.add(possibleMatch);
 			}
 		}
@@ -104,7 +103,7 @@ public class UniformGrid {
 		final List<IPositionable> entitiesInRadius = new ArrayList<IPositionable>();
 		final float squaredMaxDistance = radius * radius;
 		for (final IPositionable entity : entities) {
-			if (CollisionChecker.squaredDistance(entity.getPos().x, entity.getPos().y, x, y) < squaredMaxDistance) {
+			if (CollisionChecker.squaredDistance(entity.getX(), entity.getY(), x, y) < squaredMaxDistance) {
 				entitiesInRadius.add(entity);
 			}
 		}
@@ -113,14 +112,14 @@ public class UniformGrid {
 	}
 
 	public void addEntity(final IPositionable entity) {
-		if (entity.getPos().x >= getDimensionX() || entity.getPos().y >= getDimensionY()) {
-			logger.error("entity could not be inserted (out of bounds): {} x {}", entity.getPos().x, entity.getPos().y);
+		if (entity.getX() >= getDimensionX() || entity.getY() >= getDimensionY()) {
+			logger.error("entity could not be inserted (out of bounds): {} x {}", entity.getX(), entity.getY());
 			return;
 		}
 
 		idMapper.put(entity.getId(), entity);
 
-		final int mortonNumber = getMortonNumber(entity.getPos());
+		final int mortonNumber = getMortonNumber((int) entity.getX(), (int) entity.getY());
 		addToMortonMapper(entity, mortonNumber);
 
 		addToBuckets(entity, mortonNumber);
@@ -146,7 +145,7 @@ public class UniformGrid {
 			idMapper.remove(entity.getId());
 			mortonMapper.remove(entity);
 
-			final int mortonNumber = getMortonNumber(entity.getPos());
+			final int mortonNumber = getMortonNumber((int) entity.getX(), (int) entity.getY());
 			final Map<Integer, IPositionable> bucket = buckets.get(mortonNumber);
 			bucket.remove(entity);
 		} else {
@@ -157,7 +156,7 @@ public class UniformGrid {
 	@Subscribe
 	public void updateEntity(final IPositionable entity) {
 		final Integer oldMortonNumber = mortonMapper.get(entity);
-		final int newMortonNumber = getMortonNumber(entity.getPos());
+		final int newMortonNumber = getMortonNumber((int) entity.getX(), (int) entity.getY());
 
 		if (oldMortonNumber == newMortonNumber) {
 			return;
@@ -175,9 +174,9 @@ public class UniformGrid {
 		return idMapper.get(id);
 	}
 
-	public int getMortonNumber(final Vector2 pos) {
-		return getMortonNumber((int) pos.x, (int) pos.y);
-	}
+	// public int getMortonNumber(final Vector2 pos) {
+	// return getMortonNumber((int) pos.x, (int) pos.y);
+	// }
 
 	public int getMortonNumber(final int x, final int y) {
 		return CollisionChecker.mortonNumber(x / gridSize, y / gridSize);
@@ -194,7 +193,7 @@ public class UniformGrid {
 		}
 
 		for (final Map.Entry<Integer, IPositionable> entry : idMapper.entrySet()) {
-			final int mortonNumber = getMortonNumber(entry.getValue().getPos());
+			final int mortonNumber = getMortonNumber((int) entry.getValue().getX(), (int) entry.getValue().getY());
 			final Map<Integer, IPositionable> bucket = buckets.get(mortonNumber);
 			if (bucket == null) {
 				return false;

@@ -13,7 +13,6 @@ import com.smartfoxserver.v2.annotations.Instantiation.InstantiationMode;
 import com.smartfoxserver.v2.core.ISFSEvent;
 import com.smartfoxserver.v2.core.SFSEventParam;
 import com.smartfoxserver.v2.db.IDBManager;
-import com.smartfoxserver.v2.entities.User;
 import com.smartfoxserver.v2.exceptions.SFSErrorCode;
 import com.smartfoxserver.v2.exceptions.SFSErrorData;
 import com.smartfoxserver.v2.exceptions.SFSException;
@@ -27,18 +26,17 @@ public class LoginEventHandler extends BaseServerEventHandler {
 
 	@Override
 	public void handleServerEvent(final ISFSEvent event) throws SFSException {
-		final User user = (User) event.getParameter(SFSEventParam.USER);
 		final String userName = (String) event.getParameter(SFSEventParam.LOGIN_NAME);
 		final String cryptedPass = (String) event.getParameter(SFSEventParam.LOGIN_PASSWORD);
 		final ISession session = (ISession) event.getParameter(SFSEventParam.SESSION);
 
-		login(user, userName, cryptedPass, session);
+		login(userName, cryptedPass, session);
 
 		cnt++;
 
 	}
 
-	private void login(final User user, final String userName, final String cryptedPass, final ISession session) throws SFSException {
+	private void login(final String userName, final String cryptedPass, final ISession session) throws SFSException {
 
 		trace("LoginEventHandler invoked: loggin in " + userName + "...");
 
@@ -50,7 +48,7 @@ public class LoginEventHandler extends BaseServerEventHandler {
 			final Connection connection = dbManager.getConnection();
 
 			// Build a prepared statement
-			final PreparedStatement stmt = connection.prepareStatement("SELECT password FROM " + DatabaseAccessor.TABLE_OWNERS
+			final PreparedStatement stmt = connection.prepareStatement("SELECT password, lastActor FROM " + DatabaseAccessor.TABLE_OWNERS
 					+ " WHERE login=?");
 			stmt.setString(1, userName);
 
@@ -77,7 +75,9 @@ public class LoginEventHandler extends BaseServerEventHandler {
 				throw new SFSLoginException("Login failed for user: " + userName, data);
 			}
 
-			session.setProperty(VerseExtension.ACCOUNT_NAME, userName);
+			session.setProperty(VerseExtension.OWNER, userName);
+			final int lastActor = res.getInt("lastActor");
+			session.setProperty(VerseExtension.LAST_ACTOR, lastActor);
 
 			// Return connection to the DBManager connection pool
 			connection.close();

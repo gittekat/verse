@@ -1,6 +1,6 @@
 package com.hosh.verse.server.eventhandler;
 
-import com.hosh.verse.common.VerseActor;
+import com.hosh.verse.common.Actor;
 import com.hosh.verse.server.Verse;
 import com.hosh.verse.server.VerseExtension;
 import com.smartfoxserver.v2.annotations.Instantiation;
@@ -17,9 +17,9 @@ public class MoveHandler extends BaseClientRequestHandler {
 		final VerseExtension verseExt = (VerseExtension) getParentExtension();
 		final Verse verse = verseExt.getVerse();
 
-		final Float targetX = params.getFloat(VerseActor.TARGET_POS_X);
-		final Float targetY = params.getFloat(VerseActor.TARGET_POS_Y);
-		final Float speed = params.getFloat(VerseActor.SPEED);
+		final Float targetX = params.getFloat(Actor.SFSID_TARGET_X);
+		final Float targetY = params.getFloat(Actor.SFSID_TARGET_Y);
+		final Float speed = params.getFloat(Actor.SFSID_CUR_SPEED);
 
 		final Integer charId = verseExt.getCharId(user);
 		verse.movePlayer(charId, targetX, targetY, speed);

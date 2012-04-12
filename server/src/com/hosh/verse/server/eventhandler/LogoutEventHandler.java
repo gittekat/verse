@@ -16,7 +16,7 @@ public class LogoutEventHandler extends BaseServerEventHandler {
 		final VerseExtension verseExt = (VerseExtension) getParentExtension();
 		final Verse verse = verseExt.getVerse();
 		final User user = (User) event.getParameter(SFSEventParam.USER);
-		DatabaseAccessor.removePlayer(verseExt, verse, user);
+		DatabaseAccessor.unmarkAsPlayerControlled(verseExt, verse, user);
 
 		trace("LogoutEventHandler: " + user.getName() + " logged out.");
 	}
