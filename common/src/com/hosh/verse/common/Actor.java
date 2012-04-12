@@ -108,8 +108,10 @@ public class Actor implements IPositionable, SerializableSFSType {
 		setCurSpeed(0);
 	}
 
-	// TODO temp
-	public void setEventBus(final EventBus eventBus) {
+	public Actor(final EventBus eventBus, final Integer id, final String owner, final int hero, final Stats baseStats, final String name,
+			final int exp, final float x, final float y, final float heading, final int curHp, final int curShield, final int kills) {
+		this(id, owner, hero, baseStats, name, exp, x, y, heading, curHp, curShield, kills);
+		Preconditions.checkArgument(eventBus != null);
 		this.eventBus = eventBus;
 	}
 

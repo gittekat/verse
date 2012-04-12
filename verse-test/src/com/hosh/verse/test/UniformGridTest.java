@@ -99,17 +99,16 @@ public class UniformGridTest {
 		final UniformGrid grid = new UniformGrid(10240, 10240, 1024);
 		eventBus.register(grid);
 
-		final Actor a1 = new Actor(109, "hosh", 0, baseStats, "a1", 0, 1000, 1000, 0, 10, 10, 0);
-		a1.setEventBus(eventBus);
+		final Actor a1 = new Actor(eventBus, 109, "hosh", 0, baseStats, "a1", 0, 1000, 1000, 0, 10, 10, 0);
 		grid.addEntity(a1);
 		final int oldMortonNumber = grid.getMortonNumber(a1);
 
 		final VerseActor a2 = new VerseActor(1009, "superkato", 0, 0, 1, 1, 1000, 1000, 0, 16);
 
-		a1.setCurSpeed(20);
 		final Vector2 targetPos = new Vector2(1000, 1200);
-		a1.setTargetPos(targetPos);
+		a1.setCurSpeed(20);
 		a2.setCurSpeed(20);
+		a1.setTargetPos(targetPos);
 		a2.setTargetPos(targetPos);
 
 		Assert.assertTrue(a1.getStats().getRotation_speed() == a2.getRotationSpeed());

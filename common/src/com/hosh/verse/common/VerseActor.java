@@ -63,7 +63,7 @@ public class VerseActor {
 		bounds = new Circle(curPos, radius);
 		squaredRadius = radius * radius;
 
-		setCurOrientationVector(new Vector2(1, 0));
+		setCurOrientationVector(new Vector2(1, 1));
 		setRotationSpeed(ROTATION_SPEED);
 
 		setMaxSpeed(MAX_SPEED);
@@ -73,7 +73,7 @@ public class VerseActor {
 
 		targetPos = new Vector2(targetPosX, targetPosY);
 		setCurSpeed(speed);
-		setCurOrientationVector(new Vector2(1, 0));
+		setCurOrientationVector(new Vector2(1, 1));
 	}
 
 	/** player constructor */
@@ -92,7 +92,7 @@ public class VerseActor {
 		bounds = new Circle(curPos, radius);
 		squaredRadius = radius * radius;
 
-		setCurOrientationVector(new Vector2(0, 1)); // TODO heading!
+		setCurOrientationVector(new Vector2(1, 1)); // TODO heading!
 		setRotationSpeed(ROTATION_SPEED);
 
 		setMaxSpeed(MAX_SPEED);
@@ -115,7 +115,7 @@ public class VerseActor {
 		bounds = new Circle(curPos, radius);
 		squaredRadius = radius * radius;
 
-		setCurOrientationVector(new Vector2(0, 1)); // TODO heading!
+		setCurOrientationVector(new Vector2(1, 1)); // TODO heading!
 		setRotationSpeed(ROTATION_SPEED);
 
 		setMaxSpeed(MAX_SPEED);
