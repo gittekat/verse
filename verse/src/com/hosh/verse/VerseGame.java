@@ -193,7 +193,7 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		shooting = false;
 
 		initSmartFox();
-		connectToServer("192.168.178.35", 9933); // TODO use sfs-config.xml
+		connectToServer("192.168.178.37", 9933); // TODO use sfs-config.xml
 
 		while (initialized == false) {
 			try {

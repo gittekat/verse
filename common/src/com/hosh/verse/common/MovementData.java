@@ -2,11 +2,24 @@ package com.hosh.verse.common;
 
 public class MovementData {
 	private int id;
-	private float posx;
+	private float posX;
 	private float posY;
 	private float targetPosX;
 	private float targetPosY;
 	private float speed;
+
+	public MovementData() {
+		// empty constructor needed for SmartfoxSerialization
+	}
+
+	public MovementData(final Actor actor) {
+		setId(actor.getId());
+		setPosX(actor.getX());
+		setPosY(actor.getY());
+		setTargetPosX(actor.getTargetX());
+		setTargetPosY(actor.getTargetY());
+		setSpeed(actor.getCurSpeed());
+	}
 
 	public int getId() {
 		return id;
@@ -16,12 +29,12 @@ public class MovementData {
 		this.id = id;
 	}
 
-	public float getPosx() {
-		return posx;
+	public float getPosX() {
+		return posX;
 	}
 
-	public void setPosx(final float posx) {
-		this.posx = posx;
+	public void setPosX(final float posX) {
+		this.posX = posX;
 	}
 
 	public float getPosY() {

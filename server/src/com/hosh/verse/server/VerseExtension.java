@@ -39,7 +39,6 @@ public class VerseExtension extends SFSExtension {
 	// Keeps a reference to the task execution
 	private ScheduledFuture<?> taskHandle;
 	private int milliseconds = 50;
-	private float seconds = milliseconds / 1000.f;
 
 	@Override
 	public void init() {
@@ -62,9 +61,6 @@ public class VerseExtension extends SFSExtension {
 		addEventHandler(SFSEventType.USER_DISCONNECT, LogoutEventHandler.class);
 
 		addRequestHandler("move", MoveHandler.class);
-
-		// testing
-		// addRequestHandler("test", TestHandler.class);
 
 		DatabaseAccessor.loadAllBlueprints(connection);
 	}

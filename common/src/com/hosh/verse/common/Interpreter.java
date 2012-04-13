@@ -34,6 +34,7 @@ public class Interpreter {
 		}
 	}
 
+	@Deprecated
 	public static ISFSObject actorToSFSObject(final Actor actor) {
 		final ISFSObject actorData = new SFSObject();
 		actorData.putUtfString(Actor.SFSID_OWNER, actor.getOwner());
@@ -52,6 +53,7 @@ public class Interpreter {
 		return actorData;
 	}
 
+	@Deprecated
 	public static Actor sfsobjectToActor(final SFSObject sfsObj, final Stats blueprint) {
 		final String owner = sfsObj.getUtfString(Actor.SFSID_OWNER);
 		final String name = sfsObj.getUtfString(Actor.SFSID_NAME);
