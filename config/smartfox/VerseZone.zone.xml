@@ -1,7 +1,7 @@
 <zone>
   <name>VerseZone</name>
-  <isCustomLogin>false</isCustomLogin>
-  <isForceLogout>false</isForceLogout>
+  <isCustomLogin>true</isCustomLogin>
+  <isForceLogout>true</isForceLogout>
   <applyWordsFilterToUserName>true</applyWordsFilterToUserName>
   <applyWordsFilterToRoomName>true</applyWordsFilterToRoomName>
   <applyWordsFilterToPrivateMessages>true</applyWordsFilterToPrivateMessages>
@@ -15,7 +15,7 @@
   <maxRoomsCreatedPerUser>10</maxRoomsCreatedPerUser>
   <userCountChangeUpdateInterval>1000</userCountChangeUpdateInterval>
   <userReconnectionSeconds>0</userReconnectionSeconds>
-  <overrideMaxUserIdleTime>300</overrideMaxUserIdleTime>
+  <overrideMaxUserIdleTime>3000</overrideMaxUserIdleTime>
   <allowGuestUsers>true</allowGuestUsers>
   <guestUserNamePrefix>Guest#</guestUserNamePrefix>
   <publicRoomGroups>default,games,chats</publicRoomGroups>
@@ -47,13 +47,13 @@
   </floodFilter>
   <rooms>
     <room>
-      <name>The Lobby</name>
+      <name>VerseRoom</name>
       <groupId>default</groupId>
       <password></password>
       <maxUsers>150</maxUsers>
       <maxSpectators>0</maxSpectators>
       <isDynamic>false</isDynamic>
-      <isGame>false</isGame>
+      <isGame>true</isGame>
       <isHidden>false</isHidden>
       <autoRemoveMode>DEFAULT</autoRemoveMode>
       <permissions>
@@ -128,12 +128,12 @@
     </buddyStates>
     <badWordsFilter isActive="true"/>
   </buddyList>
-  <databaseManager active="false">
-    <driverName></driverName>
-    <connectionString></connectionString>
-    <userName></userName>
-    <password></password>
-    <testSql></testSql>
+  <databaseManager active="true">
+    <driverName>org.gjt.mm.mysql.Driver</driverName>
+    <connectionString>jdbc:mysql://127.0.0.1:3306/verse-db</connectionString>
+    <userName>root</userName>
+    <password>ishus109</password>
+    <testSql>SELECT * FROM owners;</testSql>
     <maxActiveConnections>10</maxActiveConnections>
     <maxIdleConnections>10</maxIdleConnections>
     <exhaustedPoolAction>FAIL</exhaustedPoolAction>
