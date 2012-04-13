@@ -34,8 +34,8 @@ public class SmartFoxTest {
 	@Before
 	public void setUp() throws Exception {
 		initSmartFox();
-		// connectToServer("192.168.178.35", 8080);
-		sfsClient.loadConfig(true);
+		connectToServer("192.168.178.35", 80);
+		// sfsClient.loadConfig(true);
 
 		while (!setup) {
 			System.out.println("waiting...");

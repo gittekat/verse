@@ -10,17 +10,17 @@ import java.util.concurrent.TimeUnit;
 
 import com.hosh.verse.common.Actor;
 import com.hosh.verse.common.IPositionable;
+import com.hosh.verse.common.MovementData;
 import com.hosh.verse.server.database.DatabaseAccessor;
 import com.hosh.verse.server.eventhandler.LoginEventHandler;
 import com.hosh.verse.server.eventhandler.LogoutEventHandler;
 import com.hosh.verse.server.eventhandler.MoveHandler;
 import com.hosh.verse.server.eventhandler.OnRoomJoinHandler;
+import com.hosh.verse.server.eventhandler.TestHandler;
 import com.smartfoxserver.v2.SmartFoxServer;
 import com.smartfoxserver.v2.core.SFSEventType;
 import com.smartfoxserver.v2.db.IDBManager;
 import com.smartfoxserver.v2.entities.User;
-import com.smartfoxserver.v2.entities.data.ISFSObject;
-import com.smartfoxserver.v2.entities.data.SFSObject;
 import com.smartfoxserver.v2.extensions.ExtensionLogLevel;
 import com.smartfoxserver.v2.extensions.SFSExtension;
 
@@ -61,6 +61,7 @@ public class VerseExtension extends SFSExtension {
 		addEventHandler(SFSEventType.USER_DISCONNECT, LogoutEventHandler.class);
 
 		addRequestHandler("move", MoveHandler.class);
+		addRequestHandler("test", TestHandler.class);
 
 		DatabaseAccessor.loadAllBlueprints(connection);
 	}
@@ -91,11 +92,13 @@ public class VerseExtension extends SFSExtension {
 
 				if (user != null) {
 					if (runningCycles % 5 == 0) {
-						final ISFSObject playerData = new SFSObject();
-						playerData.putFloat("x", actor.getPos().x);
-						playerData.putFloat("y", actor.getPos().y);
-
+						// final ISFSObject playerData = new SFSObject();
+						// playerData.putFloat("x", actor.getPos().x);
+						// playerData.putFloat("y", actor.getPos().y);
 						// send("playerData", playerData, user, false);
+
+						final MovementData moveData = new MovementData(actor);
+
 					}
 
 					if (runningCycles % 6 == 0) {
