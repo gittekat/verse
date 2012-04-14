@@ -3,11 +3,13 @@ package com.hosh.verse;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.ini4j.InvalidFileFormatException;
 import org.ini4j.Wini;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +43,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.hosh.verse.common.Actor;
 import com.hosh.verse.common.CollisionChecker;
 import com.hosh.verse.common.Interpreter;
+import com.hosh.verse.common.MovementData;
 import com.hosh.verse.common.Stats;
 import com.hosh.verse.common.utils.VerseUtils;
 import com.hosh.verse.input.IVerseInputProcessor;
@@ -106,7 +109,9 @@ public class VerseGame implements ApplicationListener, IEventListener {
 	private Actor shootingTarget;
 
 	private Map<Integer, Stats> blueprintCache;
+	Map<Integer, Actor> actorMap;
 	private boolean initialized = false;
+	private Actor unscannedActor;
 
 	public VerseGame(final IVerseInputProcessor inputProcessor) {
 		this.inputProcessor = inputProcessor;
@@ -203,30 +208,51 @@ public class VerseGame implements ApplicationListener, IEventListener {
 				e.printStackTrace();
 			}
 		}
+
+		actorMap = new HashMap<Integer, Actor>();
+
+		unscannedActor = new Actor(0, "unknown", 0, new Stats(0, "unscanned", 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0),
+				"unscanned", 0, 0, 0, 0, 1, 0, 0);
 	}
 
 	private void readConfig() {
 		Wini ini;
-		try {
-			ini = new Wini(new File("verse.ini"));
-			final int users = ini.get("debug_user", "users", int.class);
-			int id = ini.get("debug_user", "lastId", int.class);
-			id += 1;
-			if (id > users) {
-				id = 1;
-			}
-			ini.put("debug_user", "lastId", id);
-			ini.store();
+		{
+			// create file with the following content if verse.ini is missing:
+			// [debug_user]
+			// users = 3
+			// lastId = 3
+			// user1 = hosh
+			// pw1 = 109
+			// user2 = emmel
+			// pw2 = 109
+			// user3 = tarkin
+			// pw3 = 109
 
-			userName = ini.get("debug_user", "user" + id);
-			password = ini.get("debug_user", "pw" + id);
-			serverMessage = "id: " + id + " user: " + userName;
-			System.out.println("ini: " + serverMessage);
-		} catch (final Exception e) {
-			// android
-			userName = "android";
-			password = "109";
-			e.printStackTrace();
+			try {
+				ini = new Wini(new File("verse.ini"));
+				final int users = ini.get("debug_user", "users", int.class);
+				int id = ini.get("debug_user", "lastId", int.class);
+				id += 1;
+				if (id > users) {
+					id = 1;
+				}
+				ini.put("debug_user", "lastId", id);
+				ini.store();
+
+				userName = ini.get("debug_user", "user" + id);
+				password = ini.get("debug_user", "pw" + id);
+				serverMessage = "id: " + id + " user: " + userName;
+				System.out.println("ini: " + serverMessage);
+			} catch (final InvalidFileFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (final IOException e) {
+				// android
+				userName = "android";
+				password = "109";
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -524,6 +550,15 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		}
 	}
 
+	private void updateActor(final MovementData movementData) {
+		final Actor actor = actorMap.get(movementData.getId());
+		actor.setX(movementData.getPosX());
+		actor.setY(movementData.getPosY());
+		actor.setTargetX(movementData.getTargetPosX());
+		actor.setTargetY(movementData.getTargetPosY());
+		actor.setCurSpeed(movementData.getSpeed());
+	}
+
 	public void shutdown() {
 		shutdownSmartFox();
 		Gdx.app.exit();
@@ -646,11 +681,11 @@ public class VerseGame implements ApplicationListener, IEventListener {
 
 			final String cmd = event.getArguments().get("cmd").toString();
 
-			if (Interpreter.SFS_CMD_INIT_DATA.equals(cmd)) {
+			if (Interpreter.SFS_CMD_INIT.equals(cmd)) {
 				ISFSObject resObj = new SFSObject();
 				resObj = (ISFSObject) event.getArguments().get("params");
 
-				// getBlueprints
+				// get blueprints
 				final ISFSArray blueprintData = resObj.getSFSArray(Interpreter.SFS_OBJ_BLUEPRINTS);
 				blueprintCache = new HashMap<Integer, Stats>();
 				for (int i = 0; i < blueprintData.size(); ++i) {
@@ -658,10 +693,30 @@ public class VerseGame implements ApplicationListener, IEventListener {
 					blueprintCache.put(blueprint.getId(), blueprint);
 				}
 
-				// getPlayerData
+				// get playerData
 				player = (Actor) resObj.getClass(Interpreter.SFS_OBJ_PLAYER_DATA);
 				player.setBaseStats(blueprintCache.get(player.getBlueprint()));
 				initialized = true;
+			}
+
+			if (Interpreter.SFS_CMD_MOVEMENT.equals(cmd)) {
+				ISFSObject resObj = new SFSObject();
+				resObj = (ISFSObject) event.getArguments().get("params");
+
+				// actorMap = new HashMap<Integer, Actor>();
+				final ISFSArray movementDataArray = resObj.getSFSArray(Interpreter.SFS_OBJ_MOVEMENT_DATA);
+				for (int i = 0; i < movementDataArray.size(); ++i) {
+					final MovementData movementData = (MovementData) movementDataArray.getClass(i);
+					if (actorMap.containsKey(movementData.getId())) {
+						updateActor(movementData);
+					} else {
+						// TODO get/request actor
+
+					}
+				}
+
+				// final MovementData movementData = (MovementData)
+				// resObj.getClass(Interpreter.SFS_OBJ_MOVEMENT_DATA);
 			}
 
 			// if ("playerData".equals(cmd)) {

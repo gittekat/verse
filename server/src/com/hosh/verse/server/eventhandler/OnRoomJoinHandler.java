@@ -94,9 +94,10 @@ public class OnRoomJoinHandler extends BaseServerEventHandler {
 			final ISFSObject initialData = new SFSObject();
 			initialData.putSFSArray(Interpreter.SFS_OBJ_BLUEPRINTS, blueprintArray);
 			initialData.putClass(Interpreter.SFS_OBJ_PLAYER_DATA, actor);
-			send(Interpreter.SFS_CMD_INIT_DATA, initialData, user, false);
+			send(Interpreter.SFS_CMD_INIT, initialData, user, false);
 
-			final Actor temp = (Actor) initialData.getClass(Interpreter.SFS_OBJ_PLAYER_DATA);
+			// final Actor temp = (Actor)
+			// initialData.getClass(Interpreter.SFS_OBJ_PLAYER_DATA);
 
 			// final ISFSObject playerData = new SFSObject();
 			// playerData.putFloat("x", actor.getPos().x);

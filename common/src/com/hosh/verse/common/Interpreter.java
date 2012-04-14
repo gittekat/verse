@@ -5,11 +5,12 @@ import com.smartfoxserver.v2.entities.data.ISFSObject;
 import com.smartfoxserver.v2.entities.data.SFSObject;
 
 public class Interpreter {
-	public static final String SFS_CMD_INIT_DATA = "cmdInitialData";
-	// public static final String SFS_CMD_INIT_DATA = "cmdInitialData";
+	public static final String SFS_CMD_INIT = "cmdInitialData";
+	public static final String SFS_CMD_MOVEMENT = "cmdMoveData";
 
 	public static final String SFS_OBJ_BLUEPRINTS = "objBlueprints";
 	public static final String SFS_OBJ_PLAYER_DATA = "objPlayerData";
+	public static final String SFS_OBJ_MOVEMENT_DATA = "objMoveData";
 
 	@Deprecated
 	public static VerseActor updateActor(final VerseActor actor, final ISFSObject actorObj) {
