@@ -111,7 +111,6 @@ public class VerseGame implements ApplicationListener, IEventListener {
 	private Map<Integer, Stats> blueprintCache;
 	Map<Integer, Actor> actorMap;
 	private boolean initialized = false;
-	private Actor unscannedActor;
 
 	public VerseGame(final IVerseInputProcessor inputProcessor) {
 		this.inputProcessor = inputProcessor;
@@ -211,8 +210,6 @@ public class VerseGame implements ApplicationListener, IEventListener {
 
 		actorMap = new HashMap<Integer, Actor>();
 
-		unscannedActor = new Actor(0, "unknown", 0, new Stats(0, "unscanned", 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0),
-				"unscanned", 0, 0, 0, 0, 1, 0, 0);
 	}
 
 	private void readConfig() {
@@ -258,17 +255,9 @@ public class VerseGame implements ApplicationListener, IEventListener {
 
 	@Override
 	public void render() {
-
-		// handleInput();
-
-		// cam.update();
-		// cam.apply(gl);
-
-		// dayNightCycle();
-
-		// bg = 0.99f;
-		// Gdx.gl.glClearColor(bg, bg, bg, 1.f);
-		Gdx.gl.glClearColor(1, 1, 1, 1.f);
+		bg = dayNightCycle(bg, 0.0005f);
+		bg = 1.f;
+		Gdx.gl.glClearColor(bg, bg, bg, 1.f);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		Gdx.gl.glEnable(GL10.GL_BLEND);
 
@@ -278,34 +267,10 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		{
 			final float deltaTime = Gdx.graphics.getDeltaTime();
 
-			// font.draw(batch, "visible: " + visibleActors.size(), 20, 60);
 			drawHUD();
 
 			player.update(deltaTime);
 			drawPlayer(player, HALF_WIDTH, HALF_HEIGHT, deltaTime);
-
-			// // draw drone
-			// debugDrone.update(Gdx.graphics.getDeltaTime());
-			// final Vector2 dronePos =
-			// getScreenCoordinates(debugDrone.getPos());
-			// drawPlayer(debugDrone, dronePos.x, dronePos.y, deltaTime);
-
-			bg = dayNightCycle(bg, 0.0005f);
-			bg = 1;
-
-			// final int beamWidth = beam.getWidth();
-			// final float dist = player.getPos().dst(debugDrone.getPos()) /
-			// beamWidth;
-			//
-			// final Vector2 ori =
-			// player.getPos().cpy().sub(debugDrone.getPos());
-			// final Vector2 screenPos = getScreenCoordinates(player.getPos());
-			// screenPos.sub(ori.cpy().mul(0.5f));
-			//
-			// batch.setColor(1, 0, 1, bg);
-			// batch.draw(beamRegion, screenPos.x - 16, screenPos.y - 16, 16,
-			// 16, beamWidth, beamWidth, 1f, dist,
-			// (float) VerseUtils.vector2angle(ori));
 
 			if (shooting) {
 				final long time = System.nanoTime() - shootingStart;
@@ -321,51 +286,28 @@ public class VerseGame implements ApplicationListener, IEventListener {
 				}
 			}
 
-			for (final Actor a : visibleActorMap.values()) {
-
-				final Vector2 pos = getScreenCoordinates(a.getPos());
-
-				// final int size = (int) a.getBounds().radius;
-				// pixmap.drawRectangle(0, 0, size, size);
-				// batch.setColor(0, 0, 0, 1);
-				// batch.draw(pixmapTexture, pos.x - 1, pos.y - 1, size + 2,
-				// size + 2);
-				// batch.setColor(1.f, 0.f, 0.f, 1.f);
-				// batch.draw(pixmapTexture, pos.x, pos.y, size, size);
-
-				// batch.setColor(1.f, 1.f, 1.f, 1.f);
-				// batch.draw(planetRegion, pos.x, pos.y, 16, 16, 128, 128,
-				// 0.9f, 0.9f, 0.f);
-
-				// drawObject(cloudRegion, pos.x, pos.y);
-
-				drawActor(a);
-			}
-
-			for (final Actor p : visiblePlayerMap.values()) {
-				// System.out.println("ohter player: " + p.getTargetPos());
-				if (p.getId() == 1) {
-					System.out.println("stop2");
-				}
-				p.update(deltaTime);
-				final Vector2 pos = getScreenCoordinates(p.getPos());
-				drawPlayer(p, pos.x, pos.y, deltaTime);
-			}
+			// for (final Actor p : visiblePlayerMap.values()) {
+			// // System.out.println("ohter player: " + p.getTargetPos());
+			// if (p.getId() == 1) {
+			// System.out.println("stop2");
+			// }
+			// p.update(deltaTime);
+			// final Vector2 pos = getScreenCoordinates(p.getPos());
+			// drawPlayer(p, pos.x, pos.y, deltaTime);
+			// }
 
 			particleEffect.setPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
-			// particleEffect.getEmitters().get(0).getAngle().setHigh(90, 80);
-			// particleEffect.getEmitters().get(0).getAngle().setLow(-90, -80);
-			// particleEffect.getEmitters().get(1).getAngle().setHigh(90, 80);
-			// particleEffect.getEmitters().get(1).getAngle().setLow(-90, -80);
 
 			final float angle = player.getRotationAngle() + 270;
 			for (final ParticleEmitter emitter : particleEffect.getEmitters()) {
 				emitter.getAngle().setHigh(angle);
 			}
-			// particleEffect.getEmitters().get(0).getAngle().setHigh(angle);
-			// particleEffect.getEmitters().get(1).getAngle().setHigh(angle);
 
-			// particleEffect.draw(batch, deltaTime);
+			// ---- new -----
+			for (final Actor actor : actorMap.values()) {
+				actor.update(deltaTime);
+				drawActor(actor, deltaTime);
+			}
 
 		}
 		batch.end();
@@ -399,10 +341,6 @@ public class VerseGame implements ApplicationListener, IEventListener {
 	}
 
 	private void drawPlayer(final Actor p, final float x, final float y, final float deltaTime) {
-		// Gdx.gl.glEnable(GL10.GL_DITHER);
-		// batch.setColor(0.f, 0.f, 0.f, p.getShieldStrength());
-		// batch.draw(shieldRegion, x - 16, y - 16, 16, 16, 32, 32, 0.95f,
-		// 0.95f, 0.f);
 		if (p.getCurSpeed() > 0) {
 			particleEffect.draw(batch, deltaTime);
 		}
@@ -410,27 +348,12 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		batch.draw(shipRegion, x - 16, y - 16, 16, 16, 32, 32, 1, 1, p.getRotationAngle());
 	}
 
-	private void drawObject(final TextureRegion textureRegion, final float x, final float y) {
-		batch.setColor(0.9f, 0.5f, 0.0f, 0.9f);
-		batch.draw(textureRegion, x - 64, y - 64, 64, 64, 128, 128, 1, 1, 0.0f);
-		// batch.setColor(0.9f, 0.9f, 0.9f, 0.9f);
-		// batch.draw(textureRegion, x - 64, y - 64, 64, 64, 128, 128, 0.15f,
-		// 0.15f, 0.0f);
-	}
-
-	private void drawActor(final Actor actor) {
-		final Vector2 pos = getScreenCoordinates(actor.getPos());
-		final float x = pos.x;
-		final float y = pos.y;
-
-		batch.setColor(0.9f, 0.5f, 0.0f, 0.9f);
-
-		final TextureRegion textureRegion = planetRegion;
-
-		// final float radius = actor.getRadius();
-		final float radius = actor.getStats().getCollision_radius();
-		final float diameter = radius * 2.f;
-		batch.draw(textureRegion, x - radius, y - radius, radius, radius, diameter, diameter, 1, 1, 0.0f);
+	private void drawActor(final Actor actor, final float deltaTime) {
+		if (actor.getCurSpeed() > 0) {
+			particleEffect.draw(batch, deltaTime);
+		}
+		batch.setColor(1.f, 0.f, 0.f, 1.f);
+		batch.draw(shipRegion, actor.getX() - 16, actor.getY() - 16, 16, 16, 32, 32, 1, 1, actor.getRotationAngle());
 	}
 
 	private void drawBeam(final Vector2 startPos, final Vector2 endPos, final Vector3 color, final float alpha) {
@@ -448,7 +371,7 @@ public class VerseGame implements ApplicationListener, IEventListener {
 
 	private void drawHUD() {
 		drawDebugInfo();
-		// drawRadar();
+		drawRadar();
 	}
 
 	private void drawDebugInfo() {
@@ -557,6 +480,11 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		actor.setTargetX(movementData.getTargetPosX());
 		actor.setTargetY(movementData.getTargetPosY());
 		actor.setCurSpeed(movementData.getSpeed());
+	}
+
+	private Actor createUnidentifiedActor() {
+		return new Actor(0, "unknown", 0, new Stats(0, "unscanned", 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0), "unscanned",
+				0, 0, 0, 0, 1, 0, 0);
 	}
 
 	public void shutdown() {
@@ -711,7 +639,7 @@ public class VerseGame implements ApplicationListener, IEventListener {
 						updateActor(movementData);
 					} else {
 						// TODO get/request actor
-
+						actorMap.put(movementData.getId(), createUnidentifiedActor());
 					}
 				}
 
