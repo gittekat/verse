@@ -38,7 +38,7 @@ public class VerseExtension extends SFSExtension {
 	private Verse verse;
 
 	private Map<Integer, User> userLookupTable = new HashMap<Integer, User>();
-	private Map<User, Integer> charIdLookupTable = new HashMap<User, Integer>();
+	private Map<User, Integer> actorIdLookupTable = new HashMap<User, Integer>();
 
 	// Keeps a reference to the task execution
 	private ScheduledFuture<?> taskHandle;
@@ -67,7 +67,7 @@ public class VerseExtension extends SFSExtension {
 		addRequestHandler("move", MoveHandler.class);
 		addRequestHandler("test", TestHandler.class);
 
-		DatabaseAccessor.loadAllBlueprints(connection);
+		DatabaseAccessor.preloadActors(connection);
 	}
 
 	private class TaskRunner implements Runnable {
@@ -91,27 +91,28 @@ public class VerseExtension extends SFSExtension {
 				trace("TaskRunner alive with player count: " + playerMap.size());
 			}
 
-			for (final Actor actor : playerMap.values()) {
-				final User user = userLookupTable.get(actor.getId());
+			if (runningCycles % 5 == 0) {
+				// send movement data
+				for (final Actor actor : playerMap.values()) {
+					final User user = userLookupTable.get(actor.getId());
 
-				if (user != null) {
-					final ISFSObject movementData = new SFSObject();
-					movementData.putClass(Interpreter.SFS_OBJ_MOVEMENT_DATA_PLAYER, new MovementData(actor));
+					if (user != null) {
+						final ISFSObject movementData = new SFSObject();
+						movementData.putClass(Interpreter.SFS_OBJ_MOVEMENT_DATA_PLAYER, new MovementData(actor));
 
-					final SFSArray movementDataArray = SFSArray.newInstance();
-					for (final IPositionable other : verse.getVisibleActors(actor)) {
-						if (((Actor) other).getId() == actor.getId()) {
-							continue;
+						final SFSArray movementDataArray = SFSArray.newInstance();
+						for (final IPositionable other : verse.getVisibleActors(actor)) {
+							if (((Actor) other).getId() == actor.getId()) {
+								continue;
+							}
+
+							movementDataArray.addClass(new MovementData((Actor) other));
 						}
 
-						movementDataArray.addClass(new MovementData((Actor) other));
+						// should be true aka udp
+						movementData.putSFSArray(Interpreter.SFS_OBJ_MOVEMENT_DATA, movementDataArray);
+						send(Interpreter.SFS_CMD_MOVEMENT, movementData, user, false);
 					}
-
-					// should be true aka udp
-					movementData.putSFSArray(Interpreter.SFS_OBJ_MOVEMENT_DATA, movementDataArray);
-					// System.out.println("movementDataArray" +
-					// movementDataArray.size());
-					send(Interpreter.SFS_CMD_MOVEMENT, movementData, user, false);
 				}
 			}
 		}
@@ -154,27 +155,23 @@ public class VerseExtension extends SFSExtension {
 		return verse;
 	}
 
-	// public Map<Integer, User> getUserLookupTable() {
-	// return userLookupTable;
-	// }
-
-	public void addUser(final int charId, final User user) {
-		userLookupTable.put(charId, user);
-		charIdLookupTable.put(user, charId);
+	public void addUser(final int actorId, final User user) {
+		userLookupTable.put(actorId, user);
+		actorIdLookupTable.put(user, actorId);
 	}
 
 	public Integer removeUser(final User user) {
-		final Integer charId = charIdLookupTable.get(user);
-		userLookupTable.remove(charId);
-		charIdLookupTable.remove(user);
-		return charId;
+		final Integer actorId = actorIdLookupTable.get(user);
+		userLookupTable.remove(actorId);
+		actorIdLookupTable.remove(user);
+		return actorId;
 	}
 
-	public Integer getCharId(final User user) {
-		return charIdLookupTable.get(user);
+	public Integer getActorId(final User user) {
+		return actorIdLookupTable.get(user);
 	}
 
-	public User getUser(final Integer charId) {
-		return userLookupTable.get(charId);
+	public User getUser(final Integer actorId) {
+		return userLookupTable.get(actorId);
 	}
 }

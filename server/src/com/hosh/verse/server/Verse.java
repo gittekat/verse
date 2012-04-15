@@ -85,7 +85,6 @@ public class Verse {
 
 	public void movePlayer(final Integer id, final Float targetPosX, final Float targetPosY, final Float speed) {
 		final Actor player = playerControlled.get(id);
-		// player.setTargetPos(new Vector2(targetPosX, targetPosY));
 		player.setTargetPos(targetPosX, targetPosY);
 		player.setCurSpeed(speed);
 	}

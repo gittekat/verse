@@ -40,43 +40,20 @@ public class DatabaseAccessor {
 			+ " SET owner = ?, name = ?, blueprint = ?, hero = ?, exp = ?, x = ?, y = ?, heading = ?, curHp = ?, curShield = ?, kills = ? WHERE id = ?";
 
 	static Map<Integer, Stats> blueprintCache = new HashMap<Integer, Stats>();
+	static Map<Integer, Actor> actorCache = new HashMap<Integer, Actor>();
 	private static boolean blueprintsLoaded = false;
+	private static boolean actorsLoaded = false;
 
-	// @Deprecated
-	// public static VerseActor loadVerseActor(final Connection dbConnection,
-	// final String charId) {
-	// PreparedStatement stmt;
-	// try {
-	// stmt =
-	// dbConnection.prepareStatement("SELECT * FROM characters WHERE charId=?");
-	// stmt.setString(1, charId);
-	//
-	// final ResultSet res = stmt.executeQuery();
-	// if (!res.first()) {
-	// return null;
-	// }
-	//
-	// final String charName = res.getString(DBID_CHAR_NAME);
-	// final int id = res.getInt(DBID_CHAR_ID);
-	// final int exp = res.getInt(DBID_EXP);
-	// final int x = res.getInt(DBID_POS_X);
-	// final int y = res.getInt(DBID_POS_Y);
-	// final int heading = res.getInt(HEADING);
-	// final int maxHp = res.getInt(DBID_MAX_HP);
-	// final int curHp = res.getInt(DBID_CUR_HP);
-	// final float collision_radius = res.getInt(DBID_COLLISION_RADIUS);
-	//
-	// return new VerseActor(id, charName, exp, 0, maxHp, curHp, x, y, heading,
-	// collision_radius);
-	//
-	// } catch (final SQLException e) {
-	// e.printStackTrace();
-	// }
-	//
-	// return null;
-	// }
+	public static void preloadActors(final Connection dbConnection) {
+		loadAllBlueprints(dbConnection);
+		loadActors(dbConnection);
+	}
 
 	public static Actor loadActor(final Connection dbConnection, final int actorId) {
+		if (actorCache.containsKey(actorId)) {
+			return actorCache.get(actorId);
+		}
+
 		PreparedStatement stmt;
 		try {
 			stmt = dbConnection.prepareStatement(LOAD_ACTOR_QUERY);
@@ -98,8 +75,13 @@ public class DatabaseAccessor {
 
 	public static Actor loadActor(final Connection dbConnection, final ResultSet res) {
 		try {
-			final String owner = res.getString(Actor.DBID_OWNER);
 			final int id = res.getInt(Actor.DBID_ID);
+
+			if (actorCache.containsKey(id)) {
+				return actorCache.get(id);
+			}
+
+			final String owner = res.getString(Actor.DBID_OWNER);
 			final int blueprint = res.getInt(Actor.DBID_BLUEPRINT);
 			final int hero = res.getInt(Actor.DBID_HERO);
 			final String name = res.getString(Actor.DBID_NAME);
@@ -118,7 +100,11 @@ public class DatabaseAccessor {
 				blueprintStats = loadBlueprint(dbConnection, blueprint);
 			}
 
-			return new Actor(id, owner, hero, blueprintStats, name, exp, x, y, heading, curHp, curShield, kills);
+			final Actor actor = new Actor(id, owner, hero, blueprintStats, name, exp, x, y, heading, curHp, curShield, kills);
+
+			actorCache.put(id, actor);
+
+			return actor;
 
 		} catch (final SQLException e) {
 			e.printStackTrace();
@@ -146,6 +132,7 @@ public class DatabaseAccessor {
 			e.printStackTrace();
 		}
 
+		actorsLoaded = true;
 		return actorList;
 	}
 
@@ -302,6 +289,13 @@ public class DatabaseAccessor {
 			loadAllBlueprints(dbConnection);
 		}
 		return blueprintCache;
+	}
+
+	public static Map<Integer, Actor> getActorCache(final Connection dbConnection) {
+		if (!actorsLoaded) {
+			loadActors(dbConnection);
+		}
+		return actorCache;
 	}
 
 	// TODO doesn't belong here

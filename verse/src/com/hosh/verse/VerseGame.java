@@ -137,6 +137,10 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		Gdx.graphics.setIcon(pixmaps);
 
 		readConfig();
+		// userName = "emmel";
+		// password = "109";
+		// serverMessage = "id: ?19? user: " + userName;
+
 		WIDTH = Gdx.graphics.getWidth();
 		HEIGHT = Gdx.graphics.getHeight();
 		HALF_WIDTH = WIDTH / 2;
@@ -266,8 +270,6 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		{
 			final float deltaTime = Gdx.graphics.getDeltaTime();
 
-			drawHUD();
-
 			player.update(deltaTime);
 			drawPlayer(player, HALF_WIDTH, HALF_HEIGHT, deltaTime);
 
@@ -285,16 +287,6 @@ public class VerseGame implements ApplicationListener, IEventListener {
 				}
 			}
 
-			// for (final Actor p : visiblePlayerMap.values()) {
-			// // System.out.println("ohter player: " + p.getTargetPos());
-			// if (p.getId() == 1) {
-			// System.out.println("stop2");
-			// }
-			// p.update(deltaTime);
-			// final Vector2 pos = getScreenCoordinates(p.getPos());
-			// drawPlayer(p, pos.x, pos.y, deltaTime);
-			// }
-
 			particleEffect.setPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
 
 			final float angle = player.getRotationAngle() + 270;
@@ -302,11 +294,16 @@ public class VerseGame implements ApplicationListener, IEventListener {
 				emitter.getAngle().setHigh(angle);
 			}
 
-			// ---- new -----
 			for (final Actor actor : actorMap.values()) {
+				final float x = actor.getX();
 				actor.update(deltaTime);
+				if (x != actor.getX()) {
+					System.out.println("stops");
+				}
 				drawActor(actor, deltaTime);
 			}
+
+			drawHUD();
 
 		}
 		batch.end();
@@ -338,16 +335,6 @@ public class VerseGame implements ApplicationListener, IEventListener {
 
 		return pos;
 	}
-
-	// private Vector2 getScreenCoordinates(final float x, final float y) {
-	// final Vector2 pos = new Vector2(x, y);
-	// pos.sub(player.getPos());
-	//
-	// // screen coordinates
-	// pos.set(HALF_WIDTH + pos.x, HALF_HEIGHT + pos.y);
-	//
-	// return pos;
-	// }
 
 	private void drawPlayer(final Actor p, final float x, final float y, final float deltaTime) {
 		if (p.getCurSpeed() > 0) {
@@ -434,8 +421,8 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		final Vector2 touchPos = new Vector2(touchPoint.x, touchPoint.y);
 		System.out.println(touchPoint.x + " x " + touchPoint.y);
 
-		final float posX = player.getPos().x;
-		final float posY = player.getPos().y;
+		final float posX = player.getX();
+		final float posY = player.getY();
 		final Vector2 targetPos = new Vector2(posX + touchPos.x, posY + touchPos.y);
 		serverMessage = "" + (int) targetPos.x + " x " + (int) targetPos.y;
 
@@ -651,56 +638,16 @@ public class VerseGame implements ApplicationListener, IEventListener {
 					final int id = movementData.getId();
 					if (actorMap.containsKey(id)) {
 						updateActor(actorMap.get(id), movementData);
+						// if (movementData.getTargetPosX() !=
+						// movementData.getPosX()) {
+						// System.out.println("stopHere");
+						// }
 					} else {
 						// TODO get/request actor
 						actorMap.put(id, createUnidentifiedActor());
 					}
 				}
-
-				// final MovementData movementData = (MovementData)
-				// resObj.getClass(Interpreter.SFS_OBJ_MOVEMENT_DATA);
 			}
-
-			// if ("playerData".equals(cmd)) {
-			// ISFSObject resObj = new SFSObject();
-			// resObj = (ISFSObject) event.getArguments().get("params");
-			//
-			// final Float x = resObj.getFloat("x");
-			// final Float y = resObj.getFloat("y");
-			// final Vector2 posVector = new Vector2(x, y);
-			// player.setPos(posVector);
-			// }
-			//
-			// if ("actor".equals(cmd)) {
-			// ISFSObject resObj = new SFSObject();
-			// resObj = (ISFSObject) event.getArguments().get("params");
-			// final int charId = resObj.getInt(VerseActor.CHAR_ID);
-			//
-			// if (!visibleActorMap.containsKey(charId)) {
-			// // TODO wenn unbekannt, dann beim server details nachfrage,
-			// // anstatt immer alles zu versenden!
-			// final VerseActor actor = Interpreter.updateActor(null, resObj);
-			// visibleActorMap.put(actor.getCharId(), actor);
-			// } else {
-			// Interpreter.updateActor(visibleActorMap.get(charId), resObj);
-			// }
-			// }
-			//
-			// if ("player".equals(cmd)) {
-			// ISFSObject resObj = new SFSObject();
-			// resObj = (ISFSObject) event.getArguments().get("params");
-			// final int charId = resObj.getInt(VerseActor.CHAR_ID);
-			//
-			// if (!visiblePlayerMap.containsKey(charId)) {
-			// // TODO wenn unbekannt, dann beim server details nachfrage,
-			// // anstatt immer alles zu versenden!
-			// final VerseActor actor = Interpreter.updateActor(null, resObj);
-			// visiblePlayerMap.put(actor.getCharId(), actor);
-			// } else {
-			// Interpreter.updateActor(visiblePlayerMap.get(charId), resObj);
-			// }
-			//
-			// }
 		}
 	}
 }

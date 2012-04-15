@@ -70,4 +70,9 @@ public class MovementData implements SerializableSFSType {
 	public void setSpeed(final float speed) {
 		this.speed = speed;
 	}
+
+	@Override
+	public String toString() {
+		return "pos:" + posX + " " + posY + " target:" + targetPosX + " " + targetPosY;
+	}
 }

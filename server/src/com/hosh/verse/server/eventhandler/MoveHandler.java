@@ -21,9 +21,9 @@ public class MoveHandler extends BaseClientRequestHandler {
 		final Float targetY = params.getFloat(Actor.SFSID_TARGET_Y);
 		final Float speed = params.getFloat(Actor.SFSID_CUR_SPEED);
 
-		final Integer charId = verseExt.getCharId(user);
-		verse.movePlayer(charId, targetX, targetY, speed);
-		trace("target pos set to (" + charId + "): " + targetX + " x " + targetY);
+		final Integer actorId = verseExt.getActorId(user);
+		verse.movePlayer(actorId, targetX, targetY, speed);
+		trace("target pos set to (" + actorId + "): " + targetX + " x " + targetY);
 
 	}
 }
