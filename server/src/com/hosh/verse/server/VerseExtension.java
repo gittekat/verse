@@ -53,7 +53,7 @@ public class VerseExtension extends SFSExtension {
 			trace(ExtensionLogLevel.ERROR, "database connection failed!");
 		}
 
-		verse = new Verse(connection, 1000, 1000);
+		verse = new Verse(connection, 10000, 10000);
 
 		final SmartFoxServer sfs = SmartFoxServer.getInstance();
 		// Schedule the task to run every second, with no initial delay
@@ -95,49 +95,22 @@ public class VerseExtension extends SFSExtension {
 				final User user = userLookupTable.get(actor.getId());
 
 				if (user != null) {
+					final ISFSObject movementData = new SFSObject();
+					movementData.putClass(Interpreter.SFS_OBJ_MOVEMENT_DATA_PLAYER, new MovementData(actor));
+
 					final SFSArray movementDataArray = SFSArray.newInstance();
-					if (runningCycles % 5 == 0) {
-						// final ISFSObject playerData = new SFSObject();
-						// playerData.putFloat("x", actor.getPos().x);
-						// playerData.putFloat("y", actor.getPos().y);
-						// send("playerData", playerData, user, false);
-
-						// final ISFSObject moveData = new SFSObject();
-						// moveData.putClass(Interpreter.SFS_OBJ_MOVEMENT_DATA,
-						// new MovementData(actor));
-						//
-						// // should be true aka udp
-						// send(Interpreter.SFS_CMD_MOVEMENT, moveData, user,
-						// false);
-
-						movementDataArray.addClass(new MovementData(actor));
-					}
-
-					if (runningCycles % 6 == 0) {
-						for (final IPositionable other : verse.getVisibleActors(actor)) {
-							if (((Actor) other).getId() == actor.getId()) {
-								continue;
-							}
-							// TODO send others
-							// send("actor",
-							// Interpreter.createSFSObject(others), user,
-							// false);
-
-							// final ISFSObject moveData = new SFSObject();
-							// moveData.putClass(Interpreter.SFS_OBJ_MOVEMENT_DATA,
-							// new MovementData((Actor) other));
-							//
-							// // should be true aka udp
-							// send(Interpreter.SFS_CMD_MOVEMENT, moveData,
-							// user, false);
-
-							movementDataArray.addClass(new MovementData((Actor) other));
+					for (final IPositionable other : verse.getVisibleActors(actor)) {
+						if (((Actor) other).getId() == actor.getId()) {
+							continue;
 						}
+
+						movementDataArray.addClass(new MovementData((Actor) other));
 					}
 
 					// should be true aka udp
-					final ISFSObject movementData = new SFSObject();
 					movementData.putSFSArray(Interpreter.SFS_OBJ_MOVEMENT_DATA, movementDataArray);
+					// System.out.println("movementDataArray" +
+					// movementDataArray.size());
 					send(Interpreter.SFS_CMD_MOVEMENT, movementData, user, false);
 				}
 			}

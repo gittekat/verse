@@ -81,7 +81,7 @@ public class DatabaseTest {
 		final List<Actor> actors = DatabaseAccessor.loadActors(connection);
 
 		for (final Actor actor : actors) {
-			System.out.println(actor.getName());
+			System.out.println(actor);
 		}
 	}
 

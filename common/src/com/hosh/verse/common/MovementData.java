@@ -1,6 +1,8 @@
 package com.hosh.verse.common;
 
-public class MovementData {
+import com.smartfoxserver.v2.protocol.serialization.SerializableSFSType;
+
+public class MovementData implements SerializableSFSType {
 	private int id;
 	private float posX;
 	private float posY;

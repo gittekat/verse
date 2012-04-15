@@ -11,6 +11,7 @@ public class Interpreter {
 	public static final String SFS_OBJ_BLUEPRINTS = "objBlueprints";
 	public static final String SFS_OBJ_PLAYER_DATA = "objPlayerData";
 	public static final String SFS_OBJ_MOVEMENT_DATA = "objMoveData";
+	public static final String SFS_OBJ_MOVEMENT_DATA_PLAYER = "objMovePlayer";
 
 	@Deprecated
 	public static VerseActor updateActor(final VerseActor actor, final ISFSObject actorObj) {

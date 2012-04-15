@@ -194,6 +194,7 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		particleEffect = new ParticleEffect();
 		particleEffect.load(Gdx.files.internal(PARTICLE_EFFECT), Gdx.files.internal(""));
 
+		actorMap = new HashMap<Integer, Actor>();
 		shooting = false;
 
 		initSmartFox();
@@ -207,8 +208,6 @@ public class VerseGame implements ApplicationListener, IEventListener {
 				e.printStackTrace();
 			}
 		}
-
-		actorMap = new HashMap<Integer, Actor>();
 
 	}
 
@@ -340,6 +339,16 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		return pos;
 	}
 
+	// private Vector2 getScreenCoordinates(final float x, final float y) {
+	// final Vector2 pos = new Vector2(x, y);
+	// pos.sub(player.getPos());
+	//
+	// // screen coordinates
+	// pos.set(HALF_WIDTH + pos.x, HALF_HEIGHT + pos.y);
+	//
+	// return pos;
+	// }
+
 	private void drawPlayer(final Actor p, final float x, final float y, final float deltaTime) {
 		if (p.getCurSpeed() > 0) {
 			particleEffect.draw(batch, deltaTime);
@@ -353,7 +362,10 @@ public class VerseGame implements ApplicationListener, IEventListener {
 			particleEffect.draw(batch, deltaTime);
 		}
 		batch.setColor(1.f, 0.f, 0.f, 1.f);
-		batch.draw(shipRegion, actor.getX() - 16, actor.getY() - 16, 16, 16, 32, 32, 1, 1, actor.getRotationAngle());
+		final Vector2 screenPos = getScreenCoordinates(actor.getPos());
+
+		// TODO size of model
+		batch.draw(shipRegion, screenPos.x - 16, screenPos.y - 16, 16, 16, 32, 32, 1, 1, actor.getRotationAngle());
 	}
 
 	private void drawBeam(final Vector2 startPos, final Vector2 endPos, final Vector3 color, final float alpha) {
@@ -473,8 +485,7 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		}
 	}
 
-	private void updateActor(final MovementData movementData) {
-		final Actor actor = actorMap.get(movementData.getId());
+	private void updateActor(final Actor actor, final MovementData movementData) {
 		actor.setX(movementData.getPosX());
 		actor.setY(movementData.getPosY());
 		actor.setTargetX(movementData.getTargetPosX());
@@ -631,15 +642,18 @@ public class VerseGame implements ApplicationListener, IEventListener {
 				ISFSObject resObj = new SFSObject();
 				resObj = (ISFSObject) event.getArguments().get("params");
 
-				// actorMap = new HashMap<Integer, Actor>();
+				final MovementData movementPlayer = (MovementData) resObj.getClass(Interpreter.SFS_OBJ_MOVEMENT_DATA_PLAYER);
+				updateActor(player, movementPlayer);
+
 				final ISFSArray movementDataArray = resObj.getSFSArray(Interpreter.SFS_OBJ_MOVEMENT_DATA);
 				for (int i = 0; i < movementDataArray.size(); ++i) {
 					final MovementData movementData = (MovementData) movementDataArray.getClass(i);
-					if (actorMap.containsKey(movementData.getId())) {
-						updateActor(movementData);
+					final int id = movementData.getId();
+					if (actorMap.containsKey(id)) {
+						updateActor(actorMap.get(id), movementData);
 					} else {
 						// TODO get/request actor
-						actorMap.put(movementData.getId(), createUnidentifiedActor());
+						actorMap.put(id, createUnidentifiedActor());
 					}
 				}
 

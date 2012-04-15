@@ -375,7 +375,8 @@ public class Actor implements IPositionable, SerializableSFSType {
 
 	@Override
 	public String toString() {
-		return "Name:" + getName() + " Owner:" + getOwner() + " Pos:" + getPos() + " Hp:" + getCurHp() + " Shield:" + getCurShield();
+		return "Id:" + id + " Pos:" + getPos() + " Hp:" + getCurHp() + " Shield:" + getCurShield() + " Name:" + getName() + " Owner:"
+				+ getOwner();
 	}
 
 	@Override

@@ -35,6 +35,7 @@ public class Verse {
 
 		for (final Actor actor : actorList) {
 			grid.addEntity(actor);
+			System.out.println(actor.getPos());
 		}
 
 	}
@@ -61,7 +62,7 @@ public class Verse {
 	}
 
 	public List<IPositionable> getVisibleActors(final Actor player) {
-		final int visibleRadius = 10;
+		final int visibleRadius = 200;
 		final int actorPosX = (int) player.getPos().x;
 		final int actorPosY = (int) player.getPos().y;
 
