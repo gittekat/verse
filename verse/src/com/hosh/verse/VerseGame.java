@@ -45,6 +45,7 @@ import com.hosh.verse.common.CollisionChecker;
 import com.hosh.verse.common.Interpreter;
 import com.hosh.verse.common.MovementData;
 import com.hosh.verse.common.Stats;
+import com.hosh.verse.common.utils.ActorUtils;
 import com.hosh.verse.common.utils.VerseUtils;
 import com.hosh.verse.input.IVerseInputProcessor;
 import com.hosh.verse.input.VersePlayerInputProcessor;
@@ -198,7 +199,7 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		particleEffect = new ParticleEffect();
 		particleEffect.load(Gdx.files.internal(PARTICLE_EFFECT), Gdx.files.internal(""));
 
-		actorMap = new HashMap<Integer, Actor>();
+		actorMap = new ConcurrentHashMap<Integer, Actor>();
 		shooting = false;
 
 		initSmartFox();
@@ -472,19 +473,6 @@ public class VerseGame implements ApplicationListener, IEventListener {
 		}
 	}
 
-	private void updateActor(final Actor actor, final MovementData movementData) {
-		actor.setX(movementData.getPosX());
-		actor.setY(movementData.getPosY());
-		actor.setTargetX(movementData.getTargetPosX());
-		actor.setTargetY(movementData.getTargetPosY());
-		actor.setCurSpeed(movementData.getSpeed());
-	}
-
-	private Actor createUnidentifiedActor() {
-		return new Actor(0, "unknown", 0, new Stats(0, "unscanned", 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0), "unscanned",
-				0, 0, 0, 0, 1, 0, 0);
-	}
-
 	public void shutdown() {
 		shutdownSmartFox();
 		Gdx.app.exit();
@@ -630,21 +618,20 @@ public class VerseGame implements ApplicationListener, IEventListener {
 				resObj = (ISFSObject) event.getArguments().get("params");
 
 				final MovementData movementPlayer = (MovementData) resObj.getClass(Interpreter.SFS_OBJ_MOVEMENT_DATA_PLAYER);
-				updateActor(player, movementPlayer);
+				ActorUtils.updateActor(player, movementPlayer);
 
 				final ISFSArray movementDataArray = resObj.getSFSArray(Interpreter.SFS_OBJ_MOVEMENT_DATA);
 				for (int i = 0; i < movementDataArray.size(); ++i) {
 					final MovementData movementData = (MovementData) movementDataArray.getClass(i);
 					final int id = movementData.getId();
 					if (actorMap.containsKey(id)) {
-						updateActor(actorMap.get(id), movementData);
-						// if (movementData.getTargetPosX() !=
-						// movementData.getPosX()) {
-						// System.out.println("stopHere");
-						// }
+						if (movementData.getTargetPosX() != movementData.getPosX() && movementData.getSpeed() > 0) {
+							System.out.println("stopHere");
+						}
+						ActorUtils.updateActor(actorMap.get(id), movementData);
 					} else {
 						// TODO get/request actor
-						actorMap.put(id, createUnidentifiedActor());
+						actorMap.put(id, ActorUtils.createUnidentifiedActor(movementData));
 					}
 				}
 			}

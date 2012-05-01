@@ -51,7 +51,7 @@ public class Verse {
 				((Actor) a).getName();
 				if (!((Actor) a).equals(actor) && CollisionChecker.collisionActorActor(actor, (Actor) a)) {
 					collidedList.add(a);
-					System.out.println("collision!!!");
+					// System.out.println("collision!!!");
 				}
 			}
 		}
